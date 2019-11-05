@@ -42,3 +42,6 @@
 
 # Python
 *.pyc
+
+# Environment Variables
+.env
