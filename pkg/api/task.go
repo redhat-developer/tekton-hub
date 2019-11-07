@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/backend/pkg/polling"
+	"github.com/Pipelines-Marketplace/backend/pkg/polling"
 )
 
 var client, ctx = polling.Authenticate()

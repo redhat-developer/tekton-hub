@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/backend/pkg/api"
+	"github.com/Pipelines-Marketplace/backend/pkg/api"
 	"github.com/gorilla/mux"
 )
 
