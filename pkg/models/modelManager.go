@@ -15,7 +15,8 @@ import (
 var DB *gorm.DB
 
 func CreateDatabase() {
-	db, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable")
+	// db, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable")
+	db, err := gorm.Open("postgres", "host=localhost port=15432 user=postgres dbname=sample password=postgres sslmode=disable")
 	DB = db
 	if err != nil {
 		panic(err)
@@ -27,7 +28,7 @@ func CreateDatabase() {
 	}
 	println("Successful Connection")
 	// Migrate to Schema
-	// db.AutoMigrate(&Task{})
+	// db.CreateTable(&Task{})
 }
 func AddContentsToDB() {
 	task := Task{}
@@ -53,7 +54,10 @@ func AddContentsToDB() {
 					if err != nil {
 						log.Fatalln(err)
 					}
-					task.Description = task.Description[0:300]
+					task.Description = file.GetDownloadURL()
+				}
+				if strings.HasSuffix(file.GetName(), ".yaml") {
+					task.YAML = file.GetDownloadURL()
 				}
 			}
 			println(task.Name)

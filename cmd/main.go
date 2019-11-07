@@ -14,5 +14,6 @@ func main() {
 	models.CreateDatabase()
 	// models.AddContentsToDB()
 	router.HandleFunc("/tasks", api.GetAllTasks).Methods("GET")
+	router.HandleFunc("/task/{name}", api.GetTaskWithID).Methods("GET")
 	http.ListenAndServe(":5000", router)
 }
