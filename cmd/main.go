@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/backend/pkg/api"
-	"github.com/backend/pkg/models"
+	"github.com/Pipelines-Marketplace/backend/pkg/api"
+	"github.com/Pipelines-Marketplace/backend/pkg/models"
 	"github.com/gorilla/mux"
 )
 

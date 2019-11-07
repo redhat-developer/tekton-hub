@@ -3,9 +3,7 @@ This file provides utilify funcitons for task APIs
 */
 package api
 
-import (
-	"github.com/backend/pkg/models"
-)
+import "github.com/Pipelines-Marketplace/backend/pkg/models"
 
 // query for all tasks
 func allTasks() []models.Task {
