@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/backend/pkg/polling"
+	"github.com/Pipelines-Marketplace/backend/pkg/polling"
 	"github.com/google/go-github/github"
 )
 

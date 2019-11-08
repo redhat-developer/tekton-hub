@@ -4,8 +4,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/backend/pkg/polling"
-	"github.com/backend/pkg/utility"
+	"github.com/Pipelines-Marketplace/backend/pkg/polling"
+	"github.com/Pipelines-Marketplace/backend/pkg/utility"
 	"github.com/jinzhu/gorm"
 
 	// Blank for package side effect( Calling init() )
