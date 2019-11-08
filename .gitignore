@@ -45,3 +45,6 @@
 
 # Environment Variables
 .env
+
+# Zip files
+*.zip
