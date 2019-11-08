@@ -7,12 +7,15 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Pipelines-Marketplace/backend/pkg/polling"
+	"github.com/gorilla/mux"
 )
-
-var client, ctx = polling.Authenticate()
 
 func GetAllTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(allTasks())
+}
+
+func GetTaskWithID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(getTask(mux.Vars(r)["name"]))
 }
