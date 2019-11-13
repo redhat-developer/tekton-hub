@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/Pipelines-Marketplace/backend/pkg/api"
@@ -11,9 +12,12 @@ import (
 func main() {
 	router := mux.NewRouter()
 	// Add new routers
-	models.CreateDatabase()
+	if err := models.StartConnection(); err != nil {
+		log.Fatalln(err)
+	}
+	// models.CreateDatabase()
 	// models.AddContentsToDB()
 	router.HandleFunc("/tasks", api.GetAllTasks).Methods("GET")
-	router.HandleFunc("/task/{name}", api.GetTaskWithID).Methods("GET")
+	router.HandleFunc("/task/{name}", api.GetTaskFiles).Methods("GET")
 	http.ListenAndServe(":5000", router)
 }
