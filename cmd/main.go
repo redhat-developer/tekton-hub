@@ -17,7 +17,10 @@ func main() {
 	}
 	// models.CreateDatabase()
 	// models.AddContentsToDB()
-	router.HandleFunc("/tasks", api.GetAllTasks).Methods("GET")
 	router.HandleFunc("/task/{name}", api.GetTaskFiles).Methods("GET")
+	router.HandleFunc("/tags", api.GetAllTags).Methods("GET")
+	// router.HandleFunc("/tasks?{tags:list}", api.GetAllFilteredTasks).Methods("GET")
+	router.Path("/tasks").Queries("tags", "{tags}").HandlerFunc(api.GetAllFilteredTasks).Methods("GET")
+	router.HandleFunc("/tasks", api.GetAllTasks).Methods("GET")
 	http.ListenAndServe(":5000", router)
 }

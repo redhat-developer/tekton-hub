@@ -20,8 +20,8 @@ var DB *gorm.DB
 // StartConnection will start a new database connection
 func StartConnection() error {
 	// Connect to PostgreSQL on Openshift
-	db, err := gorm.Open("postgres", "host=localhost port=15432 user=postgres dbname=marketplace password=postgres sslmode=disable")
-	// db, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=marketplace password=postgres sslmode=disable")
+	// db, err := gorm.Open("postgres", "host=localhost port=15432 user=postgres dbname=marketplace password=postgres sslmode=disable")
+	db, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=marketplace password=postgres sslmode=disable")
 	DB = db
 	if err != nil {
 		return err
