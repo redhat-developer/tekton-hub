@@ -7,23 +7,8 @@ import (
 
 // TaskTags represents many-many between Task and Tag models
 type TaskTags struct {
-	TaskID int
-	TagID  int
-}
-
-// T ds
-type T struct {
-	ID          int
-	Name        string
-	Description string
-	Downloads   int
-	Ratings     float64
-}
-
-func increment(n *int) int {
-	// log.Println(*n)
-	*n = *n + 1
-	return *n
+	TaskID int `json:"taskID"`
+	TagID  int `json:"tagID"`
 }
 
 // GetAllTasksWithGivenTags queries for all tasks with given tags
@@ -33,7 +18,7 @@ func GetAllTasksWithGivenTags(tags []string) []Task {
 	for index, value := range tags {
 		args[index] = value
 	}
-	// n := 1
+
 	params := `$1`
 	for index := 1; index <= len(tags); index++ {
 		if index > 1 {

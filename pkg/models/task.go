@@ -7,12 +7,12 @@ import (
 
 // Task is a database model representing task data
 type Task struct {
-	ID          int
-	Name        string
-	Description string
-	Downloads   int
-	Rating      float64
-	Github      string
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Downloads   int     `json:"downloads"`
+	Rating      float64 `json:"rating"`
+	Github      string  `json:"github"`
 }
 
 func addTask(task *Task) {
