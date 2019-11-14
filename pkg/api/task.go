@@ -1,6 +1,3 @@
-/*
-Package api handles the API requests related to tasks
-*/
 package api
 
 import (
@@ -15,13 +12,13 @@ import (
 // GetAllTasks writes json encoded tasks to ResponseWriter
 func GetAllTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(allTasks())
+	json.NewEncoder(w).Encode(models.GetAllTasks())
 }
 
-// GetTaskWithID writes json encoded task to ResponseWriter
-func GetTaskWithID(w http.ResponseWriter, r *http.Request) {
+// GetTaskByID writes json encoded task to ResponseWriter
+func GetTaskByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(getTask(mux.Vars(r)["name"]))
+	json.NewEncoder(w).Encode(models.GetTaskWithName(mux.Vars(r)["id"]))
 }
 
 // GetTaskFiles returns a compressed zip with task files

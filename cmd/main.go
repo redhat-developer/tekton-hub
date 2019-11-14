@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Pipelines-Marketplace/backend/pkg/api"
 	"github.com/Pipelines-Marketplace/backend/pkg/models"
+	"github.com/Pipelines-Marketplace/backend/routers"
 	"github.com/gorilla/mux"
 )
 
@@ -15,12 +15,7 @@ func main() {
 	if err := models.StartConnection(); err != nil {
 		log.Fatalln(err)
 	}
-	// models.CreateDatabase()
 	// models.AddContentsToDB()
-	router.HandleFunc("/task/{name}", api.GetTaskFiles).Methods("GET")
-	router.HandleFunc("/tags", api.GetAllTags).Methods("GET")
-	// router.HandleFunc("/tasks?{tags:list}", api.GetAllFilteredTasks).Methods("GET")
-	router.Path("/tasks").Queries("tags", "{tags}").HandlerFunc(api.GetAllFilteredTasks).Methods("GET")
-	router.HandleFunc("/tasks", api.GetAllTasks).Methods("GET")
+	routers.HandleRouters(router)
 	http.ListenAndServe(":5000", router)
 }

@@ -10,12 +10,17 @@ type Tag struct {
 
 // GetAllTags will query for all tags
 func GetAllTags() []Tag {
-	tag := []Tag{}
-	if DB.HasTable([]Tag{}) {
-		log.Println("Table exists!!")
+	tags := []Tag{}
+	sqlStatement := `
+	SELECT * FROM TAG;`
+	rows, err := DB.Query(sqlStatement)
+	for rows.Next() {
+		tag := Tag{}
+		err = rows.Scan(&tag.ID, &tag.Name)
+		if err != nil {
+			log.Println(err)
+		}
+		tags = append(tags, tag)
 	}
-	err := DB.Find(&tag).RecordNotFound()
-	log.Println(err)
-	log.Println(tag)
-	return tag
+	return tags
 }
