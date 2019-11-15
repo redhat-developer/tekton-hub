@@ -3,6 +3,7 @@ package models
 import (
 	"bufio"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -20,9 +21,18 @@ var DB *sql.DB
 
 // StartConnection will start a new database connection
 func StartConnection() error {
+	var (
+		host     = "localhost"
+		port     = 5432
+		user     = os.Getenv("POSTGRESQL_USERNAME")
+		password = os.Getenv("POSTGRESQL_PASSWORD")
+		dbname   = os.Getenv("POSTGRESQL_DATABASE")
+	)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
 	// Connect to PostgreSQL on Openshift
-	// db, err := sql.Open("postgres", "host=localhost port=15432 user=postgres dbname=marketplace password=postgres sslmode=disable")
-	db, err := sql.Open("postgres", "host=localhost port=5432 user=postgres dbname=marketplace password=postgres sslmode=disable")
+	db, err := sql.Open("postgres", psqlInfo)
 	DB = db
 	if err != nil {
 		return err
