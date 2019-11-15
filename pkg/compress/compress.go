@@ -50,9 +50,6 @@ func AddFileToZip(zipWriter *zip.Writer, file os.FileInfo, dir string) error {
 	if err != nil {
 		return err
 	}
-
-	// Using FileInfoHeader() above only uses the basename of the file. If we want
-	// to preserve the folder structure we can overwrite this with the full path.
 	header.Name = file.Name()
 
 	header.Method = zip.Deflate

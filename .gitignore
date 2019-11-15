@@ -48,3 +48,6 @@
 
 # Zip files
 *.zip
+
+*.sql
+*.dump

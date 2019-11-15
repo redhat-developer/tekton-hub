@@ -1,6 +1,8 @@
 package models
 
 import (
+	"bufio"
+	"database/sql"
 	"log"
 	"os"
 	"strings"
@@ -8,37 +10,30 @@ import (
 	"github.com/Pipelines-Marketplace/backend/pkg/polling"
 	"github.com/Pipelines-Marketplace/backend/pkg/utility"
 	"github.com/google/go-github/github"
-	"github.com/jinzhu/gorm"
 
-	// Blank for package side effect( Calling init() )
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	// Blank for package side effect
+	_ "github.com/lib/pq"
 )
 
-// DB is a PostgreSQL gorm object
-var DB *gorm.DB
+// DB is a PostgreSQL object
+var DB *sql.DB
 
 // StartConnection will start a new database connection
 func StartConnection() error {
 	// Connect to PostgreSQL on Openshift
-	db, err := gorm.Open("postgres", "host=localhost port=15432 user=postgres dbname=marketplace password=postgres sslmode=disable")
-	// db, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=marketplace password=postgres sslmode=disable")
+	// db, err := sql.Open("postgres", "host=localhost port=15432 user=postgres dbname=marketplace password=postgres sslmode=disable")
+	db, err := sql.Open("postgres", "host=localhost port=5432 user=postgres dbname=marketplace password=postgres sslmode=disable")
 	DB = db
 	if err != nil {
 		return err
 	}
 	// defer db.Close()
-	err = db.DB().Ping()
+	err = DB.Ping()
 	if err != nil {
 		return err
 	}
 	println("Successful Connection")
 	return nil
-}
-
-// CreateTaskTable creates a new table of type Task{}
-func CreateTaskTable() {
-	// Migrate to Schema
-	DB.CreateTable(&Task{})
 }
 
 func storeContentsInFile(dir *github.RepositoryContent, file *github.RepositoryContent, content *string) {
@@ -60,8 +55,34 @@ func extractREADMEFile(file *github.RepositoryContent, dir *github.RepositoryCon
 			log.Fatalln(err)
 		}
 		storeContentsInFile(dir, file, &taskDescription)
-		task.Description = file.GetDownloadURL()
+		task.Description = extractDescriptionFromREADME(file, dir)
 	}
+}
+
+func extractDescriptionFromREADME(readmeFile *github.RepositoryContent, dir *github.RepositoryContent) string {
+	file, err := os.Open("catalog/" + dir.GetName() + "/" + readmeFile.GetName())
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	isParagraph := false
+	description := ""
+	for scanner.Scan() {
+		if strings.HasPrefix(scanner.Text(), "#") {
+			if isParagraph {
+				break
+			}
+			isParagraph = true
+			continue
+		} else {
+			description = description + scanner.Text()
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return description
 }
 
 func extractYAMLFile(file *github.RepositoryContent, dir *github.RepositoryContent, task *Task) {
@@ -71,7 +92,7 @@ func extractYAMLFile(file *github.RepositoryContent, dir *github.RepositoryConte
 			log.Fatalln(err)
 		}
 		storeContentsInFile(dir, file, &yamlContent)
-		task.YAML = file.GetDownloadURL()
+		task.Github = utility.Client.BaseURL.String()
 	}
 }
 
@@ -91,16 +112,16 @@ func AddContentsToDB() {
 				log.Fatalln(err)
 			}
 			task.Name = dir.GetName()
-			task.Rating = 4.5
-			task.Downloads = 10
+			task.Rating = 0.0
+			task.Downloads = 0
 			os.Mkdir("catalog/"+dir.GetName(), 0777)
 			// Iterate over all files in directory
 			for _, file := range d {
 				extractREADMEFile(file, dir, &task)
 				extractYAMLFile(file, dir, &task)
 			}
-			println(task.Name)
-			DB.Create(&task)
+			addTask(&task)
+
 		}
 	}
 }
