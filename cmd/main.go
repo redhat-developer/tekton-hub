@@ -18,8 +18,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	if err := models.StartConnection(); err != nil {
-		// log.Fatalln(err)
-		panic(err)
+		log.Fatalln(err)
 	}
 	// models.AddContentsToDB()
 	routers.HandleRouters(router)
