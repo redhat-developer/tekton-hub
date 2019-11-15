@@ -2,20 +2,14 @@ package polling
 
 import (
 	"context"
-	"log"
 	"os"
 
 	"github.com/google/go-github/github"
-	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 )
 
 // Authenticate and return a Github client
 func Authenticate() (*github.Client, context.Context) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		// &oauth2.Token{AccessToken: "bb8ef3ba60abf17d10002562b3bf889e3a9a2c2a"},
