@@ -27,7 +27,7 @@ func GetAllTasksWithGivenTags(tags []string) []Task {
 	}
 	log.Println(params)
 	sqlStatement := `
-	SELECT DISTINCT T.ID,T.NAME,T.DESCRIPTION,T.DOWNLOADS,T.RATING,T.GITHUB
+	SELECT DISTINCT T.ID,T.NAME,T.DESCRIPTION,T.DOWNLOADS,T.RATING,T.GITHUB,T.TAGS
 	FROM TASK AS T JOIN TASK_TAG AS TT ON (T.ID=TT.TASK_ID) JOIN TAG
 	AS TG ON (TG.ID=TT.TAG_ID AND TG.NAME in (` +
 		params + `));`
@@ -39,7 +39,7 @@ func GetAllTasksWithGivenTags(tags []string) []Task {
 	}
 	for rows.Next() {
 		task := Task{}
-		err = rows.Scan(&task.ID, &task.Name, &task.Description, &task.Downloads, &task.Rating, &task.Github)
+		err = rows.Scan(&task.ID, &task.Name, &task.Description, &task.Downloads, &task.Rating, &task.Github, &task.Tags)
 		if err != nil {
 			log.Println(err)
 		}
