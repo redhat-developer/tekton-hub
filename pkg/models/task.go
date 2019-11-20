@@ -65,11 +65,15 @@ func GetTaskWithName(name string) Task {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	var taskTagMap map[int][]string
+	taskTagMap = make(map[int][]string)
+	taskTagMap = getTaskTagMap()
 	sqlStatement := `
 	SELECT * FROM TASK WHERE ID=$1;`
 	err = DB.QueryRow(sqlStatement, id).Scan(&task.ID, &task.Name, &task.Description, &task.Downloads, &task.Rating, &task.Github)
 	if err != nil {
 		return Task{}
 	}
+	task.Tags = taskTagMap[task.ID]
 	return task
 }
