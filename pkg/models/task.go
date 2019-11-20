@@ -41,34 +41,19 @@ func GetAllTasks() []Task {
 		}
 		tasks = append(tasks, task)
 	}
-	// Add tags
-	for index, task := range tasks {
-		taskID := task.ID
-		sqlStatement = `SELECT TAG_ID FROM TASK_TAG WHERE TASK_ID=$1`
-		rows, err = DB.Query(sqlStatement, taskID)
-		tags := []string{}
-		exists := make(map[string]bool)
-		for rows.Next() {
-			var nextTagID int
-			err := rows.Scan(&nextTagID)
-			if err != nil {
-				log.Println(err)
-			}
-			sqlStatement = `SELECT NAME FROM TAG WHERE ID=$1`
-			var nextTagName string
-			err = DB.QueryRow(sqlStatement, nextTagID).Scan(&nextTagName)
-			if err != nil {
-				log.Println(err)
-			}
-			_, found := exists[nextTagName]
-			if !found {
-				if nextTagName != "" {
-					tags = append(tags, nextTagName)
-				}
-				exists[nextTagName] = true
-			}
+	sqlStatement = `SELECT T.ID,TG.NAME FROM TAG TG JOIN TASK_TAG TT ON TT.TAG_ID=TG.ID JOIN TASK T ON T.ID=TT.TASK_ID`
+	rows, err = DB.Query(sqlStatement)
+	if err != nil {
+		log.Println(err)
+	}
+	for rows.Next() {
+		var tag string
+		var taskID int
+		err := rows.Scan(&taskID, &tag)
+		if err != nil {
+			log.Println(err)
 		}
-		tasks[index].Tags = tags
+		tasks[taskID-1].Tags = append(tasks[taskID-1].Tags, tag)
 	}
 	return tasks
 }
