@@ -2,6 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 
@@ -45,4 +47,34 @@ func GetAllFilteredTasksByTag(w http.ResponseWriter, r *http.Request) {
 func GetAllFilteredTasksByCategory(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(models.GetAllTasksWithGivenCategory(strings.Split(r.FormValue("category"), "|")))
+}
+
+// GetTaskYAMLFile returns a compressed zip with task files
+func GetTaskYAMLFile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/file")
+	files, err := ioutil.ReadDir("catalog" + "/" + mux.Vars(r)["name"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, f := range files {
+		if strings.HasSuffix(f.Name(), ".yaml") {
+			http.ServeFile(w, r, "catalog/"+mux.Vars(r)["name"]+"/"+f.Name())
+			break
+		}
+	}
+}
+
+// GetTaskReadmeFile returns a compressed zip with task files
+func GetTaskReadmeFile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/file")
+	files, err := ioutil.ReadDir("catalog" + "/" + mux.Vars(r)["name"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, f := range files {
+		if strings.HasSuffix(f.Name(), ".md") {
+			http.ServeFile(w, r, "catalog/"+mux.Vars(r)["name"]+"/"+f.Name())
+			break
+		}
+	}
 }
