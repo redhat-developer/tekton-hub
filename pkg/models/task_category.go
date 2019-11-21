@@ -52,7 +52,9 @@ func GetAllTasksWithGivenCategory(categories []string) []Task {
 }
 
 func getTaskCategoryMap() map[int][]string {
-	sqlStatement := `SELECT DISTINCT T.ID,TG.NAME FROM TASK AS T JOIN TASK_CATEGORY AS TT ON (T.ID=TT.TASK_ID) JOIN CATEGORY AS TG ON (TG.ID=TT.CATEGORY_ID);`
+	sqlStatement := `SELECT DISTINCT T.ID,TG.NAME FROM TASK AS T JOIN 
+	TASK_CATEGORY AS TT ON (T.ID=TT.TASK_ID) JOIN CATEGORY AS TG 
+	ON (TG.ID=TT.CATEGORY_ID);`
 	rows, err := DB.Query(sqlStatement)
 	// mapping task ID with tag names
 	var taskCategoryMap map[int][]string

@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strings"
 
@@ -38,8 +37,6 @@ func GetAllTags(w http.ResponseWriter, r *http.Request) {
 
 // GetAllFilteredTasksByTag writes json encoded list of filtered tasks to Responsewriter
 func GetAllFilteredTasksByTag(w http.ResponseWriter, r *http.Request) {
-	log.Println(strings.Split(r.FormValue("tags"), "|"))
-	// categories = strings.Split(r.FormValue("categories"), "|")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(models.GetAllTasksWithGivenTags(strings.Split(r.FormValue("tags"), "|")))
 }
