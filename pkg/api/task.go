@@ -35,8 +35,14 @@ func GetAllTags(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models.GetAllTags())
 }
 
-// GetAllFilteredTasks writes json encoded list of filtered tasks to Responsewriter
-func GetAllFilteredTasks(w http.ResponseWriter, r *http.Request) {
+// GetAllFilteredTasksByTag writes json encoded list of filtered tasks to Responsewriter
+func GetAllFilteredTasksByTag(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(models.GetAllTasksWithGivenTags(strings.Split(r.FormValue("tags"), "|")))
+}
+
+// GetAllFilteredTasksByCategory writes json encoded list of filtered tasks to Responsewriter
+func GetAllFilteredTasksByCategory(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(models.GetAllTasksWithGivenCategory(strings.Split(r.FormValue("category"), "|")))
 }
