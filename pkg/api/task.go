@@ -78,3 +78,20 @@ func GetTaskReadmeFile(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// DownloadFile returns a requested YAML file
+func DownloadFile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/file")
+	requestedFileName := models.GetTaskNameFromID(mux.Vars(r)["id"])
+	models.IncrementDownloads(mux.Vars(r)["id"])
+	files, err := ioutil.ReadDir("catalog" + "/" + requestedFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, f := range files {
+		if strings.HasSuffix(f.Name(), ".yaml") {
+			http.ServeFile(w, r, "catalog/"+requestedFileName+"/"+f.Name())
+			break
+		}
+	}
+}
