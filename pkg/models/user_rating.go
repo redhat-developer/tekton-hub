@@ -1,0 +1,78 @@
+package models
+
+import "log"
+
+// UserRating represents relationship between User and Rating
+type UserRating struct {
+	UserID int `json:"user_id"`
+	TaskID int `json:"task_id"`
+	Stars  int `json:"stars"`
+}
+
+// AddRating add's rating provided by user
+func AddRating(userID int, taskID int, stars int, prevStars int) UpdatedRatingResponse {
+	sqlStatement := `INSERT INTO USER_RATING(USER_ID,TASK_ID,STARS) VALUES($1,$2,$3)`
+	_, err := DB.Exec(sqlStatement, userID, taskID, stars)
+	if err != nil {
+		log.Println(err)
+	}
+	addStars(taskID, stars, prevStars)
+	averageRating := calculateAverageRating(taskID)
+	updateAverageRating(taskID, averageRating)
+	return updatedRatings(userID, taskID)
+}
+
+// UpdateRating will update existing rating
+func UpdateRating(userID int, taskID int, stars int, prevStars int) {
+	sqlStatement := `INSERT INTO USER_RATING(USER_ID,TASK_ID,STARS) 
+	VALUES($1,$2,$3) ON CONFLICT (USER_ID AND TASK_ID) DO UPDATE SET 
+	STARS=$3 WHERE TASK_ID=$2 AND USER_ID=$1`
+	_, err := DB.Exec(sqlStatement, userID, taskID, stars)
+	if err != nil {
+		log.Println("dsadas")
+		log.Println(err)
+	}
+	updateStars(taskID, stars, prevStars)
+	averageRating := calculateAverageRating(taskID)
+	updateAverageRating(taskID, averageRating)
+	// return updatedRatings(userID, taskID)
+}
+
+// GetUserRating queries for user rating by id
+func GetUserRating(userID int, taskID int) UserRating {
+	userRating := UserRating{}
+	sqlStatement := `SELECT * FROM USER_RATING WHERE TASKID=$2 AND USERID=$1`
+	err := DB.QueryRow(sqlStatement, userID, taskID).Scan(&userRating)
+	if err != nil {
+		log.Println(err)
+	}
+	return userRating
+}
+
+func updatedRatings(userID int, taskID int) UpdatedRatingResponse {
+	updatedRatingResponse := UpdatedRatingResponse{}
+	rating := Rating{}
+	sqlStatement := `SELECT * FROM RATING WHERE TASKID=$1`
+	err := DB.QueryRow(sqlStatement, taskID).Scan(&rating)
+	if err != nil {
+		log.Println(err)
+	}
+	updatedRatingResponse.OneStar = rating.OneStar
+	updatedRatingResponse.TwoStar = rating.TwoStar
+	updatedRatingResponse.ThreeStar = rating.ThreeStar
+	updatedRatingResponse.FourStar = rating.FourStar
+	updatedRatingResponse.FiveStar = rating.FiveStar
+	updatedRatingResponse.TaskID = taskID
+	updatedRatingResponse.Average = getRatingFromTask(taskID)
+	return updatedRatingResponse
+}
+
+func getRatingFromTask(taskID int) float64 {
+	var rating float64
+	sqlStatement := `SELECT RATING FROM TASK WHERE ID=$1`
+	err := DB.QueryRow(sqlStatement, taskID).Scan(&rating)
+	if err != nil {
+		log.Println(err)
+	}
+	return rating
+}

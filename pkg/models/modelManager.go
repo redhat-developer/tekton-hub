@@ -23,7 +23,7 @@ var DB *sql.DB
 func StartConnection() error {
 	var (
 		host     = "localhost"
-		port     = 15432
+		port     = 5432
 		user     = os.Getenv("POSTGRESQL_USERNAME")
 		password = os.Getenv("POSTGRESQL_PASSWORD")
 		dbname   = os.Getenv("POSTGRESQL_DATABASE")
