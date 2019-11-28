@@ -16,6 +16,7 @@ func HandleRouters(router *mux.Router) {
 	router.Path("/tasks").Queries("category", "{category}").HandlerFunc(api.GetAllFilteredTasksByCategory).Methods("GET")
 	router.HandleFunc("/tasks", api.GetAllTasks).Methods("GET")
 	router.HandleFunc("/download/{id}", api.DownloadFile).Methods("GET")
-	router.HandleFunc("/rating/{id}", api.UpdateRating).Methods("POST")
+	router.HandleFunc("/rating", api.AddRating).Methods("POST")
+	router.HandleFunc("/rating", api.UpdateRating).Methods("PUT")
 	router.HandleFunc("/rating/{id}", api.GetRatingDetails).Methods("GET")
 }

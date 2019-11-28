@@ -33,8 +33,8 @@ func GetRatingDetialsByTaskID(id string) Rating {
 
 func calculateAverageRating(taskID int) float64 {
 	rating := Rating{}
-	sqlStatement := `SELECT * FROM RATING WHERE ID=$1`
-	err := DB.QueryRow(sqlStatement, taskID).Scan(&rating)
+	sqlStatement := `SELECT * FROM RATING WHERE TASK_ID=$1`
+	err := DB.QueryRow(sqlStatement, taskID).Scan(&rating.ID, &rating.TaskID, &rating.OneStar, &rating.TwoStar, &rating.ThreeStar, &rating.FourStar, &rating.FiveStar)
 	if err != nil {
 		log.Println(err)
 	}
@@ -47,17 +47,17 @@ func addStars(taskID int, stars int, prevStars int) {
 	var sqlStatement string
 	switch stars {
 	case 1:
-		sqlStatement = `INSERT INTO RATING(ONESTAR) VALUES($1)`
+		sqlStatement = `INSERT INTO RATING(ONESTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET ONESTAR=RATING.ONESTAR+1`
 	case 2:
-		sqlStatement = `INSERT INTO RATING(TWOSTAR) VALUES($1)`
+		sqlStatement = `INSERT INTO RATING(TWOSTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET TWOSTAR=RATING.TWOSTAR+1`
 	case 3:
-		sqlStatement = `INSERT INTO RATING(THREESTAR) VALUES($1)`
+		sqlStatement = `INSERT INTO RATING(THREESTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET THREESTAR=RATING.THREESTAR+1`
 	case 4:
-		sqlStatement = `INSERT INTO RATING(FOURSTAR) VALUES($1)`
+		sqlStatement = `INSERT INTO RATING(FOURSTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET FOURSTAR=RATING.FOURSTAR+1`
 	case 5:
-		sqlStatement = `INSERT INTO RATING(FIVESTAR) VALUES($1)`
+		sqlStatement = `INSERT INTO RATING(FIVESTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET FIVESTAR=RATING.FIVESTAR+1`
 	}
-	_, err := DB.Exec(sqlStatement, taskID, stars)
+	_, err := DB.Exec(sqlStatement, 1, taskID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -67,15 +67,15 @@ func updateStars(taskID int, stars int, prevStars int) {
 	var sqlStatement string
 	switch stars {
 	case 1:
-		sqlStatement = `UPDATE RATING SET ONESTAR=$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET ONESTAR=$2 WHERE TASK_ID=$1`
 	case 2:
-		sqlStatement = `UPDATE RATING SET TWOSTAR=$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET TWOSTAR=$2 WHERE TASK_ID=$1`
 	case 3:
-		sqlStatement = `UPDATE RATING SET THREESTAR=$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET THREESTAR=$2 WHERE TASK_ID=$1`
 	case 4:
-		sqlStatement = `UPDATE RATING SET FOURSTAR=$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET FOURSTAR=$2 WHERE TASK_ID=$1`
 	case 5:
-		sqlStatement = `UPDATE RATING SET FIVESTAR=$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET FIVESTAR=$2 WHERE TASK_ID=$1`
 	}
 	_, err := DB.Exec(sqlStatement, taskID, stars)
 	if err != nil {
@@ -87,17 +87,17 @@ func deleteOldStars(taskID int, prevStars int) {
 	var sqlStatement string
 	switch prevStars {
 	case 1:
-		sqlStatement = `UPDATE RATING SET ONESTAR=ONSESTAR-$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET ONESTAR=ONSESTAR-1 WHERE TASK_ID=$1`
 	case 2:
-		sqlStatement = `UPDATE RATING SET TWOSTAR=TWOSTAR-$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET TWOSTAR=TWOSTAR-1 WHERE TASK_ID=$1`
 	case 3:
-		sqlStatement = `UPDATE RATING SET THREESTAR=THREESTAR-$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET THREESTAR=THREESTAR-1 WHERE TASK_ID=$1`
 	case 4:
-		sqlStatement = `UPDATE RATING SET FOURSTAR=FOURSTAR-$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET FOURSTAR=FOURSTAR-1 WHERE TASK_ID=$1`
 	case 5:
-		sqlStatement = `UPDATE RATING SET FIVESTAR=FIVESTAR-$2 WHERE ID=$1`
+		sqlStatement = `UPDATE RATING SET FIVESTAR=FIVESTAR-1 WHERE TASK_ID=$1`
 	}
-	_, err := DB.Exec(sqlStatement, taskID, prevStars)
+	_, err := DB.Exec(sqlStatement, taskID, 1)
 	if err != nil {
 		log.Println(err)
 	}

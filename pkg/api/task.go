@@ -104,11 +104,22 @@ func UpdateRating(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	json.NewEncoder(w).Encode(models.AddRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
+	json.NewEncoder(w).Encode(models.UpdateRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
 }
 
 // GetRatingDetails returns rating details of a task
 func GetRatingDetails(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(models.GetRatingDetialsByTaskID(mux.Vars(r)["id"]))
+}
+
+// AddRating add's a new rating
+func AddRating(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	ratingRequestBody := AddRatingsRequest{}
+	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
+	if err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(models.AddRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
 }

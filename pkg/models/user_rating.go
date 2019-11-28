@@ -23,19 +23,16 @@ func AddRating(userID int, taskID int, stars int, prevStars int) UpdatedRatingRe
 }
 
 // UpdateRating will update existing rating
-func UpdateRating(userID int, taskID int, stars int, prevStars int) {
-	sqlStatement := `INSERT INTO USER_RATING(USER_ID,TASK_ID,STARS) 
-	VALUES($1,$2,$3) ON CONFLICT (USER_ID AND TASK_ID) DO UPDATE SET 
-	STARS=$3 WHERE TASK_ID=$2 AND USER_ID=$1`
+func UpdateRating(userID int, taskID int, stars int, prevStars int) UpdatedRatingResponse {
+	sqlStatement := `UPDATE USER_RATING SET STARS=$3 WHERE TASK_ID=$2 AND USER_ID=$1`
 	_, err := DB.Exec(sqlStatement, userID, taskID, stars)
 	if err != nil {
-		log.Println("dsadas")
 		log.Println(err)
 	}
 	updateStars(taskID, stars, prevStars)
 	averageRating := calculateAverageRating(taskID)
 	updateAverageRating(taskID, averageRating)
-	// return updatedRatings(userID, taskID)
+	return updatedRatings(userID, taskID)
 }
 
 // GetUserRating queries for user rating by id
@@ -52,8 +49,8 @@ func GetUserRating(userID int, taskID int) UserRating {
 func updatedRatings(userID int, taskID int) UpdatedRatingResponse {
 	updatedRatingResponse := UpdatedRatingResponse{}
 	rating := Rating{}
-	sqlStatement := `SELECT * FROM RATING WHERE TASKID=$1`
-	err := DB.QueryRow(sqlStatement, taskID).Scan(&rating)
+	sqlStatement := `SELECT * FROM RATING WHERE TASK_ID=$1`
+	err := DB.QueryRow(sqlStatement, taskID).Scan(&rating.ID, &rating.TaskID, &rating.OneStar, &rating.TwoStar, &rating.ThreeStar, &rating.FourStar, &rating.FiveStar)
 	if err != nil {
 		log.Println(err)
 	}
