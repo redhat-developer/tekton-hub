@@ -100,6 +100,7 @@ func IncrementDownloads(taskID string) {
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println(id)
 	sqlStatement := `UPDATE TASK SET DOWNLOADS = DOWNLOADS + 1 WHERE ID=$1`
 	_, err = DB.Exec(sqlStatement, id)
 	if err != nil {
