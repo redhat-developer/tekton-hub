@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 )
@@ -43,20 +44,25 @@ func calculateAverageRating(taskID int) float64 {
 	return averageRating
 }
 
-func addStars(taskID int, stars int, prevStars int) {
-	var sqlStatement string
+func getStarsInString(stars int) string {
 	switch stars {
 	case 1:
-		sqlStatement = `INSERT INTO RATING(ONESTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET ONESTAR=RATING.ONESTAR+1`
+		return "ONESTAR"
 	case 2:
-		sqlStatement = `INSERT INTO RATING(TWOSTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET TWOSTAR=RATING.TWOSTAR+1`
+		return "TWOSTAR"
 	case 3:
-		sqlStatement = `INSERT INTO RATING(THREESTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET THREESTAR=RATING.THREESTAR+1`
+		return "THREESTAR"
 	case 4:
-		sqlStatement = `INSERT INTO RATING(FOURSTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET FOURSTAR=RATING.FOURSTAR+1`
+		return "FOURSTAR"
 	case 5:
-		sqlStatement = `INSERT INTO RATING(FIVESTAR,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET FIVESTAR=RATING.FIVESTAR+1`
+		return "FIVESTAR"
 	}
+	return ""
+}
+
+func addStars(taskID int, stars int, prevStars int) {
+	starsString := getStarsInString(stars)
+	sqlStatement := fmt.Sprintf("INSERT INTO RATING(%v,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET %v=RATING.%v+1", starsString, starsString, starsString)
 	_, err := DB.Exec(sqlStatement, 1, taskID)
 	if err != nil {
 		log.Println(err)
@@ -64,19 +70,8 @@ func addStars(taskID int, stars int, prevStars int) {
 }
 
 func updateStars(taskID int, stars int, prevStars int) {
-	var sqlStatement string
-	switch stars {
-	case 1:
-		sqlStatement = `UPDATE RATING SET ONESTAR=ONESTAR+1 WHERE TASK_ID=$1`
-	case 2:
-		sqlStatement = `UPDATE RATING SET TWOSTAR=TWOSTAR+1 WHERE TASK_ID=$1`
-	case 3:
-		sqlStatement = `UPDATE RATING SET THREESTAR=THREESTAR+1 WHERE TASK_ID=$1`
-	case 4:
-		sqlStatement = `UPDATE RATING SET FOURSTAR=FOURSTAR+1 WHERE TASK_ID=$1`
-	case 5:
-		sqlStatement = `UPDATE RATING SET FIVESTAR=FIVESTAR+1 WHERE TASK_ID=$1`
-	}
+	starsString := getStarsInString(stars)
+	sqlStatement := fmt.Sprintf("UPDATE RATING SET %v=%v+1 WHERE TASK_ID=$1", starsString, starsString)
 	_, err := DB.Exec(sqlStatement, taskID)
 	if err != nil {
 		log.Println(err)
@@ -85,19 +80,8 @@ func updateStars(taskID int, stars int, prevStars int) {
 }
 
 func deleteOldStars(taskID int, prevStars int) {
-	var sqlStatement string
-	switch prevStars {
-	case 1:
-		sqlStatement = `UPDATE RATING SET ONESTAR=ONSESTAR-1 WHERE TASK_ID=$1`
-	case 2:
-		sqlStatement = `UPDATE RATING SET TWOSTAR=TWOSTAR-1 WHERE TASK_ID=$1`
-	case 3:
-		sqlStatement = `UPDATE RATING SET THREESTAR=THREESTAR-1 WHERE TASK_ID=$1`
-	case 4:
-		sqlStatement = `UPDATE RATING SET FOURSTAR=FOURSTAR-1 WHERE TASK_ID=$1`
-	case 5:
-		sqlStatement = `UPDATE RATING SET FIVESTAR=FIVESTAR-1 WHERE TASK_ID=$1`
-	}
+	starsString := getStarsInString(prevStars)
+	sqlStatement := fmt.Sprintf("UPDATE RATING SET %v=%v-1 WHERE TASK_ID=$1", starsString, starsString)
 	_, err := DB.Exec(sqlStatement, taskID)
 	if err != nil {
 		log.Println(err)
