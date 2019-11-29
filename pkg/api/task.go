@@ -85,10 +85,21 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	user := &authentication.UserAuth{}
 	err := json.NewDecoder(r.Body).Decode(user)
-	log.Println(user.Username)
 	if err != nil {
 		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
 		json.NewEncoder(w).Encode(resp)
 	}
 	json.NewEncoder(w).Encode(authentication.Login(user))
+}
+
+// SignUpHandler registers a new user
+func SignUpHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	user := &authentication.NewUser{}
+	err := json.NewDecoder(r.Body).Decode(user)
+	if err != nil {
+		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
+		json.NewEncoder(w).Encode(resp)
+	}
+	json.NewEncoder(w).Encode(authentication.Signup(user))
 }
