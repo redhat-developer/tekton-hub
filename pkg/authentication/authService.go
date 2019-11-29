@@ -18,6 +18,8 @@ type jWTToken struct {
 	Token string
 }
 
+var authenticatedID int
+
 // Login users
 func Login(user *UserAuth) interface{} {
 	// Check if username and password exists
@@ -28,7 +30,7 @@ func Login(user *UserAuth) interface{} {
 	if err != nil {
 		log.Println(err)
 	}
-	return map[string]interface{}{"token": token}
+	return map[string]interface{}{"token": token, "user_id": authenticatedID}
 }
 
 var mySigningKey = []byte("supersecret")
@@ -57,5 +59,6 @@ func authenticate(user *UserAuth) bool {
 	if err != nil {
 		return false
 	}
+	authenticatedID = id
 	return true
 }
