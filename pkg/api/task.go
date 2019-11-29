@@ -103,3 +103,48 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(authentication.Signup(user))
 }
+
+// DownloadFile returns a requested YAML file
+func DownloadFile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/file")
+	requestedFileName := models.GetTaskNameFromID(mux.Vars(r)["id"])
+	models.IncrementDownloads(mux.Vars(r)["id"])
+	files, err := ioutil.ReadDir("catalog" + "/" + requestedFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, f := range files {
+		if strings.HasSuffix(f.Name(), ".yaml") {
+			http.ServeFile(w, r, "catalog/"+requestedFileName+"/"+f.Name())
+			break
+		}
+	}
+}
+
+// UpdateRating will add a new rating
+func UpdateRating(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	ratingRequestBody := AddRatingsRequest{}
+	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
+	if err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(models.UpdateRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
+}
+
+// GetRatingDetails returns rating details of a task
+func GetRatingDetails(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(models.GetRatingDetialsByTaskID(mux.Vars(r)["id"]))
+}
+
+// AddRating add's a new rating
+func AddRating(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	ratingRequestBody := AddRatingsRequest{}
+	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
+	if err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(models.AddRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
+}
