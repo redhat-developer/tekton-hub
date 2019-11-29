@@ -6,6 +6,7 @@ import (
 
 	"github.com/Pipelines-Marketplace/backend/pkg/models"
 	"github.com/Pipelines-Marketplace/backend/routers"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
@@ -22,5 +23,5 @@ func main() {
 	}
 	// models.AddContentsToDB()
 	routers.HandleRouters(router)
-	http.ListenAndServe(":5000", router)
+	http.ListenAndServe(":5000", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(router))
 }
