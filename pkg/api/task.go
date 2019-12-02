@@ -95,3 +95,9 @@ func DownloadFile(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// Upload a new task/pipeline
+func Upload() {
+	w.Header().Set("Content-Type", "application/json")
+
+}
