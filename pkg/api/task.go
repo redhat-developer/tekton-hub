@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Pipelines-Marketplace/backend/pkg/authentication"
 	"github.com/Pipelines-Marketplace/backend/pkg/models"
 	"github.com/gorilla/mux"
 )
@@ -79,6 +80,30 @@ func GetTaskReadmeFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// LoginHandler handles user authentication
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	user := &authentication.UserAuth{}
+	err := json.NewDecoder(r.Body).Decode(user)
+	if err != nil {
+		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
+		json.NewEncoder(w).Encode(resp)
+	}
+	json.NewEncoder(w).Encode(authentication.Login(user))
+}
+
+// SignUpHandler registers a new user
+func SignUpHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	user := &authentication.NewUser{}
+	err := json.NewDecoder(r.Body).Decode(user)
+	if err != nil {
+		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
+		json.NewEncoder(w).Encode(resp)
+	}
+	json.NewEncoder(w).Encode(authentication.Signup(user))
+}
+
 // DownloadFile returns a requested YAML file
 func DownloadFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/file")
@@ -96,8 +121,30 @@ func DownloadFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Upload a new task/pipeline
-func Upload() {
+// UpdateRating will add a new rating
+func UpdateRating(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	ratingRequestBody := AddRatingsRequest{}
+	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
+	if err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(models.UpdateRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
+}
 
+// GetRatingDetails returns rating details of a task
+func GetRatingDetails(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(models.GetRatingDetialsByTaskID(mux.Vars(r)["id"]))
+}
+
+// AddRating add's a new rating
+func AddRating(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	ratingRequestBody := AddRatingsRequest{}
+	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
+	if err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(models.AddRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
 }

@@ -107,3 +107,11 @@ func IncrementDownloads(taskID string) {
 		log.Println(err)
 	}
 }
+
+func updateAverageRating(taskID int, rating float64) {
+	sqlStatement := `UPDATE TASK SET RATING=$2 WHERE ID=$1`
+	_, err := DB.Exec(sqlStatement, taskID, rating)
+	if err != nil {
+		log.Println(err)
+	}
+}

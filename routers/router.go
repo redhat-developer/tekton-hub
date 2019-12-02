@@ -15,6 +15,11 @@ func HandleRouters(router *mux.Router) {
 	router.Path("/tasks").Queries("tags", "{tags}").HandlerFunc(api.GetAllFilteredTasksByTag).Methods("GET")
 	router.Path("/tasks").Queries("category", "{category}").HandlerFunc(api.GetAllFilteredTasksByCategory).Methods("GET")
 	router.HandleFunc("/tasks", api.GetAllTasks).Methods("GET")
+	router.HandleFunc("/login", api.LoginHandler).Methods("POST")
+	router.HandleFunc("/signup", api.SignUpHandler).Methods("POST")
+	router.HandleFunc("/rating", api.AddRating).Methods("POST")
+	router.HandleFunc("/rating", api.UpdateRating).Methods("PUT")
+	router.HandleFunc("/rating/{id}", api.GetRatingDetails).Methods("GET")
 	router.HandleFunc("/download/{id}", api.DownloadFile).Methods("POST")
 	router.HandleFunc("/upload", api.Upload).Methods("POST")
 }
