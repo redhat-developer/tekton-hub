@@ -24,3 +24,14 @@ func GetAllTags() []Tag {
 	}
 	return tags
 }
+
+// AddTag will add a new tag
+func AddTag(tag string) (int, error) {
+	var newTagID int
+	sqlStatement := `INSERT INTO TAG(NAME) VALUES($1) RETURNING ID`
+	err := DB.QueryRow(sqlStatement, tag).Scan(&newTagID)
+	if err != nil {
+		return 0, err
+	}
+	return newTagID, nil
+}

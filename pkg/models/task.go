@@ -49,29 +49,27 @@ func AddTask(task *Task, userID int) (int, error) {
 				log.Println(err)
 			}
 			// If tag already exists
-			log.Println(tag)
 			if tagExists {
-				sqlStatement = `INSERT INTO TASK_TAG(TASK_ID,TAG_ID) VALUES($1,$2)`
-				_, err = DB.Exec(sqlStatement, taskID, tagID)
-				if err != nil {
-					log.Println(err)
-				}
+				addTaskTag(taskID, tagID)
 			} else {
 				var newTagID int
-				sqlStatement = `INSERT INTO TAG(NAME) VALUES($1) RETURNING ID`
-				err = DB.QueryRow(sqlStatement, tag).Scan(&newTagID)
+				newTagID, err = AddTag(tag)
 				if err != nil {
 					log.Println(err)
 				}
-				sqlStatement = `INSERT INTO TASK_TAG(TASK_ID,TAG_ID) VALUES($1,$2)`
-				_, err = DB.Exec(sqlStatement, taskID, newTagID)
-				if err != nil {
-					log.Println(err)
-				}
+				addTaskTag(taskID, newTagID)
 			}
 		}
 	}
 	return taskID, addUserTask(userID, taskID)
+}
+
+func addTaskTag(taskID int, tagID int) {
+	sqlStatement := `INSERT INTO TASK_TAG(TASK_ID,TAG_ID) VALUES($1,$2)`
+	_, err := DB.Exec(sqlStatement, taskID, tagID)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func addUserTask(userID int, taskID int) error {
@@ -81,6 +79,26 @@ func addUserTask(userID int, taskID int) error {
 		return err
 	}
 	return nil
+}
+
+// CheckSameTaskUpload will checkif the user submitted the same task again
+func CheckSameTaskUpload(userID int, name string) bool {
+	sqlStatement := `SELECT T.NAME FROM TASK T JOIN USER_TASK U ON T.ID=U.TASK_ID `
+	rows, err := DB.Query(sqlStatement)
+	if err != nil {
+		log.Println(err)
+	}
+	for rows.Next() {
+		var taskName string
+		err := rows.Scan(&taskName)
+		if err != nil {
+			log.Println(err)
+		}
+		if taskName == name {
+			return true
+		}
+	}
+	return false
 }
 
 // GetAllTasks will return all the tasks

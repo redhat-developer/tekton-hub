@@ -71,6 +71,10 @@ func getLatestCommit(owner string, repositoryName string) string {
 
 // NewUpload handles uploading of new task/pipeline
 func NewUpload(name string, description string, objectType string, tags []string, github string, userID int) interface{} {
+	isSameTask := models.CheckSameTaskUpload(userID, name)
+	if isSameTask {
+		return map[string]interface{}{"status": false, "message": "Task already exists"}
+	}
 	// Get owner and repository name from github link
 	owner, repositoryName := getGithubOwner(github)
 	// Check if owner and repository name is valid
@@ -107,17 +111,7 @@ func NewUpload(name string, description string, objectType string, tags []string
 	// Perform lint validation and schema validation here
 
 	// Add contents to file
-	os.Mkdir("tekton", 0777)
-	os.Mkdir("tekton/"+strconv.Itoa(userID), 0777)
-	f, err := os.OpenFile("tekton/"+strconv.Itoa(userID)+"/"+name+".yaml", os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		log.Println(err)
-	}
-	defer f.Close()
-	if _, err = f.WriteString(*content); err != nil {
-		log.Println(err)
-
-	}
+	createTaskFiles(userID, name, content)
 	// Add Task details to DB
 	newTask := models.Task{}
 	newTask.Name = name
@@ -132,6 +126,20 @@ func NewUpload(name string, description string, objectType string, tags []string
 	// Add new SHA Keys to DB
 	models.AddNewSHA(taskID, SHA)
 	return map[string]interface{}{"status": true, "message": "Upload Successfull"}
+}
+
+func createTaskFiles(userID int, name string, content *string) {
+	os.Mkdir("tekton", 0777)
+	os.Mkdir("tekton/"+strconv.Itoa(userID), 0777)
+	f, err := os.OpenFile("tekton/"+strconv.Itoa(userID)+"/"+name+".yaml", os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		log.Println(err)
+	}
+	defer f.Close()
+	if _, err = f.WriteString(*content); err != nil {
+		log.Println(err)
+
+	}
 }
 
 func getObjectContent(path string, owner string, repositoryName string) (*string, string) {
