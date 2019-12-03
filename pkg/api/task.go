@@ -9,6 +9,7 @@ import (
 
 	"github.com/Pipelines-Marketplace/backend/pkg/authentication"
 	"github.com/Pipelines-Marketplace/backend/pkg/models"
+	"github.com/Pipelines-Marketplace/backend/pkg/upload"
 	"github.com/gorilla/mux"
 )
 
@@ -147,4 +148,15 @@ func AddRating(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(models.AddRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
+}
+
+// Upload a new task/pipeline
+func Upload(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	uploadRequestBody := upload.NewUploadRequestObject{}
+	err := json.NewDecoder(r.Body).Decode(&uploadRequestBody)
+	if err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(upload.NewUpload(uploadRequestBody.Name, uploadRequestBody.Description, uploadRequestBody.Type, uploadRequestBody.Tags, uploadRequestBody.Github, uploadRequestBody.UserID))
 }
