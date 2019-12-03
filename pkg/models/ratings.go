@@ -60,13 +60,15 @@ func getStarsInString(stars int) string {
 	return ""
 }
 
-func addStars(taskID int, stars int, prevStars int) {
+func addStars(taskID int, stars int, prevStars int) error {
 	starsString := getStarsInString(stars)
 	sqlStatement := fmt.Sprintf("INSERT INTO RATING(%v,TASK_ID) VALUES($1,$2) ON CONFLICT (TASK_ID) DO UPDATE SET %v=RATING.%v+1", starsString, starsString, starsString)
 	_, err := DB.Exec(sqlStatement, 1, taskID)
 	if err != nil {
 		log.Println(err)
+		return err
 	}
+	return nil
 }
 
 func updateStars(taskID int, stars int, prevStars int) {

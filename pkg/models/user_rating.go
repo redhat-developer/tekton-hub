@@ -10,15 +10,22 @@ type UserRating struct {
 }
 
 // AddRating add's rating provided by user
-func AddRating(userID int, taskID int, stars int, prevStars int) UpdatedRatingResponse {
+func AddRating(userID int, taskID int, stars int, prevStars int) interface{} {
 	sqlStatement := `INSERT INTO USER_RATING(USER_ID,TASK_ID,STARS) VALUES($1,$2,$3)`
 	_, err := DB.Exec(sqlStatement, userID, taskID, stars)
 	if err != nil {
 		log.Println(err)
+		return map[string]interface{}{"status": false, "message": "Use PUT method to update existing rating"}
 	}
-	addStars(taskID, stars, prevStars)
+	err = addStars(taskID, stars, prevStars)
+	if err != nil {
+		return map[string]interface{}{"status": false, "message": "Not able to add stars to ratings table"}
+	}
 	averageRating := calculateAverageRating(taskID)
-	updateAverageRating(taskID, averageRating)
+	err = updateAverageRating(taskID, averageRating)
+	if err != nil {
+		return map[string]interface{}{"status": false, "message": "Unable to update average rating in task"}
+	}
 	return updatedRatings(userID, taskID)
 }
 
