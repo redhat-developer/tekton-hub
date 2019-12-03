@@ -57,10 +57,6 @@ func getPathsFromCodeResult(CodeResults []CodeResult) []string {
 	return filePaths
 }
 
-func isValidGithubURL() {
-
-}
-
 func getLatestCommit(owner string, repositoryName string) string {
 	commitInfo, _, err := utility.Client.Repositories.ListCommits(utility.Ctx, owner, repositoryName, nil)
 	if err != nil {
