@@ -17,6 +17,12 @@ type Rating struct {
 	FiveStar  int `json:"five"`
 }
 
+// PrevStarRequest represents previous stars
+type PrevStarRequest struct {
+	UserID int `json:"user_id"`
+	TaskID int `json:"task_id"`
+}
+
 // GetRatingDetialsByTaskID retrieves rating details of a task
 func GetRatingDetialsByTaskID(id string) Rating {
 	taskID, err := strconv.Atoi(id)

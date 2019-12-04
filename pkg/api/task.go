@@ -54,6 +54,7 @@ func GetAllFilteredTasksByCategory(w http.ResponseWriter, r *http.Request) {
 func GetTaskYAMLFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/file")
 	taskID := mux.Vars(r)["id"]
+	// Serve the file from github url
 	http.ServeFile(w, r, "tekton/"+taskID+".yaml")
 }
 
@@ -137,4 +138,16 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(upload.NewUpload(uploadRequestBody.Name, uploadRequestBody.Description, uploadRequestBody.Type, uploadRequestBody.Tags, uploadRequestBody.Github, uploadRequestBody.UserID))
+}
+
+// GetPrevStars will return the previous rating
+func GetPrevStars(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	previousStarRequestBody := models.PrevStarRequest{}
+	err := json.NewDecoder(r.Body).Decode(&previousStarRequestBody)
+	if err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(models.GetUserRating(previousStarRequestBody.UserID, previousStarRequestBody.TaskID))
+
 }

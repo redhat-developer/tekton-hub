@@ -22,4 +22,5 @@ func HandleRouters(router *mux.Router) {
 	router.HandleFunc("/rating/{id}", api.GetRatingDetails).Methods("GET")
 	router.HandleFunc("/download/{id}", api.DownloadFile).Methods("POST")
 	router.HandleFunc("/upload", api.Upload).Methods("POST")
+	router.HandleFunc("/stars", api.GetPrevStars).Methods("POST")
 }

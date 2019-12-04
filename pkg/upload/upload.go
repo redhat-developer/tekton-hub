@@ -147,7 +147,6 @@ func getObjectContent(path string, owner string, repositoryName string) (*string
 	}
 	// Store the commit SHA in DB
 	log.Println(desc.GetSHA())
-
 	return &content, desc.GetSHA()
 }
 
