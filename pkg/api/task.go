@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -54,31 +53,19 @@ func GetAllFilteredTasksByCategory(w http.ResponseWriter, r *http.Request) {
 // GetTaskYAMLFile returns a compressed zip with task files
 func GetTaskYAMLFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/file")
-	files, err := ioutil.ReadDir("catalog" + "/" + mux.Vars(r)["name"])
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, f := range files {
-		if strings.HasSuffix(f.Name(), ".yaml") {
-			http.ServeFile(w, r, "catalog/"+mux.Vars(r)["name"]+"/"+f.Name())
-			break
-		}
-	}
+	taskID := mux.Vars(r)["id"]
+	http.ServeFile(w, r, "tekton/"+taskID+".yaml")
 }
 
 // GetTaskReadmeFile returns a compressed zip with task files
 func GetTaskReadmeFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/file")
-	files, err := ioutil.ReadDir("catalog" + "/" + mux.Vars(r)["name"])
-	if err != nil {
-		log.Fatal(err)
+	taskID := mux.Vars(r)["id"]
+	readmeExists := models.DoesREADMEExist(taskID)
+	if readmeExists {
+		http.ServeFile(w, r, "readme/"+taskID+".md")
 	}
-	for _, f := range files {
-		if strings.HasSuffix(f.Name(), ".md") {
-			http.ServeFile(w, r, "catalog/"+mux.Vars(r)["name"]+"/"+f.Name())
-			break
-		}
-	}
+	json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "README file doesn't exist"})
 }
 
 // LoginHandler handles user authentication
@@ -108,18 +95,9 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 // DownloadFile returns a requested YAML file
 func DownloadFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/file")
-	requestedFileName := models.GetTaskNameFromID(mux.Vars(r)["id"])
-	models.IncrementDownloads(mux.Vars(r)["id"])
-	files, err := ioutil.ReadDir("catalog" + "/" + requestedFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, f := range files {
-		if strings.HasSuffix(f.Name(), ".yaml") {
-			http.ServeFile(w, r, "catalog/"+requestedFileName+"/"+f.Name())
-			break
-		}
-	}
+	taskID := mux.Vars(r)["id"]
+	models.IncrementDownloads(taskID)
+	http.ServeFile(w, r, "tekton/"+taskID+".yaml")
 }
 
 // UpdateRating will add a new rating

@@ -14,6 +14,7 @@ func AddNewSHA(taskID int, SHA string) {
 	sqlStatement := `INSERT INTO GITHUB_SHA(TASK_ID,SHA) VALUES($1,$2)`
 	_, err := DB.Exec(sqlStatement, taskID, SHA)
 	if err != nil {
+		log.Println(taskID)
 		log.Println(err)
 	}
 }
