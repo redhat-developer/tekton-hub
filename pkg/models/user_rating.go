@@ -45,8 +45,8 @@ func UpdateRating(userID int, taskID int, stars int, prevStars int) UpdatedRatin
 // GetUserRating queries for user rating by id
 func GetUserRating(userID int, taskID int) UserRating {
 	userRating := UserRating{}
-	sqlStatement := `SELECT * FROM USER_RATING WHERE TASKID=$2 AND USERID=$1`
-	err := DB.QueryRow(sqlStatement, userID, taskID).Scan(&userRating)
+	sqlStatement := `SELECT * FROM USER_RATING WHERE TASK_ID=$2 AND USER_ID=$1`
+	err := DB.QueryRow(sqlStatement, userID, taskID).Scan(&userRating.UserID, &userRating.TaskID, &userRating.Stars)
 	if err != nil {
 		log.Println(err)
 	}
