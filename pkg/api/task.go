@@ -65,7 +65,7 @@ func GetTaskReadmeFile(w http.ResponseWriter, r *http.Request) {
 	if readmeExists {
 		http.ServeFile(w, r, "readme/"+taskID+".md")
 	}
-	json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "README file doesn't exist"})
+	json.NewEncoder(w).Encode("noreadme")
 }
 
 // LoginHandler handles user authentication
