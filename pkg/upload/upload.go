@@ -125,9 +125,6 @@ func NewUpload(name string, description string, objectType string, tags []string
 }
 
 func createTaskFiles(taskID int, name string, content *string) {
-	// os.Mkdir("tekton", 0777)
-	// os.Mkdir("tekton/"+strconv.Itoa(userID), 0777)
-	// f, err := os.OpenFile("tekton/"+strconv.Itoa(userID)+"/"+name+".yaml", os.O_WRONLY|os.O_CREATE, 0600)
 	f, err := os.OpenFile("tekton/"+strconv.Itoa(taskID)+".yaml", os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		log.Println(err)
