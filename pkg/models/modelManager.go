@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Pipelines-Marketplace/backend/pkg/polling"
@@ -23,7 +24,7 @@ var DB *sql.DB
 func StartConnection() error {
 	var (
 		host     = "localhost"
-		port     = 15432
+		port     = 5432
 		user     = os.Getenv("POSTGRESQL_USERNAME")
 		password = os.Getenv("POSTGRESQL_PASSWORD")
 		dbname   = os.Getenv("POSTGRESQL_DATABASE")
@@ -46,8 +47,10 @@ func StartConnection() error {
 	return nil
 }
 
-func storeContentsInFile(dir *github.RepositoryContent, file *github.RepositoryContent, content *string) {
-	f, err := os.OpenFile("catalog/"+dir.GetName()+"/"+file.GetName(), os.O_WRONLY|os.O_CREATE, 0600)
+func storeContentsInFile(dir *github.RepositoryContent, file *github.RepositoryContent, content *string, taskID int) {
+	// f, err := os.OpenFile("catalog/"+dir.GetName()+"/"+file.GetName(), os.O_WRONLY|os.O_CREATE, 0600)
+	os.Mkdir("readme", 0777)
+	f, err := os.OpenFile("readme/"+strconv.Itoa(taskID)+".md", os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		log.Println("Cannot open new file")
 	}
@@ -60,12 +63,19 @@ func storeContentsInFile(dir *github.RepositoryContent, file *github.RepositoryC
 func extractREADMEFile(file *github.RepositoryContent, dir *github.RepositoryContent, task *Task) {
 	if strings.HasSuffix(file.GetName(), ".md") {
 		// Get the contents of README file
+		taskID, _ := GetTaskIDFromName(task.Name)
+		sqlStatement := `INSERT INTO TASK_README(TASK_ID,PATH) VALUES($1,$2)`
+		path := "readme/" + strconv.Itoa(taskID) + ".md"
+		_, err := DB.Exec(sqlStatement, taskID, path)
+		if err != nil {
+			log.Println(err)
+		}
 		taskDescription, err := utility.GetREADMEContent(dir, file)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		storeContentsInFile(dir, file, &taskDescription)
-		task.Description = extractDescriptionFromREADME(file, dir)
+		storeContentsInFile(dir, file, &taskDescription, taskID)
+		// task.Description = extractDescriptionFromREADME(file, dir)
 	}
 }
 
@@ -95,13 +105,27 @@ func extractDescriptionFromREADME(readmeFile *github.RepositoryContent, dir *git
 	return description
 }
 
+func storeYAMLContentsInFile(dir *github.RepositoryContent, file *github.RepositoryContent, content *string, taskID int) {
+	// f, err := os.OpenFile("catalog/"+dir.GetName()+"/"+file.GetName(), os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile("tekton/"+strconv.Itoa(taskID)+".yaml", os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		log.Println("Cannot open new file")
+	}
+	defer f.Close()
+	if _, err = f.WriteString(*content); err != nil {
+		log.Println("Cannot append to file")
+	}
+}
+
 func extractYAMLFile(file *github.RepositoryContent, dir *github.RepositoryContent, task *Task) {
 	if strings.HasSuffix(file.GetName(), ".yaml") {
-		yamlContent, err := utility.GetYAMLContent(dir, file)
+		taskID, _ := GetTaskIDFromName(task.Name)
+		yamlContent, SHA, err := utility.GetYAMLContentWithSHA(dir, file, taskID)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		storeContentsInFile(dir, file, &yamlContent)
+		AddNewSHA(taskID, SHA)
+		storeYAMLContentsInFile(dir, file, &yamlContent, taskID)
 		task.Github = utility.Client.BaseURL.String()
 	}
 }
@@ -112,9 +136,9 @@ func AddContentsToDB() {
 	// Get all directories
 	repoContents, err := polling.GetDirContents(utility.Ctx, utility.Client, "tektoncd", "catalog", "", nil)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
-	os.Mkdir("catalog", 0777)
+	os.Mkdir("tekton", 0777)
 	for _, dir := range repoContents {
 		if utility.IsValidDirectory(dir) {
 			d, err := polling.GetDirContents(utility.Ctx, utility.Client, "tektoncd", "catalog", dir.GetName(), nil)
@@ -124,14 +148,13 @@ func AddContentsToDB() {
 			task.Name = dir.GetName()
 			task.Rating = 0.0
 			task.Downloads = 0
-			os.Mkdir("catalog/"+dir.GetName(), 0777)
+			// os.Mkdir("catalog/"+dir.GetName(), 0777)
 			// Iterate over all files in directory
+			log.Println(task.Name)
 			for _, file := range d {
 				extractREADMEFile(file, dir, &task)
 				extractYAMLFile(file, dir, &task)
 			}
-			addTask(&task)
-
 		}
 	}
 }

@@ -52,7 +52,25 @@ func GetYAMLContent(dir *github.RepositoryContent, file *github.RepositoryConten
 		if err != nil {
 			log.Fatalln(err)
 		}
+
 		return content, err
 	}
 	return "", errors.New("Cannot open YAML")
+}
+
+// GetYAMLContentWithSHA returns content of a YAML file
+func GetYAMLContentWithSHA(dir *github.RepositoryContent, file *github.RepositoryContent, taskID int) (string, string, error) {
+	if strings.HasSuffix(file.GetName(), ".yaml") {
+		desc, err := polling.GetFileContent(Ctx, Client, "tektoncd", "catalog", dir.GetName()+"/"+file.GetName(), nil)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		content, err := desc.GetContent()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		return content, desc.GetSHA(), err
+	}
+	return "", "", errors.New("Cannot open YAML")
 }

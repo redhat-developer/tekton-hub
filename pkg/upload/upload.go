@@ -106,8 +106,6 @@ func NewUpload(name string, description string, objectType string, tags []string
 	}
 	// Perform lint validation and schema validation here
 
-	// Add contents to file
-	createTaskFiles(userID, name, content)
 	// Add Task details to DB
 	newTask := models.Task{}
 	newTask.Name = name
@@ -119,15 +117,18 @@ func NewUpload(name string, description string, objectType string, tags []string
 		log.Println(err)
 		return map[string]interface{}{"status": false, "message": err}
 	}
+	// Add contents to file
+	createTaskFiles(taskID, name, content)
 	// Add new SHA Keys to DB
 	models.AddNewSHA(taskID, SHA)
 	return map[string]interface{}{"status": true, "message": "Upload Successfull"}
 }
 
-func createTaskFiles(userID int, name string, content *string) {
-	os.Mkdir("tekton", 0777)
-	os.Mkdir("tekton/"+strconv.Itoa(userID), 0777)
-	f, err := os.OpenFile("tekton/"+strconv.Itoa(userID)+"/"+name+".yaml", os.O_WRONLY|os.O_CREATE, 0600)
+func createTaskFiles(taskID int, name string, content *string) {
+	// os.Mkdir("tekton", 0777)
+	// os.Mkdir("tekton/"+strconv.Itoa(userID), 0777)
+	// f, err := os.OpenFile("tekton/"+strconv.Itoa(userID)+"/"+name+".yaml", os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile("tekton/"+strconv.Itoa(taskID)+".yaml", os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		log.Println(err)
 	}

@@ -83,8 +83,8 @@ func addUserTask(userID int, taskID int) error {
 
 // CheckSameTaskUpload will checkif the user submitted the same task again
 func CheckSameTaskUpload(userID int, name string) bool {
-	sqlStatement := `SELECT T.NAME FROM TASK T JOIN USER_TASK U ON T.ID=U.TASK_ID `
-	rows, err := DB.Query(sqlStatement)
+	sqlStatement := `SELECT T.NAME FROM TASK T JOIN USER_TASK U ON T.ID=U.TASK_ID WHERE U.USER_ID=$1`
+	rows, err := DB.Query(sqlStatement, userID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -205,4 +205,17 @@ func updateAverageRating(taskID int, rating float64) error {
 		return err
 	}
 	return nil
+}
+
+// GetTaskIDFromName will return task ID from name
+func GetTaskIDFromName(name string) (int, error) {
+	sqlStatement := `SELECT ID FROM TASK WHERE NAME=$1`
+	var taskID int
+	err := DB.QueryRow(sqlStatement, name).Scan(&taskID)
+	if err != nil {
+		log.Println(err)
+		log.Println(name)
+		return 0, err
+	}
+	return taskID, nil
 }
