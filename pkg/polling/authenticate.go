@@ -15,7 +15,7 @@ func Authenticate() (*github.Client, context.Context) {
 	// Load env variables
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("Error loading .env file")
 	}
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
