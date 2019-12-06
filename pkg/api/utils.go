@@ -1,9 +1,9 @@
 package api
 
-type Tasks struct {
-	Name        string
-	Id          int
-	Description string
-	Downloads   int
-	Rating      float64
+// AddRatingsRequest represents request body for adding ratings
+type AddRatingsRequest struct {
+	UserID    int `json:"user_id"`
+	TaskID    int `json:"task_id"`
+	Stars     int `json:"stars"`
+	PrevStars int `json:"prev_stars"`
 }

@@ -12,6 +12,7 @@ import (
 
 // Authenticate and return a Github client
 func Authenticate() (*github.Client, context.Context) {
+	// Load env variables
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")

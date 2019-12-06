@@ -45,3 +45,9 @@
 
 # Environment Variables
 .env
+
+# Zip files
+*.zip
+
+*.sql
+*.dump
