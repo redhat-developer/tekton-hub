@@ -8,6 +8,12 @@ COPY . .
 # Build the Go app
 RUN go build -o backend ./cmd/
 # Expose port 5000 to the outside world
+
+RUN mkdir temp_tekton
+RUN mkdir temp_readme
+RUN cp tekton/* temp_tekton
+RUN cp temp_readme/* readme
+
 EXPOSE 5000
 USER 1000
 CMD ["./backend"]
