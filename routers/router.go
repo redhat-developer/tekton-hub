@@ -23,4 +23,6 @@ func HandleRouters(router *mux.Router) {
 	router.HandleFunc("/download/{id}", api.DownloadFile).Methods("POST")
 	router.HandleFunc("/upload", api.Upload).Methods("POST")
 	router.HandleFunc("/stars", api.GetPrevStars).Methods("POST")
+
+	router.HandleFunc("/oauth/redirect", api.GithubAuth).Methods("POST")
 }
