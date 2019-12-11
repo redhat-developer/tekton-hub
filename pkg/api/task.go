@@ -171,8 +171,8 @@ func GithubAuth(w http.ResponseWriter, r *http.Request) {
 	httpClient := http.Client{}
 	var clientID string
 	var clientSecret string
-	clientID = "aac6161a58b4d7798f05"
-	clientSecret = "138039bebc49df742f83f1c041126a0e53ec0e10"
+	clientID = os.Getenv("CLIENT_ID")
+	clientSecret = os.Getenv("CLIENT_SECRET")
 	token := Code{}
 	err := json.NewDecoder(r.Body).Decode(&token)
 	if err != nil {
