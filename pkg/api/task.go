@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Pipelines-Marketplace/backend/pkg/authentication"
@@ -253,4 +254,15 @@ func getUserDetails(accessToken string) (string, int) {
 	id := userData["id"].(float64)
 	log.Println(id)
 	return string(username), int(id)
+}
+
+// GetAllTasksByUserHandler will return all tasks uploaded by user
+func GetAllTasksByUserHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	userID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "Invalid User ID"})
+	}
+	json.NewEncoder(w).Encode(models.GetAllTasksByUser(userID))
+
 }

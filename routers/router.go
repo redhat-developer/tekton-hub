@@ -25,4 +25,5 @@ func HandleRouters(router *mux.Router) {
 	router.HandleFunc("/stars", api.GetPrevStars).Methods("POST")
 
 	router.HandleFunc("/oauth/redirect", api.GithubAuth).Methods("POST")
+	router.HandleFunc("/tasks/user/{id}", api.GetAllTasksByUserHandler).Methods("GET")
 }
