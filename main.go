@@ -15,6 +15,12 @@ import (
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
 )
 
+// ValidationResponse represents reponse from Validation service
+type ValidationResponse struct {
+	Status  bool   `json:"status"`
+	Message string `json:"message"`
+}
+
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/validate/task/{fileName}", validateTask).Methods("POST")
@@ -22,20 +28,19 @@ func main() {
 }
 
 func checkSchema(fileName string) error {
-	b, err := ioutil.ReadFile("check.yaml") // just pass the file name
+	b, err := ioutil.ReadFile(fileName) // just pass the file name
 	if err != nil {
 		log.Println(err)
 	}
 	var task v1alpha1.Task
 	err = yaml.Unmarshal(b, &task)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error")
 		return err
 	}
 	ctx := context.Background()
 	task.SetDefaults(ctx)
 	if err := task.Validate(ctx); err != nil {
-		log.Println(err)
 		return err
 	}
 	return nil
@@ -56,12 +61,18 @@ func validateTask(w http.ResponseWriter, r *http.Request) {
 	}
 	io.Copy(f, file)
 	result := checkLint(fileName)
-	err = checkSchema(fileName)
-	os.Remove(header.Filename)
-	if err != nil {
-		json.NewEncoder(w).Encode(err)
+	if result != "Success\n" {
+		response := ValidationResponse{false, result}
+		json.NewEncoder(w).Encode(response)
 	}
-	json.NewEncoder(w).Encode(result)
+	err = checkSchema(fileName)
+	os.Remove(fileName)
+	if err != nil {
+		response := ValidationResponse{false, err.Error()}
+		json.NewEncoder(w).Encode(response)
+	}
+	resp := ValidationResponse{true, "Success"}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func checkLint(fileName string) string {
