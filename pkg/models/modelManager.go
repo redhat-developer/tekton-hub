@@ -22,9 +22,10 @@ var DB *sql.DB
 
 // StartConnection will start a new database connection
 func StartConnection() error {
+	portString, _ := strconv.Atoi(os.Getenv("PORT"))
 	var (
-		host     = "localhost"
-		port     = 15432
+		host     = os.Getenv("HOST")
+		port     = portString
 		user     = os.Getenv("POSTGRESQL_USERNAME")
 		password = os.Getenv("POSTGRESQL_PASSWORD")
 		dbname   = os.Getenv("POSTGRESQL_DATABASE")

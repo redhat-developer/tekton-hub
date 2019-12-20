@@ -26,7 +26,7 @@ func Login(user *UserAuth) interface{} {
 	if !authenticate(user) {
 		return map[string]interface{}{"status": false, "message": "Invalid credentials"}
 	}
-	token, err := GenerateJWT(user)
+	token, err := GenerateJWT(22)
 	if err != nil {
 		log.Println(err)
 	}
@@ -36,11 +36,11 @@ func Login(user *UserAuth) interface{} {
 var mySigningKey = []byte("supersecret")
 
 // GenerateJWT a new JWT token
-func GenerateJWT(user *UserAuth) (string, error) {
+func GenerateJWT(userID int) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
-	claims["user"] = user.Username
+	claims["id"] = userID
 	claims["expiry"] = time.Now().Add(time.Minute * 30).Unix()
 
 	tokenString, err := token.SignedString(mySigningKey)

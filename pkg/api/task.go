@@ -2,8 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Pipelines-Marketplace/backend/pkg/authentication"
@@ -149,5 +153,116 @@ func GetPrevStars(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(models.GetUserRating(previousStarRequestBody.UserID, previousStarRequestBody.TaskID))
+
+}
+
+// OAuthAccessResponse represents access_token
+type OAuthAccessResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
+// Code will
+type Code struct {
+	Token string `json:"token"`
+}
+
+// GithubAuth handles OAuth by Github
+func GithubAuth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	httpClient := http.Client{}
+	var clientID string
+	var clientSecret string
+	clientID = os.Getenv("CLIENT_ID")
+	clientSecret = os.Getenv("CLIENT_SECRET")
+	token := Code{}
+	err := json.NewDecoder(r.Body).Decode(&token)
+	if err != nil {
+		log.Println(err)
+	}
+	// c, _ := ioutil.ReadAll(r.Body)
+	log.Println("Code", token.Token)
+	var code string
+	code = token.Token
+	reqURL := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s", clientID, clientSecret, code)
+	log.Println(reqURL)
+	req, err := http.NewRequest(http.MethodPost, reqURL, nil)
+	if err != nil {
+		println(os.Stdout, "could not create HTTP request: %v", err)
+	}
+	req.Header.Set("accept", "application/json")
+
+	// Send out the HTTP request
+	res, err := httpClient.Do(req)
+	if err != nil {
+		println(os.Stdout, "could not send HTTP request: %v", err)
+	}
+
+	// Parse the request body into the `OAuthAccessResponse` struct
+	var t OAuthAccessResponse
+	if err := json.NewDecoder(res.Body).Decode(&t); err != nil {
+		fmt.Fprintf(os.Stdout, "could not parse JSON response: %v", err)
+	}
+	log.Println("Access Token", t.AccessToken)
+	username, id := getUserDetails(t.AccessToken)
+	log.Println(username, id)
+	authToken, err := authentication.GenerateJWT(int(id))
+	if err != nil {
+		log.Println(err)
+	}
+	// Add user if doesn't exist
+	sqlStatement := `SELECT EXISTS(SELECT 1 FROM USER_CREDENTIAL WHERE ID=$1)`
+	var exists bool
+	err = models.DB.QueryRow(sqlStatement, id).Scan(&exists)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(exists)
+	if !exists {
+		sqlStatement := `INSERT INTO USER_CREDENTIAL(ID,USERNAME,FIRST_NAME) VALUES($1,$2,$3)`
+		_, err := models.DB.Exec(sqlStatement, id, "github", "github")
+		if err != nil {
+			log.Println(err)
+		}
+	}
+	json.NewEncoder(w).Encode(map[string]interface{}{"token": authToken, "user_id": int(id)})
+}
+
+func getUserDetails(accessToken string) (string, int) {
+	httpClient := http.Client{}
+	reqURL := fmt.Sprintf("https://api.github.com/user")
+	req, err := http.NewRequest(http.MethodGet, reqURL, nil)
+	req.Header.Set("Authorization", "token "+accessToken)
+	if err != nil {
+		log.Println(err)
+	}
+	req.Header.Set("Access-Control-Allow-Origin", "*")
+	req.Header.Set("accept", "application/json")
+
+	// Send out the HTTP request
+	res, err := httpClient.Do(req)
+	if err != nil {
+		log.Println(err)
+	}
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+	log.Println(string(body))
+	var userData map[string]interface{}
+	if err := json.Unmarshal(body, &userData); err != nil {
+		log.Println(err)
+	}
+	username := userData["login"].(string)
+	id := userData["id"].(float64)
+	log.Println(id)
+	return string(username), int(id)
+}
+
+// GetAllTasksByUserHandler will return all tasks uploaded by user
+func GetAllTasksByUserHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	userID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "Invalid User ID"})
+	}
+	json.NewEncoder(w).Encode(models.GetAllTasksByUser(userID))
 
 }
