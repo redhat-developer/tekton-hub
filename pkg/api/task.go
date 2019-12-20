@@ -16,16 +16,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// GetAllTasks writes json encoded tasks to ResponseWriter
-func GetAllTasks(w http.ResponseWriter, r *http.Request) {
+// GetAllResources writes json encoded resources to ResponseWriter
+func GetAllResources(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetAllTasks())
+	json.NewEncoder(w).Encode(models.GetAllResources())
 }
 
-// GetTaskByID writes json encoded task to ResponseWriter
-func GetTaskByID(w http.ResponseWriter, r *http.Request) {
+// GetResourceByID writes json encoded resources to ResponseWriter
+func GetResourceByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetTaskWithName(mux.Vars(r)["id"]))
+	userID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "Invalid User ID"})
+	}
+	json.NewEncoder(w).Encode(models.GetResourceByID(userID))
 }
 
 // GetTaskFiles returns a compressed zip with task files
@@ -42,28 +46,22 @@ func GetAllTags(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models.GetAllTags())
 }
 
-// GetAllFilteredTasksByTag writes json encoded list of filtered tasks to Responsewriter
-func GetAllFilteredTasksByTag(w http.ResponseWriter, r *http.Request) {
+// GetAllFilteredResourcesByTag writes json encoded list of filtered tasks to Responsewriter
+func GetAllFilteredResourcesByTag(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetAllTasksWithGivenTags(strings.Split(r.FormValue("tags"), "|")))
+	json.NewEncoder(w).Encode(models.GetAllResourcesWithGivenTags(strings.Split(r.FormValue("tags"), "|")))
 }
 
-// GetAllFilteredTasksByCategory writes json encoded list of filtered tasks to Responsewriter
-func GetAllFilteredTasksByCategory(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetAllTasksWithGivenCategory(strings.Split(r.FormValue("category"), "|")))
-}
-
-// GetTaskYAMLFile returns a compressed zip with task files
-func GetTaskYAMLFile(w http.ResponseWriter, r *http.Request) {
+// GetResourceYAMLFile returns a compressed zip with task files
+func GetResourceYAMLFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/file")
 	taskID := mux.Vars(r)["id"]
 	// Serve the file from github url
 	http.ServeFile(w, r, "tekton/"+taskID+".yaml")
 }
 
-// GetTaskReadmeFile returns a compressed zip with task files
-func GetTaskReadmeFile(w http.ResponseWriter, r *http.Request) {
+// GetResourceReadmeFile returns a compressed zip with task files
+func GetResourceReadmeFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/file")
 	taskID := mux.Vars(r)["id"]
 	readmeExists := models.DoesREADMEExist(taskID)
@@ -71,30 +69,6 @@ func GetTaskReadmeFile(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "readme/"+taskID+".md")
 	}
 	json.NewEncoder(w).Encode("noreadme")
-}
-
-// LoginHandler handles user authentication
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	user := &authentication.UserAuth{}
-	err := json.NewDecoder(r.Body).Decode(user)
-	if err != nil {
-		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
-		json.NewEncoder(w).Encode(resp)
-	}
-	json.NewEncoder(w).Encode(authentication.Login(user))
-}
-
-// SignUpHandler registers a new user
-func SignUpHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	user := &authentication.NewUser{}
-	err := json.NewDecoder(r.Body).Decode(user)
-	if err != nil {
-		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
-		json.NewEncoder(w).Encode(resp)
-	}
-	json.NewEncoder(w).Encode(authentication.Signup(user))
 }
 
 // DownloadFile returns a requested YAML file
@@ -113,13 +87,17 @@ func UpdateRating(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	json.NewEncoder(w).Encode(models.UpdateRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
+	json.NewEncoder(w).Encode(models.UpdateRating(ratingRequestBody.UserID, ratingRequestBody.ResourceID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
 }
 
 // GetRatingDetails returns rating details of a task
 func GetRatingDetails(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetRatingDetialsByTaskID(mux.Vars(r)["id"]))
+	resourceID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(models.GetRatingDetialsByResourceID(resourceID))
 }
 
 // AddRating add's a new rating
@@ -130,7 +108,7 @@ func AddRating(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	json.NewEncoder(w).Encode(models.AddRating(ratingRequestBody.UserID, ratingRequestBody.TaskID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
+	json.NewEncoder(w).Encode(models.AddRating(ratingRequestBody.UserID, ratingRequestBody.ResourceID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
 }
 
 // Upload a new task/pipeline
@@ -152,7 +130,7 @@ func GetPrevStars(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	json.NewEncoder(w).Encode(models.GetUserRating(previousStarRequestBody.UserID, previousStarRequestBody.TaskID))
+	json.NewEncoder(w).Encode(models.GetUserRating(previousStarRequestBody.UserID, previousStarRequestBody.ResourceID))
 
 }
 

@@ -5,10 +5,11 @@ import (
 	"strconv"
 )
 
-// Task is a database model representing task data
-type Task struct {
+// Resource is a database model representing task and pipeline
+type Resource struct {
 	ID          int      `json:"id"`
 	Name        string   `json:"name"`
+	Type        string   `json:"type"`
 	Description string   `json:"description"`
 	Downloads   int      `json:"downloads"`
 	Rating      float64  `json:"rating"`
@@ -16,7 +17,7 @@ type Task struct {
 	Tags        []string `json:"tags"`
 }
 
-func addTask(task *Task) {
+func addTask(task *Resource) {
 	sqlStatement := `
 	INSERT INTO TASK (NAME,DESCRIPTION,DOWNLOADS,RATING,GITHUB)
 	VALUES ($1, $2, $3, $4, $5)`
@@ -27,7 +28,7 @@ func addTask(task *Task) {
 }
 
 // AddTask will add a new task
-func AddTask(task *Task, userID int) (int, error) {
+func AddTask(task *Resource, userID int) (int, error) {
 	var taskID int
 	sqlStatement := `
 	INSERT INTO TASK (NAME,DESCRIPTION,DOWNLOADS,RATING,GITHUB)
@@ -65,7 +66,7 @@ func AddTask(task *Task, userID int) (int, error) {
 }
 
 func addTaskTag(taskID int, tagID int) {
-	sqlStatement := `INSERT INTO TASK_TAG(TASK_ID,TAG_ID) VALUES($1,$2)`
+	sqlStatement := `INSERT INTO RESOURCE_TAG(TASK_ID,TAG_ID) VALUES($1,$2)`
 	_, err := DB.Exec(sqlStatement, taskID, tagID)
 	if err != nil {
 		log.Println(err)
@@ -101,70 +102,66 @@ func CheckSameTaskUpload(userID int, name string) bool {
 	return false
 }
 
-// GetAllTasks will return all the tasks
-func GetAllTasks() []Task {
-	tasks := []Task{}
+// GetAllResources will return all the tasks
+func GetAllResources() []Resource {
+	resources := []Resource{}
 	sqlStatement := `
-	SELECT * FROM TASK`
+	SELECT * FROM RESOURCE ORDER BY ID`
 	rows, err := DB.Query(sqlStatement)
 	defer rows.Close()
 	for rows.Next() {
-		task := Task{}
-		err = rows.Scan(&task.ID, &task.Name, &task.Description, &task.Downloads, &task.Rating, &task.Github)
+		resource := Resource{}
+		err = rows.Scan(&resource.ID, &resource.Name, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Type)
 		if err != nil {
 			log.Println(err)
 		}
-		tasks = append(tasks, task)
+		resources = append(resources, resource)
 	}
-	taskIndexMap := make(map[int]int)
-	sqlStatement = `SELECT ID FROM TASK`
+	resourceIndexMap := make(map[int]int)
+	sqlStatement = `SELECT ID FROM RESOURCE`
 	rows, err = DB.Query(sqlStatement)
 	if err != nil {
 		log.Println(err)
 	}
-	taskIndex := 0
+	resourceIndex := 0
 	for rows.Next() {
 		var id int
 		err = rows.Scan(&id)
-		taskIndexMap[id] = taskIndex
-		taskIndex = taskIndex + 1
+		resourceIndexMap[id] = resourceIndex
+		resourceIndex = resourceIndex + 1
 	}
 
-	sqlStatement = `SELECT T.ID,TG.NAME FROM TAG TG JOIN TASK_TAG TT ON TT.TAG_ID=TG.ID JOIN TASK T ON T.ID=TT.TASK_ID`
+	sqlStatement = `SELECT R.ID,TG.NAME FROM TAG TG JOIN RESOURCE_TAG TT ON TT.TAG_ID=TG.ID JOIN RESOURCE R ON R.ID=TT.TASK_ID`
 	rows, err = DB.Query(sqlStatement)
 	if err != nil {
 		log.Println(err)
 	}
 	for rows.Next() {
 		var tag string
-		var taskID int
-		err := rows.Scan(&taskID, &tag)
+		var resourceID int
+		err := rows.Scan(&resourceID, &tag)
 		if err != nil {
 			log.Println(err)
 		}
-		tasks[taskIndexMap[taskID]].Tags = append(tasks[taskIndexMap[taskID]].Tags, tag)
+		resources[resourceIndexMap[resourceID]].Tags = append(resources[resourceIndexMap[resourceID]].Tags, tag)
 	}
-	return tasks
+	return resources
 }
 
-// GetTaskWithName returns a task with requested ID
-func GetTaskWithName(name string) Task {
-	task := Task{}
-	id, err := strconv.Atoi(name)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	var taskTagMap map[int][]string
-	taskTagMap = make(map[int][]string)
-	taskTagMap = getTaskTagMap()
+// GetResourceByID returns a resource with requested ID
+func GetResourceByID(id int) Resource {
+	resource := Resource{}
+	var resourceTagMap map[int][]string
+	resourceTagMap = make(map[int][]string)
+	resourceTagMap = getResourceTagMap()
 	sqlStatement := `
-	SELECT * FROM TASK WHERE ID=$1;`
-	err = DB.QueryRow(sqlStatement, id).Scan(&task.ID, &task.Name, &task.Description, &task.Downloads, &task.Rating, &task.Github)
+	SELECT * FROM RESOURCE WHERE ID=$1;`
+	err := DB.QueryRow(sqlStatement, id).Scan(&resource.ID, &resource.Name, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Type)
 	if err != nil {
-		return Task{}
+		return Resource{}
 	}
-	task.Tags = taskTagMap[task.ID]
-	return task
+	resource.Tags = resourceTagMap[resource.ID]
+	return resource
 }
 
 // GetTaskNameFromID returns name from given ID
@@ -190,16 +187,16 @@ func IncrementDownloads(taskID string) {
 		log.Println(err)
 	}
 	log.Println(id)
-	sqlStatement := `UPDATE TASK SET DOWNLOADS = DOWNLOADS + 1 WHERE ID=$1`
+	sqlStatement := `UPDATE RESOURCE SET DOWNLOADS = DOWNLOADS + 1 WHERE ID=$1`
 	_, err = DB.Exec(sqlStatement, id)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func updateAverageRating(taskID int, rating float64) error {
-	sqlStatement := `UPDATE TASK SET RATING=$2 WHERE ID=$1`
-	_, err := DB.Exec(sqlStatement, taskID, rating)
+func updateAverageRating(resourceID int, rating float64) error {
+	sqlStatement := `UPDATE RESOURCE SET RATING=$2 WHERE ID=$1`
+	_, err := DB.Exec(sqlStatement, resourceID, rating)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -207,15 +204,15 @@ func updateAverageRating(taskID int, rating float64) error {
 	return nil
 }
 
-// GetTaskIDFromName will return task ID from name
-func GetTaskIDFromName(name string) (int, error) {
-	sqlStatement := `SELECT ID FROM TASK WHERE NAME=$1`
-	var taskID int
-	err := DB.QueryRow(sqlStatement, name).Scan(&taskID)
+// GetResourceIDFromName will return resource ID from name
+func GetResourceIDFromName(name string) (int, error) {
+	sqlStatement := `SELECT ID FROM RESOURCE WHERE NAME=$1`
+	var resourceID int
+	err := DB.QueryRow(sqlStatement, name).Scan(&resourceID)
 	if err != nil {
 		log.Println(err)
 		log.Println(name)
 		return 0, err
 	}
-	return taskID, nil
+	return resourceID, nil
 }

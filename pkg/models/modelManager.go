@@ -61,21 +61,21 @@ func storeContentsInFile(dir *github.RepositoryContent, file *github.RepositoryC
 	}
 }
 
-func extractREADMEFile(file *github.RepositoryContent, dir *github.RepositoryContent, task *Task) {
+func extractREADMEFile(file *github.RepositoryContent, dir *github.RepositoryContent, resource *Resource) {
 	if strings.HasSuffix(file.GetName(), ".md") {
 		// Get the contents of README file
-		taskID, _ := GetTaskIDFromName(task.Name)
+		resourceID, _ := GetResourceIDFromName(resource.Name)
 		sqlStatement := `INSERT INTO TASK_README(TASK_ID,PATH) VALUES($1,$2)`
-		path := "readme/" + strconv.Itoa(taskID) + ".md"
-		_, err := DB.Exec(sqlStatement, taskID, path)
+		path := "readme/" + strconv.Itoa(resourceID) + ".md"
+		_, err := DB.Exec(sqlStatement, resourceID, path)
 		if err != nil {
 			log.Println(err)
 		}
-		taskDescription, err := utility.GetREADMEContent(dir, file)
+		resourceDescription, err := utility.GetREADMEContent(dir, file)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		storeContentsInFile(dir, file, &taskDescription, taskID)
+		storeContentsInFile(dir, file, &resourceDescription, resourceID)
 		// task.Description = extractDescriptionFromREADME(file, dir)
 	}
 }
@@ -118,22 +118,22 @@ func storeYAMLContentsInFile(dir *github.RepositoryContent, file *github.Reposit
 	}
 }
 
-func extractYAMLFile(file *github.RepositoryContent, dir *github.RepositoryContent, task *Task) {
+func extractYAMLFile(file *github.RepositoryContent, dir *github.RepositoryContent, resource *Resource) {
 	if strings.HasSuffix(file.GetName(), ".yaml") {
-		taskID, _ := GetTaskIDFromName(task.Name)
-		yamlContent, SHA, err := utility.GetYAMLContentWithSHA(dir, file, taskID)
+		resourceID, _ := GetResourceIDFromName(resource.Name)
+		yamlContent, SHA, err := utility.GetYAMLContentWithSHA(dir, file, resourceID)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		AddNewSHA(taskID, SHA)
-		storeYAMLContentsInFile(dir, file, &yamlContent, taskID)
-		task.Github = utility.Client.BaseURL.String()
+		AddNewSHA(resourceID, SHA)
+		storeYAMLContentsInFile(dir, file, &yamlContent, resourceID)
+		resource.Github = utility.Client.BaseURL.String()
 	}
 }
 
 // AddContentsToDB will add contents from Github catalog to database
 func AddContentsToDB() {
-	task := Task{}
+	task := Resource{}
 	// Get all directories
 	repoContents, err := polling.GetDirContents(utility.Ctx, utility.Client, "tektoncd", "catalog", "", nil)
 	if err != nil {

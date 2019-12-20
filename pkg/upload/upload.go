@@ -107,7 +107,7 @@ func NewUpload(name string, description string, objectType string, tags []string
 	// Perform lint validation and schema validation here
 
 	// Add Task details to DB
-	newTask := models.Task{}
+	newTask := models.Resource{}
 	newTask.Name = name
 	newTask.Github = github
 	newTask.Description = description
