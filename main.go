@@ -70,23 +70,23 @@ func validate(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	defer file.Close()
-	f, err := os.OpenFile(header.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	filePath := "resources/" + header.Filename
+	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		log.Println(err)
 	}
 	io.Copy(f, file)
-	result := checkLint(fileName)
+	result := checkLint(filePath)
 	if result != "Success\n" {
 		response := ValidationResponse{false, result}
 		json.NewEncoder(w).Encode(response)
-		os.Remove(fileName)
 		return
 	}
 	resourceType := mux.Vars(r)["type"]
 	if resourceType == "task" {
-		err = checkTaskSchema(fileName)
+		err = checkTaskSchema(filePath)
 	} else if resourceType == "pipeline" {
-		err = checkPipelineSchema(fileName)
+		err = checkPipelineSchema(filePath)
 	}
 	if err != nil {
 		response := ValidationResponse{false, err.Error()}
