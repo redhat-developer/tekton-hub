@@ -12,7 +12,9 @@ import (
 
 	"github.com/Pipelines-Marketplace/backend/pkg/authentication"
 	"github.com/Pipelines-Marketplace/backend/pkg/models"
+	"github.com/Pipelines-Marketplace/backend/pkg/polling"
 	"github.com/Pipelines-Marketplace/backend/pkg/upload"
+	"github.com/Pipelines-Marketplace/backend/pkg/utility"
 	"github.com/gorilla/mux"
 )
 
@@ -25,11 +27,11 @@ func GetAllResources(w http.ResponseWriter, r *http.Request) {
 // GetResourceByID writes json encoded resources to ResponseWriter
 func GetResourceByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	userID, err := strconv.Atoi(mux.Vars(r)["id"])
+	resourceID, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "Invalid User ID"})
 	}
-	json.NewEncoder(w).Encode(models.GetResourceByID(userID))
+	json.NewEncoder(w).Encode(models.GetResourceByID(resourceID))
 }
 
 // GetTaskFiles returns a compressed zip with task files
@@ -54,10 +56,20 @@ func GetAllFilteredResourcesByTag(w http.ResponseWriter, r *http.Request) {
 
 // GetResourceYAMLFile returns a compressed zip with task files
 func GetResourceYAMLFile(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/file")
-	taskID := mux.Vars(r)["id"]
-	// Serve the file from github url
-	http.ServeFile(w, r, "tekton/"+taskID+".yaml")
+	resourceID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		log.Println(err)
+	}
+	githubDetails := models.GetResourceGithubDetails(resourceID)
+	desc, err := polling.GetFileContent(utility.Ctx, utility.Client, githubDetails.Owner, githubDetails.RepositoryName, githubDetails.Path, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	content, err := desc.GetContent()
+	if err != nil {
+		log.Println(err)
+	}
+	w.Write([]byte(content))
 }
 
 // GetResourceReadmeFile returns a compressed zip with task files
@@ -157,7 +169,6 @@ func GithubAuth(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	// c, _ := ioutil.ReadAll(r.Body)
 	log.Println("Code", token.Token)
 	var code string
 	code = token.Token
@@ -201,6 +212,12 @@ func GithubAuth(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err)
 		}
+	}
+	// Update token here
+	sqlStatement = `UPDATE USER_CREDENTIAL SET TOKEN=$2 WHERE ID=$1`
+	_, err = models.DB.Exec(sqlStatement, id, t.AccessToken)
+	if err != nil {
+		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(map[string]interface{}{"token": authToken, "user_id": int(id)})
 }

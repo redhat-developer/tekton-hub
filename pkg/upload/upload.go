@@ -42,7 +42,7 @@ type CodeResult struct {
 	TextMatches interface{} `json:"text_matches,omitempty"`
 }
 
-func getGithubOwner(githubURL string) (string, string) {
+func GetGithubOwner(githubURL string) (string, string) {
 	githubURLElements := strings.Split(githubURL, "/")
 	owner := githubURLElements[len(githubURLElements)-2]
 	repositoryName := githubURLElements[len(githubURLElements)-1]
@@ -67,12 +67,12 @@ func getLatestCommit(owner string, repositoryName string) string {
 
 // NewUpload handles uploading of new task/pipeline
 func NewUpload(name string, description string, objectType string, tags []string, github string, userID int) interface{} {
-	isSameTask := models.CheckSameTaskUpload(userID, name)
-	if isSameTask {
-		return map[string]interface{}{"status": false, "message": "Task already exists"}
+	isSameResource := models.CheckSameResourceUpload(userID, name)
+	if isSameResource {
+		return map[string]interface{}{"status": false, "message": objectType + " already exists"}
 	}
 	// Get owner and repository name from github link
-	owner, repositoryName := getGithubOwner(github)
+	owner, repositoryName := GetGithubOwner(github)
 	// Check if owner and repository name is valid
 	paths, err := search(owner, repositoryName, objectType, name)
 	if err != nil {
@@ -81,10 +81,11 @@ func NewUpload(name string, description string, objectType string, tags []string
 	}
 	// Check for field name and kind
 	var content *string
-	var SHA string
+	// var SHA string
 	isTaskPresent := false
+	var resourcePath string
 	for _, path := range paths {
-		content, SHA = getObjectContent(path, owner, repositoryName)
+		content, _ = getObjectContent(path, owner, repositoryName)
 		taskJSON, err := yaml.YAMLToJSON([]byte(*content))
 		if err != nil {
 			log.Println(err)
@@ -96,8 +97,10 @@ func NewUpload(name string, description string, objectType string, tags []string
 			return map[string]interface{}{"status": false, "message": "Invalid YAML format"}
 		}
 		nameMap := objmap["metadata"].(map[string]interface{})
+		// Change here for pipeline
 		if objmap["kind"] == "Task" && nameMap["name"] == name {
 			isTaskPresent = true
+			resourcePath = path
 			break
 		}
 	}
@@ -112,15 +115,22 @@ func NewUpload(name string, description string, objectType string, tags []string
 	newTask.Github = github
 	newTask.Description = description
 	newTask.Tags = tags
-	taskID, err := models.AddTask(&newTask, userID)
+	rawResourcePath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", resourcePath)
+	resourceID, err := models.AddResource(&newTask, userID, owner, repositoryName, resourcePath)
 	if err != nil {
 		log.Println(err)
 		return map[string]interface{}{"status": false, "message": err}
 	}
+
+	// Add a raw path
+	models.AddResourceRawPath(rawResourcePath, resourceID)
 	// Add contents to file
-	createTaskFiles(taskID, name, content)
+	// createTaskFiles(taskID, name, content)
 	// Add new SHA Keys to DB
-	models.AddNewSHA(taskID, SHA)
+	// models.AddNewSHA(taskID, SHA)
+
+	// Add raw github link
+
 	return map[string]interface{}{"status": true, "message": "Upload Successfull"}
 }
 
@@ -146,13 +156,14 @@ func getObjectContent(path string, owner string, repositoryName string) (*string
 		log.Fatalln(err)
 	}
 	// Store the commit SHA in DB
-	log.Println(desc.GetSHA())
+	log.Println(path)
 	return &content, desc.GetSHA()
 }
 
 // Call search method with a given query
-func search(owner string, repositoryName string, objectType string, taskName string) ([]string, error) {
-	query := fmt.Sprintf("https://api.github.com/search/code?q=kind:%v+%v+repo:%v/%v+extension:yaml", objectType, taskName, owner, repositoryName)
+func search(owner string, repositoryName string, objectType string, resourceName string) ([]string, error) {
+	// Use go-github's code search function
+	query := fmt.Sprintf("https://api.github.com/search/code?q=kind:%v+%v+repo:%v/%v+extension:yaml", objectType, resourceName, owner, repositoryName)
 	var result CodeSearchResult
 	request, err := http.NewRequest("GET", query, nil)
 	resp, err := utility.Client.Do(utility.Ctx, request, &result)

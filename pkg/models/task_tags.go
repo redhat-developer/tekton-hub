@@ -53,7 +53,7 @@ func GetAllResourcesWithGivenTags(tags []string) []Resource {
 }
 
 func getResourceTagMap() map[int][]string {
-	sqlStatement := `SELECT DISTINCT T.ID,TG.NAME FROM RESOURCE AS T JOIN RESOURCE_TAG AS TT ON (T.ID=TT.TASK_ID) JOIN TAG AS TG ON (TG.ID=TT.TAG_ID);`
+	sqlStatement := `SELECT DISTINCT T.ID,TG.NAME FROM RESOURCE AS T JOIN RESOURCE_TAG AS TT ON (T.ID=TT.RESOURCE_ID) JOIN TAG AS TG ON (TG.ID=TT.TAG_ID);`
 	rows, err := DB.Query(sqlStatement)
 	// mapping task ID with tag names
 	var taskTagMap map[int][]string

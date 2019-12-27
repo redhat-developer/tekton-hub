@@ -63,11 +63,11 @@ func GetYAMLContentWithSHA(dir *github.RepositoryContent, file *github.Repositor
 	if strings.HasSuffix(file.GetName(), ".yaml") {
 		desc, err := polling.GetFileContent(Ctx, Client, "tektoncd", "catalog", dir.GetName()+"/"+file.GetName(), nil)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 		content, err := desc.GetContent()
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 
 		return content, desc.GetSHA(), err

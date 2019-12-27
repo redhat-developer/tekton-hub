@@ -18,6 +18,13 @@ type UserTaskResponse struct {
 	Downloads int     `json:"downloads"`
 }
 
+// ResourceGithubResponse represents response for GetResourceGithubDetails query
+type ResourceGithubResponse struct {
+	Owner          string
+	RepositoryName string
+	Path           string
+}
+
 // GetAllTasksByUser will return all tasks uploaded by user
 func GetAllTasksByUser(userID int) []UserTaskResponse {
 	sqlStatement := `SELECT ID,NAME,DOWNLOADS,RATING FROM TASK T JOIN USER_TASK 
@@ -37,4 +44,32 @@ func GetAllTasksByUser(userID int) []UserTaskResponse {
 		tasks = append(tasks, task)
 	}
 	return tasks
+}
+
+// GetGithubToken will return github token by ID
+func GetGithubToken(userID int) string {
+	var token string
+	sqlStatement := `SELECT TOKEN FROM USER_CREDENTIAL WHERE ID=$1`
+	DB.QueryRow(sqlStatement, userID).Scan(&token)
+	return token
+}
+
+// AddResourceRawPath will add a raw path for resource
+func AddResourceRawPath(resourcePath string, resourceID int) {
+	sqlStatement := `INSERT INTO RESOURCE_RAW_PATH(RESOURCE_ID,RAW_PATH) VALUES($1,$2)`
+	_, err := DB.Exec(sqlStatement, resourceID, resourcePath)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+// GetResourceGithubDetails will return resource path and github details
+func GetResourceGithubDetails(resourceID int) ResourceGithubResponse {
+	sqlStatement := `SELECT OWNER,REPOSITORY_NAME,PATH FROM USER_RESOURCE WHERE RESOURCE_ID=$1`
+	var path string
+	var owner string
+	var repositoryName string
+	DB.QueryRow(sqlStatement, resourceID).Scan(&owner, &repositoryName, &path)
+	githubDetails := ResourceGithubResponse{owner, repositoryName, path}
+	return githubDetails
 }

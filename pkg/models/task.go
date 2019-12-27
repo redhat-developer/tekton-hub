@@ -27,19 +27,19 @@ func addTask(task *Resource) {
 	}
 }
 
-// AddTask will add a new task
-func AddTask(task *Resource, userID int) (int, error) {
-	var taskID int
+// AddResource will add a new resource
+func AddResource(resource *Resource, userID int, owner string, respositoryName string, path string) (int, error) {
+	var resourceID int
 	sqlStatement := `
-	INSERT INTO TASK (NAME,DESCRIPTION,DOWNLOADS,RATING,GITHUB)
+	INSERT INTO RESOURCE (NAME,DESCRIPTION,DOWNLOADS,RATING,GITHUB)
 	VALUES ($1, $2, $3, $4, $5) RETURNING ID`
-	err := DB.QueryRow(sqlStatement, task.Name, task.Description, task.Downloads, task.Rating, task.Github).Scan(&taskID)
+	err := DB.QueryRow(sqlStatement, resource.Name, resource.Description, resource.Downloads, resource.Rating, resource.Github).Scan(&resourceID)
 	if err != nil {
 		return 0, err
 	}
 	// Add Tags separately
-	if len(task.Tags) > 0 {
-		for _, tag := range task.Tags {
+	if len(resource.Tags) > 0 {
+		for _, tag := range resource.Tags {
 			tagExists := true
 			// Use existing tags if already exists
 			var tagID int
@@ -51,51 +51,51 @@ func AddTask(task *Resource, userID int) (int, error) {
 			}
 			// If tag already exists
 			if tagExists {
-				addTaskTag(taskID, tagID)
+				addResourceTag(resourceID, tagID)
 			} else {
 				var newTagID int
 				newTagID, err = AddTag(tag)
 				if err != nil {
 					log.Println(err)
 				}
-				addTaskTag(taskID, newTagID)
+				addResourceTag(resourceID, newTagID)
 			}
 		}
 	}
-	return taskID, addUserTask(userID, taskID)
+	return resourceID, addUserResource(userID, resourceID, owner, respositoryName, path)
 }
 
-func addTaskTag(taskID int, tagID int) {
-	sqlStatement := `INSERT INTO RESOURCE_TAG(TASK_ID,TAG_ID) VALUES($1,$2)`
-	_, err := DB.Exec(sqlStatement, taskID, tagID)
+func addResourceTag(resourceID int, tagID int) {
+	sqlStatement := `INSERT INTO RESOURCE_TAG(RESOURCE_ID,TAG_ID) VALUES($1,$2)`
+	_, err := DB.Exec(sqlStatement, resourceID, tagID)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func addUserTask(userID int, taskID int) error {
-	sqlStatement := `INSERT INTO USER_TASK(TASK_ID,USER_ID) VALUES($1,$2)`
-	_, err := DB.Exec(sqlStatement, taskID, userID)
+func addUserResource(userID int, resourceID int, owner string, respositoryName string, path string) error {
+	sqlStatement := `INSERT INTO USER_RESOURCE(RESOURCE_ID,USER_ID,OWNER,REPOSITORY_NAME,PATH) VALUES($1,$2,$3,$4,$5)`
+	_, err := DB.Exec(sqlStatement, resourceID, userID, owner, respositoryName, path)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// CheckSameTaskUpload will checkif the user submitted the same task again
-func CheckSameTaskUpload(userID int, name string) bool {
-	sqlStatement := `SELECT T.NAME FROM TASK T JOIN USER_TASK U ON T.ID=U.TASK_ID WHERE U.USER_ID=$1`
+// CheckSameResourceUpload will checkif the user submitted the same resource again
+func CheckSameResourceUpload(userID int, name string) bool {
+	sqlStatement := `SELECT T.NAME FROM RESOURCE T JOIN USER_RESOURCE U ON T.ID=U.RESOURCE_ID WHERE U.USER_ID=$1`
 	rows, err := DB.Query(sqlStatement, userID)
 	if err != nil {
 		log.Println(err)
 	}
 	for rows.Next() {
-		var taskName string
-		err := rows.Scan(&taskName)
+		var resourceName string
+		err := rows.Scan(&resourceName)
 		if err != nil {
 			log.Println(err)
 		}
-		if taskName == name {
+		if resourceName == name {
 			return true
 		}
 	}
@@ -131,7 +131,7 @@ func GetAllResources() []Resource {
 		resourceIndex = resourceIndex + 1
 	}
 
-	sqlStatement = `SELECT R.ID,TG.NAME FROM TAG TG JOIN RESOURCE_TAG TT ON TT.TAG_ID=TG.ID JOIN RESOURCE R ON R.ID=TT.TASK_ID`
+	sqlStatement = `SELECT R.ID,TG.NAME FROM TAG TG JOIN RESOURCE_TAG TT ON TT.TAG_ID=TG.ID JOIN RESOURCE R ON R.ID=TT.RESOURCE_ID`
 	rows, err = DB.Query(sqlStatement)
 	if err != nil {
 		log.Println(err)
