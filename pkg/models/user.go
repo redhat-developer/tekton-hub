@@ -20,15 +20,17 @@ type UserTaskResponse struct {
 
 // ResourceGithubResponse represents response for GetResourceGithubDetails query
 type ResourceGithubResponse struct {
+	ResourceID     int
 	Owner          string
 	RepositoryName string
 	Path           string
+	ReadmePath     string
 }
 
-// GetAllTasksByUser will return all tasks uploaded by user
-func GetAllTasksByUser(userID int) []UserTaskResponse {
-	sqlStatement := `SELECT ID,NAME,DOWNLOADS,RATING FROM TASK T JOIN USER_TASK 
-	U ON T.ID=U.TASK_ID WHERE U.USER_ID=$1`
+// GetAllResourcesByUser will return all tasks uploaded by user
+func GetAllResourcesByUser(userID int) []UserTaskResponse {
+	sqlStatement := `SELECT ID,NAME,DOWNLOADS,RATING FROM RESOURCE T JOIN USER_RESOURCE 
+	U ON T.ID=U.RESOURCE_ID WHERE U.USER_ID=$1`
 	rows, err := DB.Query(sqlStatement, userID)
 	if err != nil {
 		log.Println(err)
@@ -65,11 +67,8 @@ func AddResourceRawPath(resourcePath string, resourceID int) {
 
 // GetResourceGithubDetails will return resource path and github details
 func GetResourceGithubDetails(resourceID int) ResourceGithubResponse {
-	sqlStatement := `SELECT OWNER,REPOSITORY_NAME,PATH FROM USER_RESOURCE WHERE RESOURCE_ID=$1`
-	var path string
-	var owner string
-	var repositoryName string
-	DB.QueryRow(sqlStatement, resourceID).Scan(&owner, &repositoryName, &path)
-	githubDetails := ResourceGithubResponse{owner, repositoryName, path}
+	sqlStatement := `SELECT * FROM GITHUB_DETAIL WHERE RESOURCE_ID=$1`
+	githubDetails := ResourceGithubResponse{}
+	DB.QueryRow(sqlStatement, resourceID).Scan(&githubDetails.ResourceID, &githubDetails.Owner, &githubDetails.RepositoryName, &githubDetails.Path, &githubDetails.ReadmePath)
 	return githubDetails
 }

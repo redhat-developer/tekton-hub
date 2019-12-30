@@ -34,14 +34,6 @@ func GetResourceByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models.GetResourceByID(resourceID))
 }
 
-// GetTaskFiles returns a compressed zip with task files
-func GetTaskFiles(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/zip")
-	GetCompressedFiles(mux.Vars(r)["name"])
-	// Serve the created zip file
-	http.ServeFile(w, r, "finalZipFile.zip")
-}
-
 // GetAllTags writes json encoded list of tags to Responsewriter
 func GetAllTags(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -72,15 +64,26 @@ func GetResourceYAMLFile(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(content))
 }
 
-// GetResourceReadmeFile returns a compressed zip with task files
+// GetResourceReadmeFile will return  a README file
 func GetResourceReadmeFile(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/file")
-	taskID := mux.Vars(r)["id"]
-	readmeExists := models.DoesREADMEExist(taskID)
-	if readmeExists {
-		http.ServeFile(w, r, "readme/"+taskID+".md")
+	resourceID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		log.Println(err)
 	}
-	json.NewEncoder(w).Encode("noreadme")
+	githubDetails := models.GetResourceGithubDetails(resourceID)
+	if githubDetails.ReadmePath == "" {
+		json.NewEncoder(w).Encode("noreadme")
+		return
+	}
+	desc, err := polling.GetFileContent(utility.Ctx, utility.Client, githubDetails.Owner, githubDetails.RepositoryName, githubDetails.ReadmePath, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	content, err := desc.GetContent()
+	if err != nil {
+		log.Println(err)
+	}
+	w.Write([]byte(content))
 }
 
 // DownloadFile returns a requested YAML file
@@ -247,17 +250,30 @@ func getUserDetails(accessToken string) (string, int) {
 	}
 	username := userData["login"].(string)
 	id := userData["id"].(float64)
-	log.Println(id)
 	return string(username), int(id)
 }
 
-// GetAllTasksByUserHandler will return all tasks uploaded by user
-func GetAllTasksByUserHandler(w http.ResponseWriter, r *http.Request) {
+// GetAllResourcesByUserHandler will return all tasks uploaded by user
+func GetAllResourcesByUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	userID, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "Invalid User ID"})
 	}
-	json.NewEncoder(w).Encode(models.GetAllTasksByUser(userID))
+	json.NewEncoder(w).Encode(models.GetAllResourcesByUser(userID))
+}
 
+// DeleteResourceHandler handles resource deletion
+func DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	resourceID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		log.Println(err)
+	}
+	err = models.DeleteResource(resourceID)
+	if err != nil {
+		log.Println(err)
+		json.NewEncoder(w).Encode(map[string]interface{}{"status": true, "message": err})
+	}
+	json.NewEncoder(w).Encode(map[string]interface{}{"status": true, "message": "Successfully Deleted"})
 }

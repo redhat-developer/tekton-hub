@@ -7,8 +7,8 @@ import (
 
 // HandleRouters handle routes
 func HandleRouters(router *mux.Router) {
-	router.HandleFunc("/resource/{id}", api.GetResourceByID).Methods("GET") //
-	router.HandleFunc("/task/{name}/files", api.GetTaskFiles).Methods("GET")
+	router.HandleFunc("/resource/{id}", api.GetResourceByID).Methods("GET")
+	router.HandleFunc("/resource/{id}", api.DeleteResourceHandler).Methods("DELETE")                                 //
 	router.HandleFunc("/resource/{id}/yaml", api.GetResourceYAMLFile).Methods("GET")                                 //
 	router.HandleFunc("/resource/{id}/readme", api.GetResourceReadmeFile).Methods("GET")                             //
 	router.HandleFunc("/tags", api.GetAllTags).Methods("GET")                                                        //
@@ -22,5 +22,5 @@ func HandleRouters(router *mux.Router) {
 	router.HandleFunc("/stars", api.GetPrevStars).Methods("POST") //
 
 	router.HandleFunc("/oauth/redirect", api.GithubAuth).Methods("POST")
-	router.HandleFunc("/tasks/user/{id}", api.GetAllTasksByUserHandler).Methods("GET")
+	router.HandleFunc("/resources/user/{id}", api.GetAllResourcesByUserHandler).Methods("GET")
 }

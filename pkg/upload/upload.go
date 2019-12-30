@@ -110,13 +110,14 @@ func NewUpload(name string, description string, objectType string, tags []string
 	// Perform lint validation and schema validation here
 
 	// Add Task details to DB
-	newTask := models.Resource{}
-	newTask.Name = name
-	newTask.Github = github
-	newTask.Description = description
-	newTask.Tags = tags
+	resource := models.Resource{
+		Name:        name,
+		Github:      github,
+		Description: description,
+		Tags:        tags,
+	}
 	rawResourcePath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", resourcePath)
-	resourceID, err := models.AddResource(&newTask, userID, owner, repositoryName, resourcePath)
+	resourceID, err := models.AddResource(&resource, userID, owner, repositoryName, resourcePath)
 	if err != nil {
 		log.Println(err)
 		return map[string]interface{}{"status": false, "message": err}
@@ -124,12 +125,6 @@ func NewUpload(name string, description string, objectType string, tags []string
 
 	// Add a raw path
 	models.AddResourceRawPath(rawResourcePath, resourceID)
-	// Add contents to file
-	// createTaskFiles(taskID, name, content)
-	// Add new SHA Keys to DB
-	// models.AddNewSHA(taskID, SHA)
-
-	// Add raw github link
 
 	return map[string]interface{}{"status": true, "message": "Upload Successfull"}
 }

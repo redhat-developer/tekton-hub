@@ -15,16 +15,21 @@ type Resource struct {
 	Rating      float64  `json:"rating"`
 	Github      string   `json:"github"`
 	Tags        []string `json:"tags"`
+	Verified    bool     `json:"verified"`
 }
 
-func addTask(task *Resource) {
+// AddCatalogResource is called to add resource from catalog
+func AddCatalogResource(resource *Resource) (int, error) {
 	sqlStatement := `
-	INSERT INTO TASK (NAME,DESCRIPTION,DOWNLOADS,RATING,GITHUB)
-	VALUES ($1, $2, $3, $4, $5)`
-	_, err := DB.Exec(sqlStatement, task.Name, task.Description, task.Downloads, task.Rating, task.Github)
+	INSERT INTO RESOURCE (NAME,DOWNLOADS,RATING,GITHUB) 
+	VALUES ($1, $2, $3, $4) RETURNING ID`
+	var resourceID int
+	err := DB.QueryRow(sqlStatement, resource.Name, resource.Downloads, resource.Rating, resource.Github).Scan(&resourceID)
 	if err != nil {
 		log.Println(err)
+		return 0, err
 	}
+	return resourceID, nil
 }
 
 // AddResource will add a new resource
@@ -62,7 +67,8 @@ func AddResource(resource *Resource, userID int, owner string, respositoryName s
 			}
 		}
 	}
-	return resourceID, addUserResource(userID, resourceID, owner, respositoryName, path)
+	addGithubDetails(resourceID, owner, respositoryName, path)
+	return resourceID, addUserResource(userID, resourceID)
 }
 
 func addResourceTag(resourceID int, tagID int) {
@@ -73,9 +79,33 @@ func addResourceTag(resourceID int, tagID int) {
 	}
 }
 
-func addUserResource(userID int, resourceID int, owner string, respositoryName string, path string) error {
-	sqlStatement := `INSERT INTO USER_RESOURCE(RESOURCE_ID,USER_ID,OWNER,REPOSITORY_NAME,PATH) VALUES($1,$2,$3,$4,$5)`
-	_, err := DB.Exec(sqlStatement, resourceID, userID, owner, respositoryName, path)
+func addGithubDetails(resourceID int, owner string, respositoryName string, path string) {
+	sqlStatement := `INSERT INTO GITHUB_DETAIL(RESOURCE_ID,OWNER,REPOSITORY_NAME,PATH) VALUES($1,$2,$3,$4)`
+	_, err := DB.Exec(sqlStatement, resourceID, owner, respositoryName, path)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func updateGithubYAMLDetails(resourceID int, path string) {
+	sqlStatement := `UPDATE GITHUB_DETAIL SET PATH=$1 WHERE RESOURCE_ID=$2`
+	_, err := DB.Exec(sqlStatement, path, resourceID)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func updateGithubREADMEDetails(resourceID int, path string) {
+	sqlStatement := `UPDATE GITHUB_DETAIL SET README_PATH=$1 WHERE RESOURCE_ID=$2`
+	_, err := DB.Exec(sqlStatement, path, resourceID)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func addUserResource(userID int, resourceID int) error {
+	sqlStatement := `INSERT INTO USER_RESOURCE(RESOURCE_ID,USER_ID) VALUES($1,$2)`
+	_, err := DB.Exec(sqlStatement, resourceID, userID)
 	if err != nil {
 		return err
 	}
@@ -111,14 +141,14 @@ func GetAllResources() []Resource {
 	defer rows.Close()
 	for rows.Next() {
 		resource := Resource{}
-		err = rows.Scan(&resource.ID, &resource.Name, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Type)
+		err = rows.Scan(&resource.ID, &resource.Name, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Type, &resource.Verified)
 		if err != nil {
 			log.Println(err)
 		}
 		resources = append(resources, resource)
 	}
 	resourceIndexMap := make(map[int]int)
-	sqlStatement = `SELECT ID FROM RESOURCE`
+	sqlStatement = `SELECT ID FROM RESOURCE ORDER BY ID`
 	rows, err = DB.Query(sqlStatement)
 	if err != nil {
 		log.Println(err)
@@ -156,7 +186,7 @@ func GetResourceByID(id int) Resource {
 	resourceTagMap = getResourceTagMap()
 	sqlStatement := `
 	SELECT * FROM RESOURCE WHERE ID=$1;`
-	err := DB.QueryRow(sqlStatement, id).Scan(&resource.ID, &resource.Name, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Type)
+	err := DB.QueryRow(sqlStatement, id).Scan(&resource.ID, &resource.Name, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Type, &resource.Verified)
 	if err != nil {
 		return Resource{}
 	}
@@ -176,7 +206,6 @@ func GetTaskNameFromID(taskID string) string {
 	if err != nil {
 		return ""
 	}
-	log.Println(taskName)
 	return taskName
 }
 
@@ -211,8 +240,28 @@ func GetResourceIDFromName(name string) (int, error) {
 	err := DB.QueryRow(sqlStatement, name).Scan(&resourceID)
 	if err != nil {
 		log.Println(err)
-		log.Println(name)
 		return 0, err
 	}
 	return resourceID, nil
+}
+
+func resourceExists(resourceName string) bool {
+	sqlStatement := `SELECT EXISTS(SELECT 1 FROM RESOURCE WHERE NAME=$1 AND VERIFIED=$2)`
+	var exists bool
+	err := DB.QueryRow(sqlStatement, resourceName, true).Scan(&exists)
+	if err != nil {
+		log.Println(err)
+	}
+	return exists
+}
+
+// DeleteResource will delete a resource
+func DeleteResource(resourceID int) error {
+	sqlStatement := `DELETE FROM RESOURCE WHERE ID=$1`
+	_, err := DB.Exec(sqlStatement, resourceID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
