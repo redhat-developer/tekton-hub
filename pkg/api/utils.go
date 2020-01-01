@@ -7,3 +7,13 @@ type AddRatingsRequest struct {
 	Stars      int `json:"stars"`
 	PrevStars  int `json:"prev_stars"`
 }
+
+// OAuthAccessResponse represents access_token
+type OAuthAccessResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
+// Code will
+type Code struct {
+	Token string `json:"token"`
+}

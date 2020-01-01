@@ -10,3 +10,9 @@ type UpdatedRatingResponse struct {
 	FiveStar   int     `json:"five_star"`
 	Average    float64 `json:"average"`
 }
+
+// RawLinksResponse represents response for GetResourecLinks API
+type RawLinksResponse struct {
+	Tasks     []string `json:"tasks"`
+	Pipelines []string `json:"pipelines"`
+}

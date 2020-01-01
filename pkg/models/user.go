@@ -72,3 +72,28 @@ func GetResourceGithubDetails(resourceID int) ResourceGithubResponse {
 	DB.QueryRow(sqlStatement, resourceID).Scan(&githubDetails.ResourceID, &githubDetails.Owner, &githubDetails.RepositoryName, &githubDetails.Path, &githubDetails.ReadmePath)
 	return githubDetails
 }
+
+// GetResourceRawLinks will return raw github links by ID
+func GetResourceRawLinks(resourceID int) RawLinksResponse {
+	// sqlStatement := `SELECT TYPE FROM RESOURCE WHERE ID=$1`
+	// var resourceType string
+	// DB.QueryRow(sqlStatement, resourceID).Scan(&resourceType)
+	sqlStatement := `SELECT * FROM RESOURCE_RAW_PATH WHERE RESOURCE_ID=$1`
+	rows, err := DB.Query(sqlStatement, resourceID)
+	if err != nil {
+		log.Println(err)
+	}
+	links := RawLinksResponse{}
+	for rows.Next() {
+		var link string
+		var rawResourceType string
+		var id int
+		rows.Scan(&id, &link, &rawResourceType)
+		if rawResourceType == "task" {
+			links.Tasks = append(links.Tasks, link)
+		} else if rawResourceType == "pipeline" {
+			links.Pipelines = append(links.Pipelines, link)
+		}
+	}
+	return links
+}

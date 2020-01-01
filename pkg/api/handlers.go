@@ -86,14 +86,6 @@ func GetResourceReadmeFile(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(content))
 }
 
-// DownloadFile returns a requested YAML file
-func DownloadFile(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/file")
-	taskID := mux.Vars(r)["id"]
-	models.IncrementDownloads(taskID)
-	http.ServeFile(w, r, "tekton/"+taskID+".yaml")
-}
-
 // UpdateRating will add a new rating
 func UpdateRating(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -147,16 +139,6 @@ func GetPrevStars(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(models.GetUserRating(previousStarRequestBody.UserID, previousStarRequestBody.ResourceID))
 
-}
-
-// OAuthAccessResponse represents access_token
-type OAuthAccessResponse struct {
-	AccessToken string `json:"access_token"`
-}
-
-// Code will
-type Code struct {
-	Token string `json:"token"`
 }
 
 // GithubAuth handles OAuth by Github
@@ -276,4 +258,15 @@ func DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]interface{}{"status": true, "message": err})
 	}
 	json.NewEncoder(w).Encode(map[string]interface{}{"status": true, "message": "Successfully Deleted"})
+}
+
+// GetResourceLinksHandler will return raw github links
+func GetResourceLinksHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	resourceID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		log.Println(err)
+	}
+	links := models.GetResourceRawLinks(resourceID)
+	json.NewEncoder(w).Encode(links)
 }
