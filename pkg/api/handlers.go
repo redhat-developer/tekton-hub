@@ -192,18 +192,20 @@ func GithubAuth(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println(exists)
 	if !exists {
-		sqlStatement := `INSERT INTO USER_CREDENTIAL(ID,USERNAME,FIRST_NAME) VALUES($1,$2,$3)`
-		_, err := models.DB.Exec(sqlStatement, id, "github", "github")
+		sqlStatement := `INSERT INTO USER_CREDENTIAL(ID,USERNAME,FIRST_NAME,TOKEN) VALUES($1,$2,$3,$4)`
+		_, err := models.DB.Exec(sqlStatement, id, "github", "github", t.AccessToken)
+		if err != nil {
+			log.Println(err)
+		}
+	} else {
+		// Update token if user exists
+		sqlStatement = `UPDATE USER_CREDENTIAL SET TOKEN=$2 WHERE ID=$1`
+		_, err = models.DB.Exec(sqlStatement, id, t.AccessToken)
 		if err != nil {
 			log.Println(err)
 		}
 	}
-	// Update token here
-	sqlStatement = `UPDATE USER_CREDENTIAL SET TOKEN=$2 WHERE ID=$1`
-	_, err = models.DB.Exec(sqlStatement, id, t.AccessToken)
-	if err != nil {
-		log.Println(err)
-	}
+
 	json.NewEncoder(w).Encode(map[string]interface{}{"token": authToken, "user_id": int(id)})
 }
 

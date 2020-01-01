@@ -1,6 +1,7 @@
 package upload
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -13,6 +14,8 @@ import (
 	"github.com/Pipelines-Marketplace/backend/pkg/polling"
 	"github.com/Pipelines-Marketplace/backend/pkg/utility"
 	"github.com/ghodss/yaml"
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 )
 
 // NewUploadRequestObject represents new task/pipelines
@@ -42,6 +45,7 @@ type CodeResult struct {
 	TextMatches interface{} `json:"text_matches,omitempty"`
 }
 
+// GetGithubOwner will return github owner and repo name from URL
 func GetGithubOwner(githubURL string) (string, string) {
 	githubURLElements := strings.Split(githubURL, "/")
 	owner := githubURLElements[len(githubURLElements)-2]
@@ -74,7 +78,7 @@ func NewUpload(name string, description string, objectType string, tags []string
 	// Get owner and repository name from github link
 	owner, repositoryName := GetGithubOwner(github)
 	// Check if owner and repository name is valid
-	paths, err := search(owner, repositoryName, objectType, name)
+	paths, err := search(owner, repositoryName, objectType, name, userID)
 	if err != nil {
 		log.Println(err)
 		return map[string]interface{}{"status": false, "message": "The listed users and repositories cannot be searched either because the resources do not exist or you do not have permission to view them."}
@@ -156,12 +160,18 @@ func getObjectContent(path string, owner string, repositoryName string) (*string
 }
 
 // Call search method with a given query
-func search(owner string, repositoryName string, objectType string, resourceName string) ([]string, error) {
+func search(owner string, repositoryName string, objectType string, resourceName string, userID int) ([]string, error) {
 	// Use go-github's code search function
 	query := fmt.Sprintf("https://api.github.com/search/code?q=kind:%v+%v+repo:%v/%v+extension:yaml", objectType, resourceName, owner, repositoryName)
 	var result CodeSearchResult
 	request, err := http.NewRequest("GET", query, nil)
-	resp, err := utility.Client.Do(utility.Ctx, request, &result)
+	client, ctx := getGithubClientForUser(userID)
+	var resp *github.Response
+	if client != nil && ctx != nil {
+		resp, err = client.Do(ctx, request, &result)
+	} else {
+		resp, err = utility.Client.Do(utility.Ctx, request, &result)
+	}
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -169,4 +179,21 @@ func search(owner string, repositoryName string, objectType string, resourceName
 	defer resp.Body.Close()
 	paths := getPathsFromCodeResult(result.CodeResults)
 	return paths, nil
+}
+
+func getGithubClientForUser(userID int) (*github.Client, context.Context) {
+	sqlStatement := `SELECT TOKEN FROM USER_CREDENTIAL WHERE ID=$1`
+	var token string
+	err := models.DB.QueryRow(sqlStatement, userID).Scan(&token)
+	if err != nil {
+		log.Println(err)
+		return nil, nil
+	}
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+	return client, ctx
 }
