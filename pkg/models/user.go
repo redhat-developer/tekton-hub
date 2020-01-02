@@ -75,9 +75,6 @@ func GetResourceGithubDetails(resourceID int) ResourceGithubResponse {
 
 // GetResourceRawLinks will return raw github links by ID
 func GetResourceRawLinks(resourceID int) RawLinksResponse {
-	// sqlStatement := `SELECT TYPE FROM RESOURCE WHERE ID=$1`
-	// var resourceType string
-	// DB.QueryRow(sqlStatement, resourceID).Scan(&resourceType)
 	sqlStatement := `SELECT * FROM RESOURCE_RAW_PATH WHERE RESOURCE_ID=$1`
 	rows, err := DB.Query(sqlStatement, resourceID)
 	if err != nil {
