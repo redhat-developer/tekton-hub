@@ -157,10 +157,10 @@ func doesResourceExist(paths []string, owner string, repositoryName string, reso
 
 // NewUploadPipeline handles uploading of new task/pipeline
 func NewUploadPipeline(name string, description string, objectType string, tags []string, github string, userID int) interface{} {
-	isSameResource := models.CheckSameResourceUpload(userID, name)
-	if isSameResource {
-		return map[string]interface{}{"status": false, "message": objectType + " already exists"}
-	}
+	// isSameResource := models.CheckSameResourceUpload(userID, name)
+	// if isSameResource {
+	// 	return map[string]interface{}{"status": false, "message": objectType + " already exists"}
+	// }
 	// Get owner and repository name from github link
 	owner, repositoryName := GetGithubOwner(github)
 	// Check if owner and repository name is valid
@@ -176,9 +176,7 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 	var resourcePath string
 	// Check if the resource exists
 	isPipelinePresent, resourcePath, content = doesResourceExist(paths, owner, repositoryName, name, objectType)
-	if isPipelinePresent == false && resourcePath == "" {
-		return map[string]interface{}{"status": false, "message": "Invalid Pipeline schema"}
-	} else if isPipelinePresent == false {
+	if isPipelinePresent == false {
 		return map[string]interface{}{"status": false, "message": name + ": Pipeline with the given name doesn't exist"}
 	}
 	log.Println(resourcePath)
@@ -199,14 +197,13 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 		isTaskPresent := false
 		var taskPath string
 		isTaskPresent, taskPath, _ = doesResourceExist(paths, owner, repositoryName, pipelineTask.TaskRef.Name, "Task")
-		if isTaskPresent == false && taskPath == "" {
-			return map[string]interface{}{"status": false, "message": "Invalid Task schema"}
-		} else if isTaskPresent == false {
+		if isTaskPresent == false {
 			return map[string]interface{}{"status": false, "message": name + ": Task with the given name doesn't exist"}
+		} else if isTaskPresent == false && taskPath == "" {
+			return map[string]interface{}{"status": false, "message": "Invalid Task schema"}
 		}
 		rawTaskPath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", taskPath)
 		rawTaskPaths = append(rawTaskPaths, rawTaskPath)
-
 	}
 	log.Println(rawTaskPaths)
 	// Perform lint validation and schema validation here
