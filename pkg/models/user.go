@@ -57,9 +57,9 @@ func GetGithubToken(userID int) string {
 }
 
 // AddResourceRawPath will add a raw path for resource
-func AddResourceRawPath(resourcePath string, resourceID int) {
-	sqlStatement := `INSERT INTO RESOURCE_RAW_PATH(RESOURCE_ID,RAW_PATH) VALUES($1,$2)`
-	_, err := DB.Exec(sqlStatement, resourceID, resourcePath)
+func AddResourceRawPath(resourcePath string, resourceID int, resourceType string) {
+	sqlStatement := `INSERT INTO RESOURCE_RAW_PATH(RESOURCE_ID,RAW_PATH,TYPE) VALUES($1,$2,$3)`
+	_, err := DB.Exec(sqlStatement, resourceID, resourcePath, resourceType)
 	if err != nil {
 		log.Println(err)
 	}
@@ -89,9 +89,9 @@ func GetResourceRawLinks(resourceID int) RawLinksResponse {
 		var rawResourceType string
 		var id int
 		rows.Scan(&id, &link, &rawResourceType)
-		if rawResourceType == "task" {
+		if rawResourceType == "Task" {
 			links.Tasks = append(links.Tasks, link)
-		} else if rawResourceType == "pipeline" {
+		} else if rawResourceType == "Pipeline" {
 			links.Pipelines = append(links.Pipelines, link)
 		}
 	}

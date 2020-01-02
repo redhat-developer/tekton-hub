@@ -111,7 +111,7 @@ func AddResourcesFromCatalog(owner string, repositoryName string) {
 					log.Println(dir.GetName() + " " + file.GetName())
 					// Store the raw file path
 					rawResourcePath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", resourcePath)
-					AddResourceRawPath(rawResourcePath, resourceID)
+					AddResourceRawPath(rawResourcePath, resourceID, "Task")
 				} else if strings.HasSuffix(file.GetName(), ".md") {
 					// Store the path of README file
 					log.Println(dir.GetName() + " " + file.GetName())
@@ -160,7 +160,7 @@ func UpdateResourcesFromCatalog(owner string, repositoryName string) {
 						updateGithubYAMLDetails(resourceID, resourcePath)
 						// Store the raw file path
 						rawResourcePath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", resourcePath)
-						AddResourceRawPath(rawResourcePath, resourceID)
+						AddResourceRawPath(rawResourcePath, resourceID, "Task")
 					} else if strings.HasSuffix(file.GetName(), ".md") {
 						// Store the path of README file
 						updateGithubREADMEDetails(resourceID, resourcePath)

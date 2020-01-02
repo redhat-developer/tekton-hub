@@ -126,7 +126,11 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	json.NewEncoder(w).Encode(upload.NewUpload(uploadRequestBody.Name, uploadRequestBody.Description, uploadRequestBody.Type, uploadRequestBody.Tags, uploadRequestBody.Github, uploadRequestBody.UserID))
+	if uploadRequestBody.Type == "Task" {
+		json.NewEncoder(w).Encode(upload.NewUpload(uploadRequestBody.Name, uploadRequestBody.Description, uploadRequestBody.Type, uploadRequestBody.Tags, uploadRequestBody.Github, uploadRequestBody.UserID))
+	} else if uploadRequestBody.Type == "Pipeline" {
+		json.NewEncoder(w).Encode(upload.NewUploadPipeline(uploadRequestBody.Name, uploadRequestBody.Description, uploadRequestBody.Type, uploadRequestBody.Tags, uploadRequestBody.Github, uploadRequestBody.UserID))
+	}
 }
 
 // GetPrevStars will return the previous rating

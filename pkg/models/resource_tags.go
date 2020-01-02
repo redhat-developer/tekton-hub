@@ -31,7 +31,7 @@ func GetAllResourcesWithGivenTags(tags []string) []Resource {
 	resourceTagMap = getResourceTagMap()
 	sqlStatement := `
 	SELECT DISTINCT T.ID,T.NAME,T.TYPE,T.DESCRIPTION,T.DOWNLOADS,T.RATING,T.GITHUB
-	FROM RESOURCE AS T JOIN RESOURCE_TAG AS TT ON (T.ID=TT.TASK_ID) JOIN TAG
+	FROM RESOURCE AS T JOIN RESOURCE_TAG AS TT ON (T.ID=TT.RESOURCE_ID) JOIN TAG
 	AS TG ON (TG.ID=TT.TAG_ID AND TG.NAME in (` +
 		params + `));`
 	log.Println(sqlStatement)
