@@ -2,11 +2,17 @@ package models
 
 // UpdatedRatingResponse represents response for ratings API
 type UpdatedRatingResponse struct {
-	TaskID    int     `json:"task_id"`
-	OneStar   int     `json:"one_star"`
-	TwoStar   int     `json:"two_star"`
-	ThreeStar int     `json:"three_star"`
-	FourStar  int     `json:"four_star"`
-	FiveStar  int     `json:"five_star"`
-	Average   float64 `json:"average"`
+	ResourceID int     `json:"resource_id"`
+	OneStar    int     `json:"one_star"`
+	TwoStar    int     `json:"two_star"`
+	ThreeStar  int     `json:"three_star"`
+	FourStar   int     `json:"four_star"`
+	FiveStar   int     `json:"five_star"`
+	Average    float64 `json:"average"`
+}
+
+// RawLinksResponse represents response for GetResourecLinks API
+type RawLinksResponse struct {
+	Tasks     []string `json:"tasks"`
+	Pipelines []string `json:"pipelines"`
 }

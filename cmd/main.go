@@ -15,8 +15,7 @@ func main() {
 	if err := models.StartConnection(); err != nil {
 		log.Fatalln(err)
 	}
-	// models.AddContentsToDB()
-	// upload.GetAllYAMLFilesFromRepository("golang-build", "https://github.com/tektoncd/catalog")
+	// models.AddResourcesFromCatalog("tektoncd", "catalog")
 	routers.HandleRouters(router)
-	http.ListenAndServe(":5000", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(router))
+	http.ListenAndServe(":5000", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "DELETE"}), handlers.AllowedOrigins([]string{"*"}))(router))
 }
