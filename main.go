@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,7 +22,8 @@ type ValidationResponse struct {
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/validate/{type}/{fileName}", validate).Methods("POST")
+	log.Println("Successfull Connection")
+	router.HandleFunc("/validate/{type}/{id}", validate).Methods("POST")
 	http.ListenAndServe(":5001", router)
 }
 func checkPipelineSchema(fileName string) error {
@@ -63,23 +63,23 @@ func checkTaskSchema(fileName string) error {
 }
 
 func validate(w http.ResponseWriter, r *http.Request) {
+	content, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+	}
 	w.Header().Set("Content-Type", "application/json")
-	fileName := mux.Vars(r)["fileName"]
-	file, header, err := r.FormFile(fileName)
+	resourceID := mux.Vars(r)["id"]
+	filePath := "resources/" + resourceID + ".yaml"
+	_, err = os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
 		log.Println(err)
 	}
-	defer file.Close()
-	filePath := "resources/" + header.Filename
-	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		log.Println(err)
-	}
-	io.Copy(f, file)
+	err = ioutil.WriteFile(filePath, content, 0777)
 	result := checkLint(filePath)
 	if result != "Success\n" {
 		response := ValidationResponse{false, result}
 		json.NewEncoder(w).Encode(response)
+		os.Remove(filePath)
 		return
 	}
 	resourceType := mux.Vars(r)["type"]
@@ -91,8 +91,10 @@ func validate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		response := ValidationResponse{false, err.Error()}
 		json.NewEncoder(w).Encode(response)
+		os.Remove(filePath)
 		return
 	}
+	os.Remove(filePath)
 	resp := ValidationResponse{true, "Success"}
 	json.NewEncoder(w).Encode(resp)
 }

@@ -8,7 +8,7 @@ spec:
     - name: DIRECTORY
       description: The directory containing the app, relative to the source repository root
       default: .
-    - name: CACHE
+    - name: CACH
       description: The name of the volume for caching Maven artifacts and base image layers
       default: empty-dir-volume
     - name: INSECUREREGISTRY
@@ -43,3 +43,4 @@ spec:
   volumes:
   - name: empty-dir-volume
     emptyDir: {}
+
