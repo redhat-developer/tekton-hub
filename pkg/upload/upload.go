@@ -214,6 +214,7 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 		Github:      github,
 		Description: description,
 		Tags:        tags,
+		Type:        objectType,
 	}
 	rawResourcePath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", resourcePath)
 	resourceID, err := models.AddResource(&resource, userID, owner, repositoryName, resourcePath)

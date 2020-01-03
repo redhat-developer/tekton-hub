@@ -43,7 +43,11 @@ func GetAllTags(w http.ResponseWriter, r *http.Request) {
 // GetAllFilteredResourcesByTag writes json encoded list of filtered tasks to Responsewriter
 func GetAllFilteredResourcesByTag(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetAllResourcesWithGivenTags(strings.Split(r.FormValue("tags"), "|")))
+	var tags []string
+	if r.FormValue("tags") != "" {
+		tags = strings.Split(r.FormValue("tags"), "|")
+	}
+	json.NewEncoder(w).Encode(models.GetAllResourcesWithGivenTags(mux.Vars(r)["type"], mux.Vars(r)["verified"], tags))
 }
 
 // GetResourceYAMLFile returns a compressed zip with task files

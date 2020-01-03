@@ -12,7 +12,7 @@ func HandleRouters(router *mux.Router) {
 	router.HandleFunc("/resource/yaml/{id}", api.GetResourceYAMLFile).Methods("GET")     //
 	router.HandleFunc("/resource/readme/{id}", api.GetResourceReadmeFile).Methods("GET") //
 	router.HandleFunc("/tags", api.GetAllTags).Methods("GET")                            //
-	router.Path("/resources").Queries("tags", "{tags}").HandlerFunc(api.GetAllFilteredResourcesByTag).Methods("GET")
+	router.Path("/resources/{type}/{verified}").Queries("tags", "{tags}").HandlerFunc(api.GetAllFilteredResourcesByTag).Methods("GET")
 	router.HandleFunc("/resources", api.GetAllResources).Methods("GET")    //
 	router.HandleFunc("/rating", api.AddRating).Methods("POST")            //
 	router.HandleFunc("/rating", api.UpdateRating).Methods("PUT")          //
