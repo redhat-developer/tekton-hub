@@ -130,9 +130,9 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	if uploadRequestBody.Type == "Task" {
+	if uploadRequestBody.Type == "task" {
 		json.NewEncoder(w).Encode(upload.NewUpload(uploadRequestBody.Name, uploadRequestBody.Description, uploadRequestBody.Type, uploadRequestBody.Tags, uploadRequestBody.Github, uploadRequestBody.UserID))
-	} else if uploadRequestBody.Type == "Pipeline" {
+	} else if uploadRequestBody.Type == "pipeline" {
 		json.NewEncoder(w).Encode(upload.NewUploadPipeline(uploadRequestBody.Name, uploadRequestBody.Description, uploadRequestBody.Type, uploadRequestBody.Tags, uploadRequestBody.Github, uploadRequestBody.UserID))
 	}
 }
