@@ -211,11 +211,11 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 	}
 	log.Println(rawTaskPaths)
 	// Perform lint validation and schema validation here
-	validationResponse := validation(content, name, objectType)
-	log.Println(validationResponse.Status, validationResponse.Message)
-	if validationResponse.Status == false {
-		return map[string]interface{}{"status": validationResponse.Status, "message": validationResponse.Message}
-	}
+	// validationResponse := validation(content, name, objectType)
+	// log.Println(validationResponse.Status, validationResponse.Message)
+	// if validationResponse.Status == false {
+	// 	return map[string]interface{}{"status": validationResponse.Status, "message": validationResponse.Message}
+	// }
 	// Add Pipeline details to DB
 	resource := models.Resource{
 		Name:        name,
