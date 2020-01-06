@@ -240,7 +240,7 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 
 	// Add raw paths of pipelines
 	for _, rawPath := range rawTaskPaths {
-		models.AddResourceRawPath(rawPath, resourceID, "Task")
+		models.AddResourceRawPath(rawPath, resourceID, "task")
 	}
 	return map[string]interface{}{"status": true, "message": "Upload Successfull"}
 }
