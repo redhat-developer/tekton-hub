@@ -1,7 +1,13 @@
 FROM golang:1.12.14-stretch
 WORKDIR /app
-COPY go.mod go.sum ./
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+COPY go.mod go.sum requirements.txt ./
+
+RUN apt-get update && apt-get install -y \
+    python3-pip
+
+RUN pip3 install -r requirements.txt
+
+# Download all dependencies.
 RUN go mod download
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
