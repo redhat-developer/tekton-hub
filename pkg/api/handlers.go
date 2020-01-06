@@ -60,10 +60,14 @@ func GetResourceYAMLFile(w http.ResponseWriter, r *http.Request) {
 	desc, err := polling.GetFileContent(utility.Ctx, utility.Client, githubDetails.Owner, githubDetails.RepositoryName, githubDetails.Path, nil)
 	if err != nil {
 		log.Println(err)
+		json.NewEncoder(w).Encode("noyaml")
+		return
 	}
 	content, err := desc.GetContent()
 	if err != nil {
 		log.Println(err)
+		json.NewEncoder(w).Encode("noyaml")
+		return
 	}
 	w.Write([]byte(content))
 }
