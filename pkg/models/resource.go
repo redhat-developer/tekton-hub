@@ -36,9 +36,9 @@ func AddCatalogResource(resource *Resource) (int, error) {
 func AddResource(resource *Resource, userID int, owner string, respositoryName string, path string) (int, error) {
 	var resourceID int
 	sqlStatement := `
-	INSERT INTO RESOURCE (NAME,DESCRIPTION,DOWNLOADS,RATING,GITHUB)
-	VALUES ($1, $2, $3, $4, $5) RETURNING ID`
-	err := DB.QueryRow(sqlStatement, resource.Name, resource.Description, resource.Downloads, resource.Rating, resource.Github).Scan(&resourceID)
+	INSERT INTO RESOURCE (NAME,DESCRIPTION,DOWNLOADS,RATING,GITHUB,TYPE)
+	VALUES ($1, $2, $3, $4, $5,$6) RETURNING ID`
+	err := DB.QueryRow(sqlStatement, resource.Name, resource.Description, resource.Downloads, resource.Rating, resource.Github, resource.Type).Scan(&resourceID)
 	if err != nil {
 		return 0, err
 	}
