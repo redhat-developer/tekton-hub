@@ -114,7 +114,11 @@ func NewUpload(name string, description string, objectType string, tags []string
 		return map[string]interface{}{"status": false, "message": "Task with the given name doesn't exist"}
 	}
 	// Perform lint validation and schema validation here
-
+	validationResponse := validation(content, name, objectType)
+	log.Println(validationResponse.Status, validationResponse.Message)
+	if validationResponse.Status == false {
+		return map[string]interface{}{"status": validationResponse.Status, "message": validationResponse.Message}
+	}
 	// Add Task details to DB
 	resource := models.Resource{
 		Name:        name,
@@ -211,11 +215,11 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 	}
 	log.Println(rawTaskPaths)
 	// Perform lint validation and schema validation here
-	// validationResponse := validation(content, name, objectType)
-	// log.Println(validationResponse.Status, validationResponse.Message)
-	// if validationResponse.Status == false {
-	// 	return map[string]interface{}{"status": validationResponse.Status, "message": validationResponse.Message}
-	// }
+	validationResponse := validation(content, name, objectType)
+	log.Println(validationResponse.Status, validationResponse.Message)
+	if validationResponse.Status == false {
+		return map[string]interface{}{"status": validationResponse.Status, "message": validationResponse.Message}
+	}
 	// Add Pipeline details to DB
 	resource := models.Resource{
 		Name:        name,
@@ -275,7 +279,6 @@ func createTaskFiles(taskID int, name string, content *string) {
 	defer f.Close()
 	if _, err = f.WriteString(*content); err != nil {
 		log.Println(err)
-
 	}
 }
 
