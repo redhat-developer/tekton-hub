@@ -86,9 +86,9 @@ func GetResourceRawLinks(resourceID int) RawLinksResponse {
 		var rawResourceType string
 		var id int
 		rows.Scan(&id, &link, &rawResourceType)
-		if rawResourceType == "Task" {
+		if rawResourceType == "task" {
 			links.Tasks = append(links.Tasks, link)
-		} else if rawResourceType == "Pipeline" {
+		} else if rawResourceType == "pipeline" {
 			links.Pipelines = append(links.Pipelines, link)
 		}
 	}

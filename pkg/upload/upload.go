@@ -1,6 +1,7 @@
 package upload
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -113,7 +114,11 @@ func NewUpload(name string, description string, objectType string, tags []string
 		return map[string]interface{}{"status": false, "message": "Task with the given name doesn't exist"}
 	}
 	// Perform lint validation and schema validation here
-
+	validationResponse := validation(content, name, objectType)
+	log.Println(validationResponse.Status, validationResponse.Message)
+	if validationResponse.Status == false {
+		return map[string]interface{}{"status": validationResponse.Status, "message": validationResponse.Message}
+	}
 	// Add Task details to DB
 	resource := models.Resource{
 		Name:        name,
@@ -146,7 +151,7 @@ func doesResourceExist(paths []string, owner string, repositoryName string, reso
 			log.Println("Invalid Resource schema")
 			return false, "", nil
 		}
-		if pipeline.TypeMeta.Kind == objectType && pipeline.ObjectMeta.Name == resourceName {
+		if strings.ToLower(pipeline.TypeMeta.Kind) == objectType && pipeline.ObjectMeta.Name == resourceName {
 			isResourcePresent = true
 			resourcePath = path
 			break
@@ -157,6 +162,7 @@ func doesResourceExist(paths []string, owner string, repositoryName string, reso
 
 // NewUploadPipeline handles uploading of new task/pipeline
 func NewUploadPipeline(name string, description string, objectType string, tags []string, github string, userID int) interface{} {
+	log.Println(objectType)
 	// isSameResource := models.CheckSameResourceUpload(userID, name)
 	// if isSameResource {
 	// 	return map[string]interface{}{"status": false, "message": objectType + " already exists"}
@@ -176,6 +182,9 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 	var resourcePath string
 	// Check if the resource exists
 	isPipelinePresent, resourcePath, content = doesResourceExist(paths, owner, repositoryName, name, objectType)
+	if isPipelinePresent == false && content == nil {
+		return map[string]interface{}{"status": false, "message": "Invalid Pipeline schema"}
+	}
 	if isPipelinePresent == false {
 		return map[string]interface{}{"status": false, "message": name + ": Pipeline with the given name doesn't exist"}
 	}
@@ -196,9 +205,9 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 		}
 		isTaskPresent := false
 		var taskPath string
-		isTaskPresent, taskPath, _ = doesResourceExist(paths, owner, repositoryName, pipelineTask.TaskRef.Name, "Task")
+		isTaskPresent, taskPath, _ = doesResourceExist(paths, owner, repositoryName, pipelineTask.TaskRef.Name, "task")
 		if isTaskPresent == false {
-			return map[string]interface{}{"status": false, "message": name + ": Task with the given name doesn't exist"}
+			return map[string]interface{}{"status": false, "message": pipelineTask.TaskRef.Name + ": Task with the 	given name doesn't exist"}
 		} else if isTaskPresent == false && taskPath == "" {
 			return map[string]interface{}{"status": false, "message": "Invalid Task schema"}
 		}
@@ -207,7 +216,11 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 	}
 	log.Println(rawTaskPaths)
 	// Perform lint validation and schema validation here
-
+	validationResponse := validation(content, name, objectType)
+	log.Println(validationResponse.Status, validationResponse.Message)
+	if validationResponse.Status == false {
+		return map[string]interface{}{"status": validationResponse.Status, "message": validationResponse.Message}
+	}
 	// Add Pipeline details to DB
 	resource := models.Resource{
 		Name:        name,
@@ -228,9 +241,35 @@ func NewUploadPipeline(name string, description string, objectType string, tags 
 
 	// Add raw paths of pipelines
 	for _, rawPath := range rawTaskPaths {
-		models.AddResourceRawPath(rawPath, resourceID, "Task")
+		models.AddResourceRawPath(rawPath, resourceID, "task")
 	}
 	return map[string]interface{}{"status": true, "message": "Upload Successfull"}
+}
+
+// ValidationResponse represents response from validation service
+type ValidationResponse struct {
+	Status  bool   `json:"status"`
+	Message string `json:"message"`
+}
+
+func validation(content *string, name string, objectType string) ValidationResponse {
+	url := os.Getenv("VALIDATION_API")
+	url = fmt.Sprintf(url+"/validate/%v/%v", objectType, name)
+	log.Println(url)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(*content)))
+	req.Header.Set("Content-Type", "application/text")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println(err)
+	}
+	defer resp.Body.Close()
+	validationResponse := ValidationResponse{}
+	err = json.NewDecoder(resp.Body).Decode(&validationResponse)
+	if err != nil {
+		log.Println(err)
+	}
+	return validationResponse
 }
 
 func createTaskFiles(taskID int, name string, content *string) {
@@ -241,7 +280,6 @@ func createTaskFiles(taskID int, name string, content *string) {
 	defer f.Close()
 	if _, err = f.WriteString(*content); err != nil {
 		log.Println(err)
-
 	}
 }
 

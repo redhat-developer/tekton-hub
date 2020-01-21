@@ -64,8 +64,7 @@ func executeTagsQuery(tags []string, params string, args []interface{}) (*sql.Ro
 	} else {
 		sqlStatement = `
 	SELECT DISTINCT T.ID,T.NAME,T.TYPE,T.DESCRIPTION,T.DOWNLOADS,T.RATING,T.GITHUB,T.VERIFIED
-	FROM RESOURCE AS T JOIN RESOURCE_TAG AS TT ON (T.ID=TT.RESOURCE_ID) JOIN TAG
-	AS TG ON (TG.ID=TT.TAG_ID)`
+	FROM RESOURCE T`
 		rows, err = DB.Query(sqlStatement)
 	}
 	return rows, err
