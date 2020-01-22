@@ -28,5 +28,3 @@ Get your Github Access token from <https://github.com/settings/tokens>
 ```go build backend ./cmd/```
 6. Run
 ```./backend```
-
-### Deploying on Openshift
