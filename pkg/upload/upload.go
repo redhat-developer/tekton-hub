@@ -163,10 +163,10 @@ func doesResourceExist(paths []string, owner string, repositoryName string, reso
 // NewUploadPipeline handles uploading of new task/pipeline
 func NewUploadPipeline(name string, description string, objectType string, tags []string, github string, userID int) interface{} {
 	log.Println(objectType)
-	// isSameResource := models.CheckSameResourceUpload(userID, name)
-	// if isSameResource {
-	// 	return map[string]interface{}{"status": false, "message": objectType + " already exists"}
-	// }
+	isSameResource := models.CheckSameResourceUpload(userID, name)
+	if isSameResource {
+		return map[string]interface{}{"status": false, "message": objectType + " already exists"}
+	}
 	// Get owner and repository name from github link
 	owner, repositoryName := GetGithubOwner(github)
 	// Check if owner and repository name is valid
