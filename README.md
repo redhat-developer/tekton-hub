@@ -9,13 +9,17 @@ Backend service provides REST APIs for the Pipelines-Marketplace UI to interact 
 1. Fork and clone this repository
 2. Create a .env file with the following fields <br/>
 ```
-GITHUB_TOKEN=""
+GITHUB_TOKEN="c3ed7ada95145da8822103c86cbabeb4c503fa98"
 POSTGRESQL_USERNAME=""
 POSTGRESQL_PASSWORD=""
 POSTGRESQL_DATABASE=""
 HOST=""
 PORT=
+CLIENT_ID=""
+CLIENT_SECRET=""
+VALIDATION_API=""
 ```
+Deploy the validation service from <https://github.com/Pipelines-Marketplace/validation-service>
 Get your Github Access token from <https://github.com/settings/tokens> 
 
 3. Install dependencies 
