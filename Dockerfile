@@ -7,12 +7,6 @@ RUN go mod download
 COPY . .
 # Build the Go app
 
-# Copy volume data to a new directory
-RUN mkdir temp_tekton
-RUN mkdir temp_readme
-RUN cp tekton/* temp_tekton
-RUN cp readme/* temp_readme
-
 RUN go build -o backend ./cmd/
 # Expose port 5000 to the outside world
 
