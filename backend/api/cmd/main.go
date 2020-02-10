@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Pipelines-Marketplace/backend/pkg/models"
-	"github.com/Pipelines-Marketplace/backend/routers"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
+	"github.com/redhat-developer/tekton-hub/backend/api/routers"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )

@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/Pipelines-Marketplace/backend/pkg/polling"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/polling"
 	"github.com/google/go-github/github"
 )
 

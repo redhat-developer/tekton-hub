@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Pipelines-Marketplace/backend/pkg/models"
-	"github.com/Pipelines-Marketplace/backend/pkg/polling"
-	"github.com/Pipelines-Marketplace/backend/pkg/utility"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/polling"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/utility"
 	"github.com/ghodss/yaml"
 	"github.com/google/go-github/github"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"

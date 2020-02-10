@@ -19,7 +19,8 @@ CLIENT_ID=""
 CLIENT_SECRET=""
 VALIDATION_API=""
 ```
-Deploy the validation service from <https://github.com/Pipelines-Marketplace/validation-service>
+Deploy the validation service from [here](https://github.com/redhat-developer/tekton-hub/tree/master/backend/validation).
+
 Get your Github Access token from <https://github.com/settings/tokens> 
 
 3. Install dependencies 
