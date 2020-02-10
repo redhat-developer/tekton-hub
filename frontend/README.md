@@ -1,5 +1,5 @@
-# Pipelines Marketplace/frontend 
-Pipelines Marketplace is a web based platform for developers to discover, share and contribute tasks and pipelines for Tekton. Tekton is an open-source project for providing a set of shared and standard components for building Kubernetes-style CI/CD systems.
+# Tekton-Hub/frontend 
+Tekton-Hub is a web based platform for developers to discover, share and contribute tasks and pipelines for Tekton. Tekton is an open-source project for providing a set of shared and standard components for building Kubernetes-style CI/CD systems.
 
 ## Key features
 * Display Task and Pipelines in a curated way
@@ -9,19 +9,19 @@ Pipelines Marketplace is a web based platform for developers to discover, share 
 * Rate a task
 * Upload a task
 
-Backend service can be found on : <https://github.com/Pipelines-Marketplace/backend>
+Backend service can be found on [here](https://github.com/redhat-developer/tekton-hub/tree/master/backend/api).
 
 
 ## Run locally
 * Fork and clone the application in local:
 ```
-git clone https://github.com/Pipelines-Marketplace/frontend/
+git clone https://github.com/redhat-developer/tekton-hub
 ```
 
 * Go into the project folder and type the following command and further install the npm packages
 
 ```
-cd frontend/
+cd tekton-hub/frontend/
 npm install
 ```
 
