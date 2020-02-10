@@ -1,4 +1,4 @@
-module github.com/Pipelines-Marketplace/validation-service
+module github.com/redhat-developer/tekton-hub/backend/validation
 
 require (
 	github.com/ghodss/yaml v1.0.0
@@ -16,3 +16,5 @@ require (
 	k8s.io/utils v0.0.0-20191217005138-9e5e9d854fcc // indirect
 	knative.dev/pkg v0.0.0-20191216211902-b26ddf762bc9 // indirect
 )
+
+go 1.13

@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Pipelines-Marketplace/backend/pkg/polling"
-	"github.com/Pipelines-Marketplace/backend/pkg/utility"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/polling"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/utility"
 	"github.com/google/go-github/github"
 
 	// Blank for package side effect

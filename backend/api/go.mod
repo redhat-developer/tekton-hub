@@ -1,4 +1,4 @@
-module github.com/Pipelines-Marketplace/backend
+module github.com/redhat-developer/tekton-hub/backend/api
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

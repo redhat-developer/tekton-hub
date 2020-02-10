@@ -1,13 +1,13 @@
-# Pipelines Marketplace
+# Tekton Hub
    
-   Pipelines Marketplace is a web-based platform for developers to discover, share and contribute tasks and pipelines. 
-   The marketplace provides detailed information about tasks and pipelines. This helps the developer to build their CI/CD systems without understanding too much implementation details of tasks and pipelines. 
+   Tekton Hub is a web-based platform for developers to discover, share and contribute tasks and pipelines. 
+   The hub provides detailed information about tasks and pipelines. This helps the developer to build their CI/CD systems without understanding too much implementation details of tasks and pipelines. 
    
-   Pipelines-Marketplace also features tasks from different catalogs thereby making it a one-stop-shop for reusable Tekton resources. 
+   Tekton Hub also features tasks from different catalogs thereby making it a one-stop-shop for reusable Tekton resources. 
    
    ![HomePage](/images/home.png?raw=true)
    
-   Pipelines-Marketplace provides the following features:
+   Tekton Hub provides the following features:
     
    1. Display of data in a curated way:
     
@@ -38,7 +38,7 @@
    
    7. Install task and pipeline on cluster
    
-       - The marketplace provides cluster installation commands for tasks or pipelines.
+       - The Tekton Hub provides cluster installation commands for tasks or pipelines.
        
    ![Install Commands](/images/install-steps.png)
 

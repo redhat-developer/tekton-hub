@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/Pipelines-Marketplace/backend/pkg/api"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/api"
 	"github.com/gorilla/mux"
 )
 
