@@ -75,13 +75,13 @@ func validate(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	err = ioutil.WriteFile(filePath, content, 0777)
-	result := checkLint(filePath)
-	if result != "Success\n" {
-		response := ValidationResponse{false, result}
-		json.NewEncoder(w).Encode(response)
-		os.Remove(filePath)
-		return
-	}
+	// result := checkLint(filePath)
+	// if result != "Success\n" {
+	// 	response := ValidationResponse{false, result}
+	// 	json.NewEncoder(w).Encode(response)
+	// 	os.Remove(filePath)
+	// 	return
+	// }
 	resourceType := mux.Vars(r)["type"]
 	if resourceType == "task" {
 		err = checkTaskSchema(filePath)
