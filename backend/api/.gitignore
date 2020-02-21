@@ -1,4 +1,5 @@
 # MacOS file viewer garbage.
+tmp/
 .DS_Store
 
 # Compiled Object files
