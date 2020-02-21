@@ -22,3 +22,5 @@ require (
 	k8s.io/utils v0.0.0-20191218082557-f07c713de883 // indirect
 	knative.dev/pkg v0.0.0-20191230183737-ead56ad1f3bd // indirect
 )
+
+go 1.13
