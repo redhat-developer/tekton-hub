@@ -10,6 +10,7 @@ import {GithubIcon} from '@patternfly/react-icons';
 import checkAuthentication from '../redux/Actions/CheckAuthAction';
 import GitHubLogin from 'react-github-login';
 import {API_URL} from '../../constants';
+import {GH_CLIENT_ID} from '../../constants';
 
 const Login:React.FC=()=>{
   const history = useHistory();
@@ -51,7 +52,7 @@ const Login:React.FC=()=>{
           <GithubIcon size="lg"/>
         </CardHeader>
         <CardBody style={{textAlign: 'center'}}>
-          <GitHubLogin clientId="aac6161a58b4d7798f05"
+          <GitHubLogin clientId={GH_CLIENT_ID}
             redirectUri=""
             onSuccess={onSuccess}
             onFailure={onFailure}
