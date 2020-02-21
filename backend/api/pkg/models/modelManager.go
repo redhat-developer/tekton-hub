@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
+	"github.com/google/go-github/github"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/polling"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/utility"
-	"github.com/google/go-github/github"
 
 	// Blank for package side effect
 	_ "github.com/lib/pq"
@@ -22,29 +21,37 @@ var DB *sql.DB
 
 // StartConnection will start a new database connection
 func StartConnection() error {
-	portString, _ := strconv.Atoi(os.Getenv("PORT"))
+
 	var (
-		host     = os.Getenv("HOST")
-		port     = portString
-		user     = os.Getenv("POSTGRESQL_USERNAME")
+		host     = os.Getenv("POSTGRESQL_HOST")
+		user     = os.Getenv("POSTGRESQL_USER")
 		password = os.Getenv("POSTGRESQL_PASSWORD")
 		dbname   = os.Getenv("POSTGRESQL_DATABASE")
 	)
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
+
+	port := "5432" // default postgres port
+	if val, ok := os.LookupEnv("POSTGRESQL_PORT"); ok {
+		port = val
+	}
+
+	connectInfo := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
+
 	// Connect to PostgreSQL on Openshift
-	db, err := sql.Open("postgres", psqlInfo)
+	log.Printf("connecting to db: %s", connectInfo)
+	db, err := sql.Open("postgres", connectInfo)
+	if err != nil {
+		return err
+	}
+
 	DB = db
-	if err != nil {
-		return err
-	}
 	// defer db.Close()
-	err = DB.Ping()
-	if err != nil {
+	if err = DB.Ping(); err != nil {
 		return err
 	}
-	println("Successful Connection")
+
+	log.Printf("Successfully connected to db")
 	return nil
 }
 
