@@ -22,6 +22,11 @@ spec:
           env:
             - name: POSTGRESQL_HOST
               value: db
+            - name: POSTGRESQL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRESQL_PORT
             - name: POSTGRESQL_DATABASE
               valueFrom:
                 secretKeyRef:
