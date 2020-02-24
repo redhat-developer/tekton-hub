@@ -91,7 +91,7 @@ oc port-forward svc/db 5432:5432
 On a different terminal, use `psql` to create and load the database
 
 ```
-psql -h localhost -U postgres -p 5432 -c 'create database tekon_hub;'
+psql -h localhost -U postgres -p 5432 -c 'create database tekton_hub;'
 psql -h localhost -U postgres -p 5432 tekton_hub < backups/02-01-2020.dump
 ```
 
@@ -148,6 +148,9 @@ cd frontend
 ```
 docker build -t <image> . && docker push <image>
 ```
+#### Update the deployment image
+
+Update `config/11-deployement` to use the image built above
 
 #### Update the GitHub OAuth Client ID
 
