@@ -17,7 +17,7 @@ COPY --from=BUILD /app/build /usr/share/nginx/html
 COPY image/start.sh /usr/bin/
 
 USER root
-RUN chown nginx:root /usr/share/nginx/html/config.js
+RUN chown nginx:nginx /usr/share/nginx/html/config.js
 USER nginx
 
 EXPOSE 8080
