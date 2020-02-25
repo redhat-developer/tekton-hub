@@ -1,6 +1,10 @@
   .task-data {
     margin: 1em;
   }
+  .modaltext{
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
 
   .task-heading {
     font-size: 1.5em;
@@ -62,8 +66,10 @@
     margin-bottom: 0.5em;
   }
 
-  .button {
+  .button  {
     width: 10em;
+  
+   
   }
 
   .star {
