@@ -53,16 +53,15 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
         .then((data) => setResourcePath(data));
     // eslint-disable-next-line
   }, []);
-  const ClipboardItem=(it:any) =>{
+  const ClipboardItem=(data:any) =>{
     return (
       <React.Fragment>
         <ClipboardCopy style={{marginBottom: '2em'}}
           isReadOnly variant={ClipboardCopyVariant.expansion}>
-          {`kubectl apply -f ${it.item}`}</ClipboardCopy>
+          {`kubectl apply -f ${data.taskitem}`}</ClipboardCopy>
       </React.Fragment>
     );
   };
-
   let taskLink :React.ReactNode;
   let pipelineLink:React.ReactNode;
   if (resourcePath !== undefined) {
@@ -82,12 +81,11 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
       taskLink = <ul>
         {
           resourcePath['tasks'].map((item:any) =>
-            <ClipboardItem it={item} key={item} />)
+            <ClipboardItem taskitem={item} key={item} />)
         }
       </ul>;
     }
   }
-
 
   return (
     <Flex>
