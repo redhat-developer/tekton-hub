@@ -1,0 +1,2 @@
+baseImageOverrides:
+  github.com/redhat-developer/tekton-hub/backend/validation: quay.io/sthaha/tekton-hub-go-base:latest

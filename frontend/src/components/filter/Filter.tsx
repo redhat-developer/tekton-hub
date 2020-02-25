@@ -118,8 +118,8 @@ const Filter: React.FC = (props:any) => {
   let showresource:any;
   if (status !== undefined) {
     const resource =status.slice(0, 2);
-    showresource = resource.map((it: any) => (
-      <div key = {it} style={{marginBottom: '0.5em'}}>
+    showresource = resource.map((it: any, idx :number) => (
+      <div key = {`res-${idx}`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterurl}
           isChecked={it.isChecked}
@@ -138,8 +138,8 @@ const Filter: React.FC = (props:any) => {
   // jsx element for show verifiedtask
   if ( status !== undefined) {
     const verifiedtask=status.slice(2, 3);
-    showverifiedtask = verifiedtask.map((it: any) => (
-      <div key = {it} style={{marginBottom: '0.5em'}}>
+    showverifiedtask = verifiedtask.map((it: any, idx: number) => (
+      <div key = {`task-${idx}`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterurl}
           isChecked={it.isChecked}

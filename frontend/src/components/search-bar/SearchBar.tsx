@@ -176,7 +176,7 @@ const SearchBar: React.FC = (props:any) => {
 
           <InputGroup style={{width: '70%', marginLeft: '1m'}}>
             <div style = {{width: '100%', boxShadow: 'rgba'}}>
-              <TextInput value = {textValue} type="search"
+              <TextInput aria-label="search-box" value = {textValue} type="search"
                 onChange={onTextChanged} placeholder = "Search for task or pipeline"
                 style = {{outline: 'none', boxSizing: 'border-box', padding: '10px 5px'}}/>
 

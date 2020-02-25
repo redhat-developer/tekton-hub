@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/authentication"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/polling"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/upload"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/utility"
-	"github.com/gorilla/mux"
 )
 
 // GetAllResources writes json encoded resources to ResponseWriter
@@ -153,31 +153,34 @@ func GetPrevStars(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func ghOAuthURLForCode(code string) string {
+	clientID := os.Getenv("CLIENT_ID")
+	clientSecret := os.Getenv("CLIENT_SECRET")
+	return fmt.Sprintf(
+		"https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s",
+		clientID, clientSecret, code)
+}
+
 // GithubAuth handles OAuth by Github
 func GithubAuth(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	httpClient := http.Client{}
-	var clientID string
-	var clientSecret string
-	clientID = os.Getenv("CLIENT_ID")
-	clientSecret = os.Getenv("CLIENT_SECRET")
+
 	token := Code{}
-	err := json.NewDecoder(r.Body).Decode(&token)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&token); err != nil {
 		log.Println(err)
 	}
 	log.Println("Code", token.Token)
-	var code string
-	code = token.Token
-	reqURL := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s", clientID, clientSecret, code)
+
+	reqURL := ghOAuthURLForCode(token.Token)
 	log.Println(reqURL)
+
 	req, err := http.NewRequest(http.MethodPost, reqURL, nil)
 	if err != nil {
-		println(os.Stdout, "could not create HTTP request: %v", err)
+		fmt.Fprintf(os.Stdout, "could not create HTTP request: %v", err)
 	}
 	req.Header.Set("accept", "application/json")
 
 	// Send out the HTTP request
+	httpClient := http.Client{}
 	res, err := httpClient.Do(req)
 	if err != nil {
 		println(os.Stdout, "could not send HTTP request: %v", err)
@@ -195,6 +198,7 @@ func GithubAuth(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+
 	// Add user if doesn't exist
 	sqlStatement := `SELECT EXISTS(SELECT 1 FROM USER_CREDENTIAL WHERE ID=$1)`
 	var exists bool
@@ -203,6 +207,7 @@ func GithubAuth(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	log.Println(exists)
+
 	if !exists {
 		sqlStatement := `INSERT INTO USER_CREDENTIAL(ID,USERNAME,FIRST_NAME,TOKEN) VALUES($1,$2,$3,$4)`
 		_, err := models.DB.Exec(sqlStatement, id, "github", "github", t.AccessToken)
@@ -218,6 +223,7 @@ func GithubAuth(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{"token": authToken, "user_id": int(id)})
 }
 

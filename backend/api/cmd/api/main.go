@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
-	"github.com/redhat-developer/tekton-hub/backend/api/routers"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
+	"github.com/redhat-developer/tekton-hub/backend/api/routers"
 )
 
 func main() {

@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validation
+  labels:
+    app: validation
+  namespace: tekton-hub
+spec:
+  selector:
+    matchLabels:
+      app: validation
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: validation
+    spec:
+      containers:
+        - name: validation
+          image: github.com/redhat-developer/tekton-hub/backend/validation
+          ports:
+            - containerPort: 5001
+          volumeMounts:
+            - mountPath: /app/resources
+              name: validation-data
+      volumes:
+        - name: validation-data
+          persistentVolumeClaim:
+            claimName: validation
