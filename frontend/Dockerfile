@@ -23,4 +23,6 @@ USER nginx
 
 EXPOSE 8080
 
+COPY image/nginx.conf /etc/nginx/conf.d/default.conf
+
 CMD /usr/bin/start.sh
