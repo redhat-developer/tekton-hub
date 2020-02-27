@@ -71,9 +71,7 @@ const App: React.FC<mainProps> = () => {
       <span style={{marginLeft:
         '1.3em', marginRight:
          '-0.6em', color: 'white'}}>
-        {/* {' '} */}
-    Upload
-        {/* {' '} */}
+    Add
       </span>
       {' '}
     </Link>;
@@ -125,12 +123,10 @@ const App: React.FC<mainProps> = () => {
   );
   const Header = (
     <PageHeader
-      logo={<Brand src={logo} alt="Pipelines-Marketplace Logo" />}
+      logo={<Brand src={logo} alt="Tekton Hub Logo" />}
       logoProps={logoProps}
       toolbar={PageToolbar}
     />
-
-
   );
 
   return (
