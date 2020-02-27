@@ -71,9 +71,7 @@ const App: React.FC<mainProps> = () => {
       <span style={{marginLeft:
         '1.3em', marginRight:
          '-0.6em', color: 'white'}}>
-        {/* {' '} */}
     Add
-        {/* {' '} */}
       </span>
       {' '}
     </Link>;
