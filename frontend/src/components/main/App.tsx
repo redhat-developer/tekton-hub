@@ -125,12 +125,10 @@ const App: React.FC<mainProps> = () => {
   );
   const Header = (
     <PageHeader
-      logo={<Brand src={logo} alt="Pipelines-Marketplace Logo" />}
+      logo={<Brand src={logo} alt="Tekton Hub Logo" />}
       logoProps={logoProps}
       toolbar={PageToolbar}
     />
-
-
   );
 
   return (
