@@ -104,7 +104,7 @@ const UploadTask: React.FC = () => {
     <Form id = "form" className="flex-size" onSubmit={submitdata}
       style = {{marginLeft: '5em'}}>
       <h1 style={{fontSize: '2em',
-        fontFamily: 'bold'}}>Add </h1>
+        fontFamily: 'bold'}}>Upload </h1>
       <FormGroup
         label="Name"
         isRequired

@@ -72,7 +72,7 @@ const App: React.FC<mainProps> = () => {
         '1.3em', marginRight:
          '-0.6em', color: 'white'}}>
         {/* {' '} */}
-    Upload
+    Add
         {/* {' '} */}
       </span>
       {' '}
