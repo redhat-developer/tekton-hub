@@ -11,11 +11,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ghodss/yaml"
+	"github.com/google/go-github/github"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/polling"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/utility"
-	"github.com/ghodss/yaml"
-	"github.com/google/go-github/github"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
 	"golang.org/x/oauth2"
 )
@@ -125,6 +125,7 @@ func NewUpload(name string, description string, objectType string, tags []string
 		Github:      github,
 		Description: description,
 		Tags:        tags,
+		Type:        objectType,
 	}
 	rawResourcePath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", resourcePath)
 	resourceID, err := models.AddResource(&resource, userID, owner, repositoryName, resourcePath)
