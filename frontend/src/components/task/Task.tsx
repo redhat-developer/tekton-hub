@@ -18,7 +18,12 @@ import {
   CardActions,
   Label,
 } from '@patternfly/react-core';
-import {OkIcon, DownloadIcon, BuildIcon, DomainIcon} from '@patternfly/react-icons';
+import {
+  OkIcon,
+  DownloadIcon,
+  BuildIcon,
+  DomainIcon,
+} from '@patternfly/react-icons';
 export interface TaskPropObject {
   name: string;
   description: string;
@@ -49,9 +54,9 @@ const Task: React.FC<TaskProp> = (props: any) => {
   // for adding icon to task and pipeline
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
-    resourceIcon = <BuildIcon size="xl" color="blue" />;
+    resourceIcon = <BuildIcon size="xl" color="#0066CC" />;
   } else {
-    resourceIcon = <DomainIcon size="xl" color="blue" />;
+    resourceIcon = <DomainIcon size="xl" color="#0066CC" />;
   };
 
   return (

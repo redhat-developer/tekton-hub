@@ -16,11 +16,16 @@ import {
   Modal,
   TextVariants,
 } from '@patternfly/react-core';
-import {DownloadIcon, GithubIcon, BuildIcon, DomainIcon} from '@patternfly/react-icons';
+import {
+  DownloadIcon,
+  GithubIcon,
+  BuildIcon,
+  DomainIcon,
+}
+  from '@patternfly/react-icons';
 import '@patternfly/react-core/dist/styles/base.css';
 import Rating from '../rating/Rating';
 import {API_URL} from '../../constants';
-import avatarImg from './download.png';
 import {useParams} from 'react-router';
 import './basicdetail.css';
 export interface BasicDetailPropObject {
@@ -52,10 +57,10 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
     resourceIcon = <BuildIcon
-      style={{height: '5em', width: '5em'}} color="blue" />;
+      style={{height: '5em', width: '5em'}} color="#0066CC" />;
   } else {
     resourceIcon = <DomainIcon
-      style={{height: '5em', width: '5em'}} color="blue" />;
+      style={{height: '5em', width: '5em'}} color="#0066CC" />;
   }
   useEffect(() => {
     fetch(`${API_URL}/resource/links/${taskId}`)
@@ -112,7 +117,8 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
           </div>
           <TextContent style={{paddingLeft: '4em', paddingTop: '2em'}}>
             <Text style={{fontSize: '2em'}}>
-              {props.task.name.charAt(0).toUpperCase() + props.task.name.slice(1)}
+              {props.task.name.charAt(0).toUpperCase() +
+                props.task.name.slice(1)}
             </Text>
 
             <Text style={{fontSize: '1em'}}>
