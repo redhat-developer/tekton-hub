@@ -40,6 +40,12 @@ func GetAllTags(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models.GetAllTags())
 }
 
+// GetAllCategorieswithTags writes json encoded list of categories to Responsewriter
+func GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(models.GetAllCategorieswithTags())
+}
+
 // GetAllFilteredResourcesByTag writes json encoded list of filtered tasks to Responsewriter
 func GetAllFilteredResourcesByTag(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")

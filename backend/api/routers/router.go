@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"github.com/redhat-developer/tekton-hub/backend/api/pkg/api"
 	"github.com/gorilla/mux"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/api"
 )
 
 // HandleRouters handle routes
@@ -12,6 +12,7 @@ func HandleRouters(router *mux.Router) {
 	router.HandleFunc("/resource/yaml/{id}", api.GetResourceYAMLFile).Methods("GET")     //
 	router.HandleFunc("/resource/readme/{id}", api.GetResourceReadmeFile).Methods("GET") //
 	router.HandleFunc("/tags", api.GetAllTags).Methods("GET")                            //
+	router.HandleFunc("/categories", api.GetAllCategorieswithTags).Methods("GET")          //
 	router.Path("/resources/{type}/{verified}").Queries("tags", "{tags}").HandlerFunc(api.GetAllFilteredResourcesByTag).Methods("GET")
 	router.HandleFunc("/resources", api.GetAllResources).Methods("GET")    //
 	router.HandleFunc("/rating", api.AddRating).Methods("POST")            //
