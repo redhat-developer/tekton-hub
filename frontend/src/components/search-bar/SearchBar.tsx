@@ -18,22 +18,22 @@ import {
 import {fetchTaskSuccess} from '../redux/Actions/TaskAction';
 import {fetchTaskName} from '../redux/Actions/TaskActionName';
 import store from '../redux/store';
-
-export interface TaskPropData{
-  id : number;
-  name : string,
-  description : string,
-  rating : number,
-  downloads : number,
-  yaml : string,
-  tags : [],
+export interface TaskPropData {
+  id: number;
+  name: string,
+  description: string,
+  rating: number,
+  downloads: number,
+  yaml: string,
+  tags: [],
   verified: boolean,
+  type: string,
 }
 
-const SearchBar: React.FC = (props:any) => {
-  const [sort, setSort]=useState('Sort');
+const SearchBar: React.FC = (props: any) => {
+  const [sort, setSort] = useState('Sort');
   let tempArr: any = [];
-  const tempTask : any = [];
+  const tempTask: any = [];
   React.useEffect(() => {
     props.fetchTaskSuccess();
     // eslint-disable-next-line
@@ -51,6 +51,7 @@ const SearchBar: React.FC = (props:any) => {
         yaml: task.yaml,
         tags: task.tags,
         verified: task.verified,
+        type: task.type,
       };
       return taskData;
     });
@@ -59,18 +60,18 @@ const SearchBar: React.FC = (props:any) => {
   // Dropdown menu
   const [isOpen, set] = useState(false);
   const dropdownItems = [
-    <DropdownItem key="link" onClick = {sortByName}>Name</DropdownItem>,
-    <DropdownItem key="link" onClick = {sortByDownloads}>Downloads</DropdownItem>,
-    <DropdownItem key="link" onClick = {sortByRatings}>Ratings</DropdownItem>,
+    <DropdownItem key="link" onClick={sortByName}>Name</DropdownItem>,
+    <DropdownItem key="link" onClick={sortByDownloads}>Downloads</DropdownItem>,
+    <DropdownItem key="link" onClick={sortByRatings}>Ratings</DropdownItem>,
     // <DropdownItem key="link" onClick = {sortByDownloads}>Favourites</DropdownItem>,
   ];
   const ontoggle = (isOpen: React.SetStateAction<boolean>) => set(isOpen);
   const onSelect = () => set(!isOpen);
 
   // eslint-disable-next-line require-jsdoc
-  function sortByName(event:any) {
+  function sortByName(event: any) {
     setSort(event.target.text);
-    const taskarr = tempArr.sort((first:any, second: any) => {
+    const taskarr = tempArr.sort((first: any, second: any) => {
       if (first.name > second.name) {
         return 1;
       } else {
@@ -81,9 +82,9 @@ const SearchBar: React.FC = (props:any) => {
   }
 
   // eslint-disable-next-line require-jsdoc
-  function sortByDownloads(event:any) {
+  function sortByDownloads(event: any) {
     setSort(event.target.text);
-    const taskarr = tempArr.sort((first:any, second: any) => {
+    const taskarr = tempArr.sort((first: any, second: any) => {
       if (first.downloads < second.downloads) {
         return 1;
       } else {
@@ -95,9 +96,9 @@ const SearchBar: React.FC = (props:any) => {
   }
 
   // eslint-disable-next-line require-jsdoc
-  function sortByRatings(event:any) {
+  function sortByRatings(event: any) {
     setSort(event.target.text);
-    const taskarr = tempArr.sort((first:any, second: any) => {
+    const taskarr = tempArr.sort((first: any, second: any) => {
       if (first.rating < second.rating) {
         return 1;
       } else {
@@ -111,7 +112,7 @@ const SearchBar: React.FC = (props:any) => {
   let [tasks, setTasks] = useState(''); // Get the user input
 
   // Search a task
-  const searchTask = (text : string) => {
+  const searchTask = (text: string) => {
     const task = {
       text,
     };
@@ -119,7 +120,7 @@ const SearchBar: React.FC = (props:any) => {
     setTasks(tasks);
 
     const regex: any = [];
-    let data : any;
+    let data: any;
     if (props.TaskData != null) {
       for (let i = 0; i < tempArr.length; i++) {
         regex.push(tempArr[i].name);
@@ -154,7 +155,7 @@ const SearchBar: React.FC = (props:any) => {
     let suggestions = [];
     if (value.length > 0) {
       const regex = new RegExp(`^${value}`, 'i');
-      suggestions = taskNameArr.sort().filter((v:any) => regex.test(v));
+      suggestions = taskNameArr.sort().filter((v: any) => regex.test(v));
     }
     setState(suggestions);
     setText(value);
@@ -175,21 +176,23 @@ const SearchBar: React.FC = (props:any) => {
         <React.Fragment>
 
           <InputGroup style={{width: '70%', marginLeft: '1m'}}>
-            <div style = {{width: '100%', boxShadow: 'rgba'}}>
-              <TextInput aria-label="search-box" value = {textValue} type="search"
-                onChange={onTextChanged} placeholder = "Search for task or pipeline"
-                style = {{outline: 'none', boxSizing: 'border-box', padding: '10px 5px'}}/>
+            <div style={{width: '100%', boxShadow: 'rgba'}}>
+              <TextInput aria-label="search-box" value={textValue} type="search"
+                onChange={onTextChanged} placeholder="Search for task or pipeline"
+                style={{outline: 'none', boxSizing: 'border-box', padding: '10px 5px'}} />
 
-              <div style = {{position: 'relative'}}>
+              <div style={{position: 'relative'}}>
                 <ul
-                  style = {{textAlign: 'left', backgroundColor: 'white', margin: 0, position: 'absolute', width: '100%'}}
+                  style={{textAlign: 'left', backgroundColor: 'white', margin: 0, position: 'absolute', width: '100%'}}
                 >
                   {suggestions.map((item: any, index: any) =>
 
                     <li
-                      style = {{listStyle: 'none', textAlign: 'left', cursor: 'pointer', padding: '10px 7px',
-                        border: '0.01em solid rgb(224,224,224)', borderTop: '0'}}
-                      onClick = {() => suggestionSelected(item)} key = {index}>
+                      style={{
+                        listStyle: 'none', textAlign: 'left', cursor: 'pointer', padding: '10px 7px',
+                        border: '0.01em solid rgb(224,224,224)', borderTop: '0',
+                      }}
+                      onClick={() => suggestionSelected(item)} key={index}>
                       {item}
                     </li>,
 
@@ -199,7 +202,7 @@ const SearchBar: React.FC = (props:any) => {
 
             </div>
           </InputGroup>
-          <Card style = {{marginLeft: '-1em'}}>
+          <Card style={{marginLeft: '-1em'}}>
             <Button variant={ButtonVariant.control} aria-label="search button for search input" >
               <SearchIcon />
             </Button>
@@ -210,9 +213,9 @@ const SearchBar: React.FC = (props:any) => {
               <FilterIcon />
             </Button>
             <Dropdown
-              onSelect = {onSelect}
+              onSelect={onSelect}
               toggle={<DropdownToggle onToggle={ontoggle}>{sort}</DropdownToggle>}
-              isOpen = {isOpen}
+              isOpen={isOpen}
               dropdownItems={dropdownItems}
             />
           </div>

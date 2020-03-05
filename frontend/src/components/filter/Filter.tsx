@@ -121,7 +121,6 @@ const Filter: React.FC = (props: any) => {
   };
   // / function for showing types
   const addIcon = (it: any, idx: number) => {
-    console.log('filteritems', it);
     const typeIcon = idx === 0 ? <BuildIcon
       size="sm" color="black"
       style={{marginLeft: '-0.5em'}} /> :
@@ -129,27 +128,32 @@ const Filter: React.FC = (props: any) => {
         color="black"
         style={{marginLeft: '-0.5em'}} />;
 
+    // custom label for type filter
+    const customLabel = (typeName: string) => {
+      return <Flex>
+        <FlexItem breakpointMods={[{modifier: FlexModifiers['spacer-xs']}]}>
+          {typeIcon}
+        </FlexItem>
+        <FlexItem>
+          {typeName}
+        </FlexItem>
+      </Flex>;
+    };
 
     return (
 
       <Flex style={{width: '8em'}}>
-        <FlexItem breakpointMods={[{modifier: FlexModifiers['spacer-sm']}]}>
+        <FlexItem >
           <Checkbox
             onClick={filterurl}
             isChecked={it.isChecked}
-            style={{width: '1.2em', height: '1.2em'}}
+            style={{width: '1.2em', height: '1.2em', marginRight: '.3em'}}
+            label={customLabel(it.value[0].toUpperCase() + it.value.slice(1))}
             value={it.value}
             name="type"
             id={it.id}
             aria-label="uncontrolled checkbox example"
           />
-        </FlexItem>
-        <FlexItem breakpointMods={[{modifier: FlexModifiers['spacer-sm']}]}>
-          {typeIcon}
-        </FlexItem>
-        <FlexItem>
-          {it.value[0].toUpperCase() + it.value.slice(1)}
-
         </FlexItem>
       </Flex>
 
@@ -160,7 +164,6 @@ const Filter: React.FC = (props: any) => {
   if (status !== undefined) {
     const resource = status.slice(0, 2);
     showresource = resource.map((item: any, idx: number) => (
-      // console.log("idsssx", idx
       <div
         key={`res-${idx}`}
         style={{marginBottom: '0.5em'}}
