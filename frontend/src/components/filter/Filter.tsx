@@ -10,37 +10,63 @@ import {
   Tooltip,
   Button,
 } from '@patternfly/react-core/dist/js/components';
-import { API_URL } from '../../constants';
-import { InfoCircleIcon } from '@patternfly/react-icons';
+import {API_URL} from '../../constants';
+import {InfoCircleIcon} from '@patternfly/react-icons';
 import store from '../redux/store';
-import { FETCH_TASK_SUCCESS } from '../redux/Actions/TaskActionType';
+import {FETCH_TASK_SUCCESS} from '../redux/Actions/TaskActionType';
 import './filter.css';
 
 const Filter: React.FC = (props: any) => {
   const [categoryData, setCategoryData] = useState();
-  const [status, setStatus] = useState({ checklist: [] });
+  const [status, setStatus] = useState({checklist: []});
   const [clear, setClear] = useState(' ');
-  const filterItem: any = [{ id: '1000', value: 'task', isChecked: false },
-  { id: '1001', value: 'pipeline', isChecked: false },
-  { id: '1002', value: 'verified', isChecked: false }];
-
+  const filterItem: any = [{id: '1000', value: 'task', isChecked: false},
+    {id: '1001', value: 'pipeline', isChecked: false},
+    {id: '1002', value: 'verified', isChecked: false}];
+  const [checkBoxStatus, setCheckBoxStatus] = useState(
+      {
+        task: false,
+        pipeline: false,
+        verified: false,
+        C1: false,
+        C2: false,
+        C3: false,
+        C4: false,
+      },
+  );
 
   //  function for adding categories to filteritem
   const addCategory = (categoryData: any) => {
     Object.keys(categoryData).map((categoryName: string, index: number) =>
+
       filterItem.push(
-        { id: index.toString(), value: categoryName, isChecked: false },
+          {id: index.toString(), value: categoryName, isChecked: false},
       ));
+    setStatus({checklist: filterItem});
     return categoryData;
   };
   useEffect(() => {
     fetch(`${API_URL}/categories`)
-      .then((res) => res.json())
-      .then((categoryData) => setCategoryData(addCategory(categoryData)));
-    setStatus({ checklist: filterItem });
+        .then((res) => res.json())
+        .then((categoryData) => setCategoryData(addCategory(categoryData)));
+
     // eslint-disable-next-line
   }, []);
-  console.log(status.checklist);
+
+  // fetch api function
+  const fetchApi = (typeurl: string, verifiedurl: string, categoryurl: any) => {
+    fetch(`${API_URL}/resources/${typeurl}/${verifiedurl}?tags=${categoryurl} `)
+        .then((resp) => resp.json())
+        .then((data) => {
+          store.dispatch(
+              {
+                type: FETCH_TASK_SUCCESS,
+                payload: data,
+              },
+          );
+        });
+  };
+
 
   // formation of filter url  for calling filterAPi to
   //  fetching task and pipelines
@@ -48,15 +74,15 @@ const Filter: React.FC = (props: any) => {
     let typeurl = 'all';
     let verifiedurl = 'all';
     let categoryurl = '';
-
-
+    const target = event.target;
+    // for handling isChecked parameter of checkbox
+    setCheckBoxStatus({...checkBoxStatus, [target.value]: target.checked});
     status.checklist.forEach((it: any) => {
       if (it.id === event.target.id) {
         it.isChecked = event.target.checked;
       }
     },
     );
-    setStatus(status); // updating the status
 
     const temptype = status.checklist.slice(0, 2);
     const tempverified = status.checklist.slice(2, 3);
@@ -94,52 +120,37 @@ const Filter: React.FC = (props: any) => {
     } else {
       setClear(' ');
     }
-
-
-    fetch(`${API_URL}/resources/${typeurl}/${verifiedurl}?tags=${categoryurl} `)
-      .then((resp) => resp.json())
-      .then((data) => {
-        store.dispatch(
-          {
-            type: FETCH_TASK_SUCCESS,
-            payload: data,
-          },
-        );
-      });
+    fetchApi(typeurl, verifiedurl, categoryurl);
   };
 
-
-  //   for clearing all checkbox
-  const clearFilter = (e: any) => {
-    const temp = status.checklist;
-    temp.forEach((it: any) => {
-      if (it.isChecked === true) {
-        it.isChecked = false;
-      }
+  //   function for clearing all checkbox
+  const clearFilter = () => {
+    setCheckBoxStatus(
+        {
+          task: false,
+          pipeline: false,
+          verified: false,
+          C1: false,
+          C2: false,
+          C3: false,
+          C4: false,
+        });
+    status.checklist.map((it: any) => {
+      it.isChecked = false;
     });
-    setStatus(prev => ({
-      ...prev, checklist: temp
-    }))
-    // setStatus((prev) => {
-    //   const temp = prev.map((item: any) => {
-    //     if (item.isChecked === true) {
-    //       item.isChecked = false;
-    //     }
-    //   });
-    //   return temp;
-    // });
-    //filterApi(e);
-    // setClear('');
+    // for bydefault fetchApi after clearAll checkbox
+    fetchApi('all', 'false', ' ');
+    setClear('');
   };
   let resourceType: any;
   if (status !== undefined) {
     const resource = status.checklist.slice(0, 2);
     resourceType = resource.map((it: any, idx: number) => (
-      <div key={`res-${idx}`} style={{ marginBottom: '0.5em' }}>
+      <div key={`res-${idx}`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterApi}
-          isChecked={it.isChecked}
-          style={{ width: '1.2em', height: '1.2em' }}
+          isChecked={checkBoxStatus[it.value]}
+          style={{width: '1.2em', height: '1.2em'}}
           label={it.value[0].toUpperCase() + it.value.slice(1)}
           value={it.value}
           name="type"
@@ -155,11 +166,11 @@ const Filter: React.FC = (props: any) => {
   if (status !== undefined) {
     const verifiedtask = status.checklist.slice(2, 3);
     showverifiedtask = verifiedtask.map((it: any, idx: number) => (
-      <div key={`task-${idx}`} style={{ marginBottom: '0.5em' }}>
+      <div key={`task-${idx}`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterApi}
-          isChecked={it.isChecked}
-          style={{ width: '1.2em', height: '1.2em' }}
+          isChecked={checkBoxStatus[it.value]}
+          style={{width: '1.2em', height: '1.2em'}}
           label={it.value[0].toUpperCase() + it.value.slice(1)}
           value={it.value}
           name="verified"
@@ -179,11 +190,11 @@ const Filter: React.FC = (props: any) => {
         ((b.value > a.value) ? -1 : 0));
     categoryList =
       tempstatus.map((it: any) => (
-        <div key={it} style={{ marginBottom: '0.5em' }}>
+        <div key={it} style={{marginBottom: '0.5em'}}>
           <Checkbox
             onClick={filterApi}
-            isChecked={it.isChecked}
-            style={{ width: '1.2em', height: '1.2em' }}
+            isChecked={checkBoxStatus[it.value]}
+            style={{width: '1.2em', height: '1.2em'}}
             label={it.value[0].toUpperCase() + it.value.slice(1)}
             value={it.value}
             name="Tags"
@@ -198,19 +209,19 @@ const Filter: React.FC = (props: any) => {
 
   return (
     <div className="filter-size" >
-      <h2 style={{ marginBottom: '1em' }}>
+      <h2 style={{marginBottom: '1em'}}>
         {' '}
         <Button component='a' variant='link'
           onClick={clearFilter}> {clear} </Button>
         {'  '}
 
       </h2>
-      <h2 style={{ marginBottom: '1em' }}>
+      <h2 style={{marginBottom: '1em'}}>
         {' '}
         <b>Types</b>{'  '}
       </h2>
       {resourceType}
-      <h2 style={{ marginBottom: '1em', marginTop: '1em' }}>
+      <h2 style={{marginBottom: '1em', marginTop: '1em'}}>
         {' '}
         <b>Verified </b>{'  '}
         <Tooltip content={<div>
@@ -219,15 +230,10 @@ const Filter: React.FC = (props: any) => {
         </Tooltip>
       </h2>
       {showverifiedtask}
-      <h2 style={{ marginBottom: '1em', marginTop: '1em' }}><b>Categories</b></h2>
+      <h2 style={{marginBottom: '1em', marginTop: '1em'}}><b>Categories</b></h2>
       {categoryList}
     </div>
   );
-  // return (
-  //   <div>
-  //     pp
-  //   </div>
-  // );
 };
 export default Filter;
 
