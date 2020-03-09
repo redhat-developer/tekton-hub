@@ -1,30 +1,34 @@
 /* eslint-disable consistent-return */
 import React,
-{useState,
-  useEffect}
+{
+  useState,
+  useEffect,
+}
   from 'react';
 import './filter.css';
-import {Checkbox,
+import {
+  Checkbox,
   Tooltip,
   Button,
 } from '@patternfly/react-core/dist/js/components';
 import {API_URL} from '../../constants';
-import {InfoCircleIcon} from '@patternfly/react-icons';
+import {InfoCircleIcon, DomainIcon, BuildIcon} from '@patternfly/react-icons';
 import store from '../redux/store';
 import {FETCH_TASK_SUCCESS} from '../redux/Actions/TaskActionType';
+import {Flex, FlexItem, FlexModifiers} from '@patternfly/react-core';
 
-const Filter: React.FC = (props:any) => {
+const Filter: React.FC = (props: any) => {
   const [, setTags] = useState();
-  const [status, setStatus]=useState();
-  const [max, setMax]=useState(18);
-  const [, setX]=useState(1); //
-  const [clear, setClear]=useState(' ');
-  const [show, setShow]=useState('Show all');
-  const tagitem :any =[{id: '1000', value: 'task', isChecked: false},
+  const [status, setStatus] = useState();
+  const [max, setMax] = useState(18);
+  const [, setX] = useState(1); //
+  const [clear, setClear] = useState(' ');
+  const [show, setShow] = useState('Show all');
+  const tagitem: any = [{id: '1000', value: 'task', isChecked: false},
     {id: '1001', value: 'pipeline', isChecked: false},
     {id: '1002', value: 'verified', isChecked: false}];
-  const taglist=(data:any) =>{
-    data.map((it:any ) =>
+  const taglist = (data: any) => {
+    data.map((it: any) =>
       tagitem.push({id: String(it.id), value: it.name, isChecked: false}));
     return tagitem;
   };
@@ -37,51 +41,51 @@ const Filter: React.FC = (props:any) => {
     // eslint-disable-next-line
   }, []);
   // / dummy function for refreshing component
-  const ddff=() =>{
-    setX((x) => x+1);
+  const ddff = () => {
+    setX((x) => x + 1);
   };
   //  formation of filter url for fetching task and pipelines
-  const filterurl=(e:any) =>{
-    let typeurl='all';
-    let verifiedurl='all';
+  const filterurl = (e: any) => {
+    let typeurl = 'all';
+    let verifiedurl = 'all';
     let tagsurl = '';
 
-    status.forEach((it:any) => {
+    status.forEach((it: any) => {
       if (it.id === e.target.id) {
-        it.isChecked=e.target.checked;
+        it.isChecked = e.target.checked;
       }
     },
     );
     setStatus(status);
     ddff();
     const temptype = status.slice(0, 2);
-    const tempverified=status.slice(2, 3);
-    const temptags=status.slice(3);
+    const tempverified = status.slice(2, 3);
+    const temptags = status.slice(3);
     if (tempverified[0].isChecked === true) {
-      verifiedurl='true';
+      verifiedurl = 'true';
     }
     if (temptype[0].isChecked === true) {
-      typeurl='task';
+      typeurl = 'task';
     }
     if (temptype[1].isChecked === true) {
-      typeurl ='pipeline';
+      typeurl = 'pipeline';
     }
     if ((temptype[0].isChecked === true) &&
-       (temptype[1].isChecked === true)) {
+      (temptype[1].isChecked === true)) {
       typeurl = 'all';
     }
-    temptags.forEach((it:any) =>{
+    temptags.forEach((it: any) => {
       if (it.isChecked === true) {
-        tagsurl+=it.value+'|';
+        tagsurl += it.value + '|';
       }
       // if (it.isChecked === true) {
       //   setClear('ClearAll');
       // }
     });
-    let flag:any= false;
-    status.forEach((it:any) =>{
+    let flag: any = false;
+    status.forEach((it: any) => {
       if (it.isChecked === true) {
-        flag=true;
+        flag = true;
       }
     });
     if (flag === true) {
@@ -93,7 +97,7 @@ const Filter: React.FC = (props:any) => {
 
     fetch(`${API_URL}/resources/${typeurl}/${verifiedurl}?tags=${tagsurl} `)
         .then((resp) => resp.json())
-        .then((data) =>{
+        .then((data) => {
           store.dispatch(
               {
                 type: FETCH_TASK_SUCCESS,
@@ -104,10 +108,10 @@ const Filter: React.FC = (props:any) => {
   };
 
   // /   for clearing all checkbox
-  const cleartag=(e:any) =>{
-    status.forEach((it:any) =>{
+  const cleartag = (e: any) => {
+    status.forEach((it: any) => {
       if (it.isChecked === true) {
-        it.isChecked=false;
+        it.isChecked = false;
       }
     });
     setStatus(status);
@@ -115,36 +119,71 @@ const Filter: React.FC = (props:any) => {
     filterurl(e);
     setClear('');
   };
-  let showresource:any;
-  if (status !== undefined) {
-    const resource =status.slice(0, 2);
-    showresource = resource.map((it: any, idx :number) => (
-      <div key = {`res-${idx}`} style={{marginBottom: '0.5em'}}>
-        <Checkbox
-          onClick={filterurl}
-          isChecked={it.isChecked}
-          style={{width: '1.2em', height: '1.2em'}}
-          label={it.value[0].toUpperCase()+it.value.slice(1)}
-          value={it.value}
-          name="type"
-          id={it.id}
-          aria-label="uncontrolled checkbox example"
+  // / function for showing types
+  const addIcon = (it: any, idx: number) => {
+    const typeIcon = idx === 0 ? <BuildIcon
+      size="sm" color="black"
+      style={{marginLeft: '-0.5em'}} /> :
+      <DomainIcon size="sm"
+        color="black"
+        style={{marginLeft: '-0.5em'}} />;
 
-        />
-      </div>
+    // custom label for type filter
+    const customLabel = (typeName: string) => {
+      return <Flex>
+        <FlexItem breakpointMods={[{modifier: FlexModifiers['spacer-xs']}]}>
+          {typeIcon}
+        </FlexItem>
+        <FlexItem>
+          {typeName}
+        </FlexItem>
+      </Flex>;
+    };
+
+    return (
+
+      <Flex style={{width: '8em'}}>
+        <FlexItem >
+          <Checkbox
+            onClick={filterurl}
+            isChecked={it.isChecked}
+            style={{width: '1.2em', height: '1.2em', marginRight: '.3em'}}
+            label={customLabel(it.value[0].toUpperCase() + it.value.slice(1))}
+            value={it.value}
+            name="type"
+            id={it.id}
+            aria-label="uncontrolled checkbox example"
+          />
+        </FlexItem>
+      </Flex>
+
+    );
+  };
+
+  let showresource: any;
+  if (status !== undefined) {
+    const resource = status.slice(0, 2);
+    showresource = resource.map((item: any, idx: number) => (
+      <div
+        key={`res-${idx}`}
+        style={{marginBottom: '0.5em'}}
+      >
+        {addIcon(item, idx)}
+
+      </div >
     ));
   }
-  let showverifiedtask:any;
+  let showverifiedtask: any;
   // jsx element for show verifiedtask
-  if ( status !== undefined) {
-    const verifiedtask=status.slice(2, 3);
+  if (status !== undefined) {
+    const verifiedtask = status.slice(2, 3);
     showverifiedtask = verifiedtask.map((it: any, idx: number) => (
-      <div key = {`task-${idx}`} style={{marginBottom: '0.5em'}}>
+      <div key={`task-${idx}`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterurl}
           isChecked={it.isChecked}
           style={{width: '1.2em', height: '1.2em'}}
-          label={it.value[0].toUpperCase()+it.value.slice(1)}
+          label={it.value[0].toUpperCase() + it.value.slice(1)}
           value={it.value}
           name="verified"
           id={it.id}
@@ -155,38 +194,38 @@ const Filter: React.FC = (props:any) => {
     ));
   }
   // jsx element for show tags
-  let showTags:any ='';
+  let showTags: any = '';
   if (status !== undefined) {
-    const tempstatus=status.slice(3, max);
-    tempstatus.sort((a:any, b:any) =>
-  (a.value> b.value) ? 1 :
-  ((b.value > a.value) ? -1 : 0));
-    showTags=
-     tempstatus.map((it: any) => (
-       <div key = {it} style={{marginBottom: '0.5em'}}>
-         <Checkbox
-           onClick={filterurl}
-           isChecked={it.isChecked}
-           style={{width: '1.2em', height: '1.2em'}}
-           label={it.value[0].toUpperCase()+it.value.slice(1)}
-           value={it.value}
-           name="Tags"
-           id={it.id}
-           aria-label="uncontrolled checkbox example"
+    const tempstatus = status.slice(3, max);
+    tempstatus.sort((a: any, b: any) =>
+      (a.value > b.value) ? 1 :
+        ((b.value > a.value) ? -1 : 0));
+    showTags =
+      tempstatus.map((it: any) => (
+        <div key={it} style={{marginBottom: '0.5em'}}>
+          <Checkbox
+            onClick={filterurl}
+            isChecked={it.isChecked}
+            style={{width: '1.2em', height: '1.2em'}}
+            label={it.value[0].toUpperCase() + it.value.slice(1)}
+            value={it.value}
+            name="Tags"
+            id={it.id}
+            aria-label="uncontrolled checkbox example"
 
-         />
-       </div>
-     ));
+          />
+        </div>
+      ));
   }
   // /  for showing more
-  const seeMore=(e:any) =>{
-    const x=max;
+  const seeMore = (e: any) => {
+    const x = max;
 
-    if (x< status.length) {
+    if (x < status.length) {
       setMax(status.length);
       setShow('Show less');
     } else {
-      setMax((x) => x-13);
+      setMax((x) => x - 13);
       setShow('Show all');
     }
   };
@@ -207,7 +246,7 @@ const Filter: React.FC = (props:any) => {
         {' '}
         <b>Verified </b>{'  '}
         <Tooltip content={<div>
-           Verified Task and Pipelines by Tekton Catalog</div>}>
+          Verified Task and Pipelines by Tekton Catalog</div>}>
           <InfoCircleIcon />
         </Tooltip>
       </h2>
