@@ -1,24 +1,44 @@
 package utility
 
 import (
+	"context"
 	"errors"
 	"log"
 	"strings"
 
-	"github.com/redhat-developer/tekton-hub/backend/api/pkg/polling"
 	"github.com/google/go-github/github"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/polling"
+	"go.uber.org/zap"
 )
 
-var client, ctx = polling.Authenticate()
+//var client, context.Background() = polling.Authenticate()
 
-// Client : Github Client
-var Client = client
+//// Client : Github Client
+//var Client = client
 
-// Ctx : Context
-var Ctx = ctx
+//// context.Background() : Context
+//var context.Background() = context.Background()
+
+type GitHub struct {
+	app    app.Config
+	log    *zap.SugaredLogger
+	client *github.Client
+}
+
+func New(app app.Config) *GitHub {
+
+	// Authenticate and return a Github client
+	gh := app.GitHub().Client
+	return &GitHub{
+		app:    app,
+		log:    app.Logger().With("name", "github"),
+		client: gh,
+	}
+}
 
 // IsValidDirectory checks if the directory is a valid catalog directory
-func IsValidDirectory(dir *github.RepositoryContent) bool {
+func (gh *GitHub) IsValidDirectory(dir *github.RepositoryContent) bool {
 	if dir.GetType() == "dir" && dir.GetName() != "vendor" && dir.GetName() != "test" && dir.GetName() != ".github" {
 		return true
 	}
@@ -26,9 +46,9 @@ func IsValidDirectory(dir *github.RepositoryContent) bool {
 }
 
 // GetREADMEContent returns the content of README file
-func GetREADMEContent(dir *github.RepositoryContent, file *github.RepositoryContent) (string, error) {
+func (gh *GitHub) GetREADMEContent(dir *github.RepositoryContent, file *github.RepositoryContent) (string, error) {
 	if strings.HasSuffix(file.GetName(), ".md") {
-		desc, err := polling.GetFileContent(Ctx, Client, "tektoncd", "catalog", dir.GetName()+"/"+file.GetName(), nil)
+		desc, err := polling.GetFileContent(context.Background(), gh.client, "tektoncd", "catalog", dir.GetName()+"/"+file.GetName(), nil)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -42,9 +62,9 @@ func GetREADMEContent(dir *github.RepositoryContent, file *github.RepositoryCont
 }
 
 // GetYAMLContent returns content of a YAML file
-func GetYAMLContent(dir *github.RepositoryContent, file *github.RepositoryContent) (string, error) {
+func (gh *GitHub) GetYAMLContent(dir *github.RepositoryContent, file *github.RepositoryContent) (string, error) {
 	if strings.HasSuffix(file.GetName(), ".yaml") {
-		desc, err := polling.GetFileContent(Ctx, Client, "tektoncd", "catalog", dir.GetName()+"/"+file.GetName(), nil)
+		desc, err := polling.GetFileContent(context.Background(), gh.client, "tektoncd", "catalog", dir.GetName()+"/"+file.GetName(), nil)
 		if err != nil {
 			log.Fatalln(err)
 		}
