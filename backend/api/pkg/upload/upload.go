@@ -137,6 +137,7 @@ func (u *Uploader) NewUpload(name, description, objectType string, tags []string
 		Github:      github,
 		Description: description,
 		Tags:        tags,
+		Type:        objectType,
 	}
 	rawResourcePath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", resourcePath)
 	resourceID, err := models.AddResource(&resource, userID, owner, repositoryName, resourcePath)
