@@ -79,7 +79,7 @@ const Task: React.FC<TaskProp> = (props:any) => {
           <CardFooter className="catalog-tile-pf-footer">
             {
               tempArr[0].map((tag: any) => (<Badge style={{marginLeft: '0.2em',
-                marginBottom: '1em'}} key={tag.Name} className="badge">{tag}</Badge>))
+                marginBottom: '1em'}} key={`badge-${tag}`} className="badge">{tag}</Badge>))
             }
           </CardFooter>
         </Card>
