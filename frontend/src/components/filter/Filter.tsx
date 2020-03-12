@@ -11,11 +11,12 @@ import {
   Button,
 } from '@patternfly/react-core/dist/js/components';
 import {API_URL} from '../../constants';
-import {InfoCircleIcon} from '@patternfly/react-icons';
+import {InfoCircleIcon, DomainIcon, BuildIcon} from '@patternfly/react-icons';
 import store from '../redux/store';
 import {FETCH_TASK_SUCCESS} from '../redux/Actions/TaskActionType';
 import './filter.css';
-
+import {FlexModifiers, Flex, FlexItem} from '@patternfly/react-core';
+const tempObj: any = {};
 const Filter: React.FC = (props: any) => {
   const [categoryData, setCategoryData] = useState();
   const [status, setStatus] = useState({checklist: []});
@@ -24,21 +25,11 @@ const Filter: React.FC = (props: any) => {
     {id: '1001', value: 'pipeline', isChecked: false},
     {id: '1002', value: 'verified', isChecked: false}];
   const [checkBoxStatus, setCheckBoxStatus] = useState(
-      {
-        task: false,
-        pipeline: false,
-        verified: false,
-        C1: false,
-        C2: false,
-        C3: false,
-        C4: false,
-      },
+      {},
   );
-
   //  function for adding categories to filteritem
   const addCategory = (categoryData: any) => {
     Object.keys(categoryData).map((categoryName: string, index: number) =>
-
       filterItem.push(
           {id: index.toString(), value: categoryName, isChecked: false},
       ));
@@ -49,6 +40,12 @@ const Filter: React.FC = (props: any) => {
     fetch(`${API_URL}/categories`)
         .then((res) => res.json())
         .then((categoryData) => setCategoryData(addCategory(categoryData)));
+    if (categoryData) {
+      (Object.keys(categoryData)).map((category) => {
+        return tempObj.category = false;
+      });
+    }
+    setCheckBoxStatus(tempObj);
 
     // eslint-disable-next-line
   }, []);
@@ -58,7 +55,7 @@ const Filter: React.FC = (props: any) => {
     fetch(`${API_URL}/resources/${typeurl}/${verifiedurl}?tags=${categoryurl} `)
         .then((resp) => resp.json())
         .then((data) => {
-          const taskarr = data.sort((first:any, second: any) => {
+          const taskarr = data.sort((first: any, second: any) => {
             if (first.name > second.name) {
               return 1;
             } else {
@@ -72,6 +69,29 @@ const Filter: React.FC = (props: any) => {
               },
           );
         });
+  };
+  // / function for showing types
+  let typeIcon: any;
+  const addIcon = (it: any, idx: number) => {
+    typeIcon = idx === 0 ? <BuildIcon
+      size="sm" color="black"
+      style={{marginLeft: '-0.5em'}} /> :
+      <DomainIcon size="sm"
+        color="black"
+        style={{marginLeft: '-0.5em'}} />;
+  };
+
+
+  // custom label for type filter
+  const customLabel = (typeName: string) => {
+    return <Flex>
+      <FlexItem breakpointMods={[{modifier: FlexModifiers['spacer-xs']}]}>
+        {typeIcon}
+      </FlexItem>
+      <FlexItem>
+        {typeName}
+      </FlexItem>
+    </Flex>;
   };
 
 
@@ -111,7 +131,6 @@ const Filter: React.FC = (props: any) => {
       if (item.isChecked === true) {
         categoryData[item.value].map((categoryitem: any) => {
           categoryurl = categoryurl + categoryitem + '|';
-
           return categoryurl;
         });
       }
@@ -136,33 +155,27 @@ const Filter: React.FC = (props: any) => {
   //   function for clearing all checkbox
   const clearFilter = () => {
     setCheckBoxStatus(
-        {
-          task: false,
-          pipeline: false,
-          verified: false,
-          C1: false,
-          C2: false,
-          C3: false,
-          C4: false,
-        });
+        tempObj,
+    );
     status.checklist.map((it: any) => {
       it.isChecked = false;
-      return status.checklist;
+      return status;
     });
     // for bydefault fetchApi after clearAll checkbox
     fetchApi('all', 'false', ' ');
     setClear('');
   };
   let resourceType: any;
-  if (status !== undefined) {
+  if (status !== undefined && checkBoxStatus !== undefined) {
     const resource = status.checklist.slice(0, 2);
     resourceType = resource.map((it: any, idx: number) => (
       <div key={`res-${idx}`} style={{marginBottom: '0.5em'}}>
+        {addIcon(it, idx)}
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
           style={{width: '1.2em', height: '1.2em'}}
-          label={it.value[0].toUpperCase() + it.value.slice(1)}
+          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1))}
           value={it.value}
           name="type"
           id={it.id}
@@ -174,7 +187,7 @@ const Filter: React.FC = (props: any) => {
   }
   let showverifiedtask: any;
   // jsx element for show verifiedtask
-  if (status !== undefined) {
+  if (status !== undefined && checkBoxStatus !== undefined) {
     const verifiedtask = status.checklist.slice(2, 3);
     showverifiedtask = verifiedtask.map((it: any, idx: number) => (
       <div key={`task-${idx}`} style={{marginBottom: '0.5em'}}>
@@ -194,14 +207,14 @@ const Filter: React.FC = (props: any) => {
   }
   // jsx element for showing all categories
   let categoryList: any = '';
-  if (status !== undefined) {
+  if (status !== undefined && checkBoxStatus !== undefined) {
     const tempstatus = status.checklist.slice(3);
     tempstatus.sort((a: any, b: any) =>
       (a.value > b.value) ? 1 :
         ((b.value > a.value) ? -1 : 0));
     categoryList =
-      tempstatus.map((it: any) => (
-        <div key={it} style={{marginBottom: '0.5em'}}>
+      tempstatus.map((it: any, idx: number) => (
+        <div key={`cat-${idx}`} style={{marginBottom: '0.5em'}}>
           <Checkbox
             onClick={filterApi}
             isChecked={checkBoxStatus[it.value]}
@@ -217,9 +230,8 @@ const Filter: React.FC = (props: any) => {
       ));
   }
 
-
   return (
-    <div className="filter-size" >
+    <div className="filter-size" key="">
       <h2 style={{marginBottom: '1em'}}>
         {' '}
         <Button component='a' variant='link'
