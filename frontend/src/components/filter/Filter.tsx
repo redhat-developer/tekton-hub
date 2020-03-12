@@ -174,7 +174,7 @@ const Filter: React.FC = (props: any) => {
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
-          style={{width: '1.2em', height: '1.2em'}}
+          style={{width: '1.2em', height: '1.2em', marginRight: '.3em'}}
           label={customLabel(it.value[0].toUpperCase() + it.value.slice(1))}
           value={it.value}
           name="type"
