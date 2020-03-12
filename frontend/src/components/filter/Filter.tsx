@@ -11,10 +11,11 @@ import {
   Button,
 } from '@patternfly/react-core/dist/js/components';
 import {API_URL} from '../../constants';
-import {InfoCircleIcon} from '@patternfly/react-icons';
+import {InfoCircleIcon, DomainIcon, BuildIcon} from '@patternfly/react-icons';
 import store from '../redux/store';
 import {FETCH_TASK_SUCCESS} from '../redux/Actions/TaskActionType';
 import './filter.css';
+import {FlexModifiers, Flex, FlexItem} from '@patternfly/react-core';
 const tempObj: any = {};
 const Filter: React.FC = (props: any) => {
   const [categoryData, setCategoryData] = useState();
@@ -26,8 +27,6 @@ const Filter: React.FC = (props: any) => {
   const [checkBoxStatus, setCheckBoxStatus] = useState(
       {},
   );
-
-
   //  function for adding categories to filteritem
   const addCategory = (categoryData: any) => {
     Object.keys(categoryData).map((categoryName: string, index: number) =>
@@ -56,7 +55,7 @@ const Filter: React.FC = (props: any) => {
     fetch(`${API_URL}/resources/${typeurl}/${verifiedurl}?tags=${categoryurl} `)
         .then((resp) => resp.json())
         .then((data) => {
-          const taskarr = data.sort((first:any, second: any) => {
+          const taskarr = data.sort((first: any, second: any) => {
             if (first.name > second.name) {
               return 1;
             } else {
@@ -70,6 +69,29 @@ const Filter: React.FC = (props: any) => {
               },
           );
         });
+  };
+  // / function for showing types
+  let typeIcon: any;
+  const addIcon = (it: any, idx: number) => {
+    typeIcon = idx === 0 ? <BuildIcon
+      size="sm" color="black"
+      style={{marginLeft: '-0.5em'}} /> :
+      <DomainIcon size="sm"
+        color="black"
+        style={{marginLeft: '-0.5em'}} />;
+  };
+
+
+  // custom label for type filter
+  const customLabel = (typeName: string) => {
+    return <Flex>
+      <FlexItem breakpointMods={[{modifier: FlexModifiers['spacer-xs']}]}>
+        {typeIcon}
+      </FlexItem>
+      <FlexItem>
+        {typeName}
+      </FlexItem>
+    </Flex>;
   };
 
 
@@ -148,6 +170,7 @@ const Filter: React.FC = (props: any) => {
     const resource = status.checklist.slice(0, 2);
     resourceType = resource.map((it: any, idx: number) => (
       <div key={`res-${idx}`} style={{marginBottom: '0.5em'}}>
+        {addIcon(it, idx)}
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
@@ -172,7 +195,7 @@ const Filter: React.FC = (props: any) => {
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
           style={{width: '1.2em', height: '1.2em'}}
-          label={it.value[0].toUpperCase() + it.value.slice(1)}
+          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1))}
           value={it.value}
           name="verified"
           id={it.id}
@@ -190,7 +213,7 @@ const Filter: React.FC = (props: any) => {
       (a.value > b.value) ? 1 :
         ((b.value > a.value) ? -1 : 0));
     categoryList =
-      tempstatus.map((it: any, idx:number) => (
+      tempstatus.map((it: any, idx: number) => (
         <div key={`cat-${idx}`} style={{marginBottom: '0.5em'}}>
           <Checkbox
             onClick={filterApi}
@@ -208,7 +231,7 @@ const Filter: React.FC = (props: any) => {
   }
 
   return (
-    <div className="filter-size" key = "">
+    <div className="filter-size" key="">
       <h2 style={{marginBottom: '1em'}}>
         {' '}
         <Button component='a' variant='link'
