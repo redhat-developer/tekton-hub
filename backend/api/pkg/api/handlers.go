@@ -54,7 +54,7 @@ func (api *Api) GetAllTags(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAllCategorieswithTags writes json encoded list of categories to Responsewriter
-func GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request) {
+func (api *Api) GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(models.GetAllCategorieswithTags())
 }
