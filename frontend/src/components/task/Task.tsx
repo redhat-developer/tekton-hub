@@ -54,9 +54,9 @@ const Task: React.FC<TaskProp> = (props: any) => {
   // for adding icon to task and pipeline
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
-    resourceIcon = <BuildIcon size="xl" color="#0066CC" />;
+    resourceIcon = <BuildIcon size="xl" color="#484848" />;
   } else {
-    resourceIcon = <DomainIcon size="xl" color="#0066CC" />;
+    resourceIcon = <DomainIcon size="xl" color="#484848" />;
   };
 
   return (
@@ -92,7 +92,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
               tempArr[0].map((tag: any) => (<Badge style={{
                 marginLeft: '0.2em',
                 marginBottom: '1em',
-              }} key={tag.Name} className="badge">{tag}</Badge>))
+              }} key={tag} className="badge">{tag}</Badge>))
             }
           </CardFooter>
         </Card>

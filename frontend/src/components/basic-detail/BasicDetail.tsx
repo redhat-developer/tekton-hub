@@ -57,10 +57,10 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
     resourceIcon = <BuildIcon
-      style={{height: '5em', width: '5em'}} color="#0066CC" />;
+      style={{height: '5em', width: '5em'}} color="#484848" />;
   } else {
     resourceIcon = <DomainIcon
-      style={{height: '5em', width: '5em'}} color="#0066CC" />;
+      style={{height: '5em', width: '5em'}} color="#4848484" />;
   }
   useEffect(() => {
     fetch(`${API_URL}/resource/links/${taskId}`)
@@ -95,8 +95,8 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
     if (resourcePath['tasks']) {
       taskLink = <ul>
         {
-          resourcePath['tasks'].map((item: any) =>
-            <ClipboardItem taskitem={item} key={item} />)
+          resourcePath['tasks'].map((item: any, idx: number) =>
+            <ClipboardItem taskitem={item} key={idx} />)
         }
       </ul>;
     }
@@ -140,7 +140,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
                           paddingRight: '1em',
                           marginBottom: '1em', marginRight: '1em',
                         }}
-                        key={tag.Name}
+                        key={tag}
                         className="badge">{tag}
                       </Badge>);
                   })

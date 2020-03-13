@@ -17,6 +17,7 @@ import {
 } from '@patternfly/react-core';
 import {fetchTaskSuccess} from '../redux/Actions/TaskAction';
 import {fetchTaskName} from '../redux/Actions/TaskActionName';
+import {fetchTaskList} from '../redux/Actions/TaskDataListAction';
 import store from '../redux/store';
 export interface TaskPropData {
   id: number;
@@ -36,12 +37,13 @@ const SearchBar: React.FC = (props: any) => {
   const tempTask: any = [];
   React.useEffect(() => {
     props.fetchTaskSuccess();
+    props.fetchTaskList();
     // eslint-disable-next-line
   }, []);
 
   // Getting all data from store
-  if (props.TaskData != null) {
-    tempArr = props.TaskData.map((task: any) => {
+  if (props.TaskDataList) {
+    tempArr = props.TaskDataList.map((task: any) => {
       const taskData: TaskPropData = {
         id: task.id,
         name: task.name,
@@ -118,33 +120,27 @@ const SearchBar: React.FC = (props: any) => {
     };
     tasks = task.text; // user input
     setTasks(tasks);
-
-    const regex: any = [];
-    let data: any;
     if (props.TaskData != null) {
       for (let i = 0; i < tempArr.length; i++) {
-        regex.push(tempArr[i].name);
-        if (tasks.toLocaleLowerCase() === regex[i]) {
-          data = tasks.toLocaleLowerCase;
-        }
-        if (data != null) {
+        if (tasks.toLocaleLowerCase() === tempArr[i].name.toLocaleLowerCase()) {
           tempTask.push(tempArr[i]);
+          break;
         }
       }
     }
 
     if (tempTask.length > 0) {
-      store.dispatch({type: 'FETCH_TASK_NAME', payload: tempTask[0]});
+      store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: tempTask});
     }
   };
 
+
   const taskNameArr: any = [];
-  if (props.TaskData != null) {
+  if (props.TaskDataList) {
     for (let i = 0; i < tempArr.length; i++) {
       taskNameArr.push(tempArr[i].name);
     }
   }
-
 
   // AutoComplete text while searching a task
   const [suggestions, setState] = React.useState([]);
@@ -153,7 +149,9 @@ const SearchBar: React.FC = (props: any) => {
   const onTextChanged = (e: any) => {
     const value = e;
     let suggestions = [];
-    if (value.length > 0) {
+    if (value.length === 0) {
+      store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: props.TaskDataList});
+    } else {
       const regex = new RegExp(`^${value}`, 'i');
       suggestions = taskNameArr.sort().filter((v: any) => regex.test(v));
     }
@@ -227,8 +225,9 @@ const SearchBar: React.FC = (props: any) => {
 
 const mapStateToProps = (state: any) => ({
   TaskData: state.TaskData.TaskData,
+  TaskDataList: state.TaskDataList.TaskDataList,
 });
 
-export default connect(mapStateToProps, {fetchTaskSuccess, fetchTaskName})(SearchBar);
+export default connect(mapStateToProps, {fetchTaskSuccess, fetchTaskName, fetchTaskList})(SearchBar);
 
 
