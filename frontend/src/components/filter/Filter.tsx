@@ -201,8 +201,8 @@ const Filter: React.FC = (props: any) => {
       (a.value > b.value) ? 1 :
         ((b.value > a.value) ? -1 : 0));
     showTags =
-      tempstatus.map((it: any) => (
-        <div key={it} style={{marginBottom: '0.5em'}}>
+      tempstatus.map((it: any, idx: number) => (
+        <div key={`tags-${idx}`} style={{marginBottom: '0.5em'}}>
           <Checkbox
             onClick={filterurl}
             isChecked={it.isChecked}
