@@ -16,7 +16,6 @@ import {
   Card,
 } from '@patternfly/react-core';
 import {fetchTaskSuccess} from '../redux/Actions/TaskAction';
-import {fetchTaskName} from '../redux/Actions/TaskActionName';
 import {fetchTaskList} from '../redux/Actions/TaskDataListAction';
 import store from '../redux/store';
 export interface TaskPropData {
@@ -228,6 +227,6 @@ const mapStateToProps = (state: any) => ({
   TaskDataList: state.TaskDataList.TaskDataList,
 });
 
-export default connect(mapStateToProps, {fetchTaskSuccess, fetchTaskName, fetchTaskList})(SearchBar);
+export default connect(mapStateToProps, {fetchTaskSuccess, fetchTaskList})(SearchBar);
 
 
