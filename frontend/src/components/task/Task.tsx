@@ -20,7 +20,6 @@ import {
 } from '@patternfly/react-core';
 import {
   OkIcon,
-  DownloadIcon,
   BuildIcon,
   DomainIcon,
 } from '@patternfly/react-icons';
@@ -66,13 +65,11 @@ const Task: React.FC<TaskProp> = (props: any) => {
           {verifiedStatus}
 
           <CardHead>
-            <div style={{marginTop: '-2em'}}>
+            <div>
               {resourceIcon}
             </div>
 
             <CardActions className="cardActions">
-              <DownloadIcon style={{marginRight: '0.2em'}} className="download" />
-              <TextContent className="text">{props.task.downloads}</TextContent>
               <OkIcon style={{color: 'green'}} />
               <TextContent className="text">{props.task.rating.toFixed(1)}</TextContent>
             </CardActions>
