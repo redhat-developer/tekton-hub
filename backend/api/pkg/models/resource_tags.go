@@ -12,6 +12,12 @@ type TaskTags struct {
 	TagID  int `json:"tagID"`
 }
 
+// ResourceTag represents many-many between Task and Tag models
+type ResourceTag struct {
+	ResourceID int `gorm:"primary_key;" json:"resource_id"`
+	TagID      int `gorm:"primary_key;" json:"tag_id"`
+}
+
 // GetAllResourcesWithGivenTags queries for all resources with given tags
 func GetAllResourcesWithGivenTags(resourceType string, verified string, tags []string) []Resource {
 	resources := []Resource{}

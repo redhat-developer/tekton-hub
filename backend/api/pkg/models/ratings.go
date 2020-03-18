@@ -7,8 +7,8 @@ import (
 
 // Rating represents Rating model in database
 type Rating struct {
-	ID         int `json:"id"`
-	ResourceID int `json:"resource_id"`
+	ID         int `gorm:"primary_key;" json:"id"`
+	ResourceID int `gorm:"primary_key;unique" json:"resource_id"`
 	OneStar    int `json:"one"`
 	TwoStar    int `json:"two"`
 	ThreeStar  int `json:"three"`
