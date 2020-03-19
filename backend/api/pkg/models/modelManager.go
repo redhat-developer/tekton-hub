@@ -23,14 +23,11 @@ var GDB *gorm.DB
 
 // Connect will start a new database connection
 func Connect(app app.Config) error {
-
 	log := app.Logger().With("name", "model")
-	conn := app.Database().ConnectionString()
 
-	log.Debugf("connecting to db: %s", conn)
+	log.Info("connecting to db: %s", app.Database())
 
-	db, err := gorm.Open("postgres", "user=postgres password=postgres dbname=tekton_hub sslmode=disable")
-
+	db, err := gorm.Open("postgres", app.Database().ConnectionString())
 	if err != nil {
 		return err
 	}
@@ -41,7 +38,7 @@ func Connect(app app.Config) error {
 	//*sql.DB Object
 	DB = db.DB()
 
-	log.Info("Successfully connection")
+	log.Info("Successfully connected")
 	return nil
 }
 
