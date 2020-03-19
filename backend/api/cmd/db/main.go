@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/jinzhu/gorm"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
-	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/db/model"
 
 	// Blank
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -20,21 +19,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	log := app.Logger()
+	defer log.Sync()
+
 	conn := app.Database().ConnectionString()
-
 	db, err := gorm.Open("postgres", conn)
-
 	if err != nil {
-		log.Fatalf("db connection failed: %s", err)
+		log.Fatalf("DB connection failed: %s", err)
 	}
 
-	// Disable table name's pluralization globally
-	db.SingularTable(true)
-
 	// Create Tables
-	err = models.CreateAndInitialiseTables(db)
-	if err != nil {
-		log.Println("Db initialisation failed", err)
+	if err = model.Migrate(db, log); err != nil {
+		log.Fatal("DB initialisation failed", err)
 	}
 
 }
