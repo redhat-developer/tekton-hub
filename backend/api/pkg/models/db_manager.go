@@ -1,36 +1,33 @@
 package models
 
 import (
-	"log"
-
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 	"gopkg.in/gormigrate.v1"
 )
 
 // CreateAndInitialiseTables will create tables
-func CreateAndInitialiseTables(db *gorm.DB) error {
+func CreateAndInitialiseTables(db *gorm.DB, log *zap.SugaredLogger) error {
 
-	gormigrateObj := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
+	migration := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		// Add Migration Here
 		// If writing a migration for a new table then add the same in InitSchema
 	})
 
-	gormigrateObj.InitSchema(func(db *gorm.DB) error {
-		err := db.AutoMigrate(
+	migration.InitSchema(func(db *gorm.DB) error {
+		if err := db.AutoMigrate(
 			// Add all the tables here
-			&Resource{},
-			&Category{},
 			&Tag{},
+			&Category{},
+			&UserCredential{},
+			&Resource{},
 			&ResourceTag{},
 			&GithubDetail{},
 			&Rating{},
 			&ResourceRawPath{},
-			&UserCredential{},
 			&UserRating{},
 			&UserResource{},
-		).Error
-
-		if err != nil {
+		).Error; err != nil {
 			return err
 		}
 
@@ -62,21 +59,20 @@ func CreateAndInitialiseTables(db *gorm.DB) error {
 			return err
 		}
 
-		log.Printf("Schema initialised successfully !!")
+		log.Info("Schema initialised successfully !!")
 
 		// Add Data to the Tables
 		initialiseTables(db)
-
-		log.Printf("Data added successfully !!")
+		log.Info("Data added successfully !!")
 
 		return nil
 	})
 
-	if err := gormigrateObj.Migrate(); err != nil {
-		log.Fatalf("Could not migrate: %v", err)
-	} else {
-		log.Printf("Migration did run successfully !!")
+	if err := migration.Migrate(); err != nil {
+		log.Error(err, "could not migrate")
+		return err
 	}
 
+	log.Info("Migration ran successfully !!")
 	return nil
 }
