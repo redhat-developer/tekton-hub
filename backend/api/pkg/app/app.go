@@ -44,11 +44,16 @@ type GitHub struct {
 	Client        *github.Client
 }
 
+func (db *Database) String() string {
+	return fmt.Sprintf(
+		"host=%s port=%s user=%s password=xxxxxx dbname=%s sslmode=disable",
+		db.Host, db.Port, db.User, db.Name)
+}
+
 func (db *Database) ConnectionString() string {
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		db.Host, db.Port, db.User, db.Password, db.Name)
-
 }
 
 type Env struct {

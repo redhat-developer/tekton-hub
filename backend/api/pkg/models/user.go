@@ -10,6 +10,16 @@ type User struct {
 	EMAIL      string `json:"email"`
 }
 
+// UserCredential represents User model in database
+type UserCredential struct {
+	ID        int    `gorm:"primary_key;" json:"id"`
+	UserName  string `gorm:"not null;unique" json:"username"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	EMAIL     string `json:"email"`
+	Token     string `json:"token"`
+}
+
 // UserTaskResponse represents all tasks uploaded by user
 type UserTaskResponse struct {
 	ID        int     `json:"id"`
@@ -27,9 +37,31 @@ type ResourceGithubResponse struct {
 	ReadmePath     string
 }
 
+// GithubDetail represents response for GetResourceGithubDetails query
+type GithubDetail struct {
+	ResourceID     int    `gorm:"primary_key;auto_increment" json:"resource_id"`
+	Owner          string `json:"owner"`
+	RepositoryName string `json:"repository_name"`
+	Path           string `json:"path"`
+	ReadmePath     string `json:"readme_path"`
+}
+
+// ResourceRawPath stores the raw path to resource
+type ResourceRawPath struct {
+	ResourceID int    `json:"resource_id"`
+	RawPath    string `json:"raw_path"`
+	Type       string `json:"type"`
+}
+
+// UserResource maps user to their resources
+type UserResource struct {
+	ResourceID int `gorm:"primary_key;" json:"resource_id"`
+	UserID     int `gorm:"primary_key;" json:"user_id"`
+}
+
 // GetAllResourcesByUser will return all tasks uploaded by user
 func GetAllResourcesByUser(userID int) []UserTaskResponse {
-	sqlStatement := `SELECT ID,NAME,DOWNLOADS,RATING FROM RESOURCE T JOIN USER_RESOURCE 
+	sqlStatement := `SELECT ID,NAME,DOWNLOADS,RATING FROM RESOURCE T JOIN USER_RESOURCE
 	U ON T.ID=U.RESOURCE_ID WHERE U.USER_ID=$1`
 	rows, err := DB.Query(sqlStatement, userID)
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
+	"github.com/jinzhu/gorm"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
 
 	// Blank for package side effect
@@ -17,24 +18,27 @@ import (
 // DB is a PostgreSQL object
 var DB *sql.DB
 
+//GDB is a Gorm object
+var GDB *gorm.DB
+
 // Connect will start a new database connection
 func Connect(app app.Config) error {
-
 	log := app.Logger().With("name", "model")
-	conn := app.Database().ConnectionString()
 
-	log.Debugf("connecting to db: %s", conn)
-	db, err := sql.Open("postgres", conn)
+	log.Info("connecting to db: %s", app.Database())
+
+	db, err := gorm.Open("postgres", app.Database().ConnectionString())
 	if err != nil {
 		return err
 	}
 
-	if err := db.Ping(); err != nil {
-		return err
-	}
+	// *gorm.DB Object
+	GDB = db
 
-	DB = db
-	log.Info("Successfully connected to db")
+	//*sql.DB Object
+	DB = db.DB()
+
+	log.Info("Successfully connected")
 	return nil
 }
 

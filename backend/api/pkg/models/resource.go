@@ -3,25 +3,27 @@ package models
 import (
 	"log"
 	"strconv"
+
+	"github.com/lib/pq"
 )
 
 // Resource is a database model representing task and pipeline
 type Resource struct {
-	ID          int      `json:"id"`
-	Name        string   `json:"name"`
-	Type        string   `json:"type"`
-	Description string   `json:"description"`
-	Downloads   int      `json:"downloads"`
-	Rating      float64  `json:"rating"`
-	Github      string   `json:"github"`
-	Tags        []string `json:"tags"`
-	Verified    bool     `json:"verified"`
+	ID          int            `gorm:"primary_key;auto_increment" json:"id"`
+	Name        string         `json:"name"`
+	Type        string         `json:"type"`
+	Description string         `json:"description"`
+	Downloads   int            `json:"downloads"`
+	Rating      float64        `json:"rating"`
+	Github      string         `json:"github"`
+	Tags        pq.StringArray `gorm:"type:text[]" json:"tags"`
+	Verified    bool           `json:"verified"`
 }
 
 // AddCatalogResource is called to add resource from catalog
 func AddCatalogResource(resource *Resource) (int, error) {
 	sqlStatement := `
-	INSERT INTO RESOURCE (NAME,DOWNLOADS,RATING,GITHUB) 
+	INSERT INTO RESOURCE (NAME,DOWNLOADS,RATING,GITHUB)
 	VALUES ($1, $2, $3, $4) RETURNING ID`
 	var resourceID int
 	err := DB.QueryRow(sqlStatement, resource.Name, resource.Downloads, resource.Rating, resource.Github).Scan(&resourceID)
@@ -141,7 +143,7 @@ func GetAllResources() []Resource {
 	defer rows.Close()
 	for rows.Next() {
 		resource := Resource{}
-		err = rows.Scan(&resource.ID, &resource.Name, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Type, &resource.Verified)
+		err = rows.Scan(&resource.ID, &resource.Name, &resource.Type, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Tags, &resource.Verified)
 		if err != nil {
 			log.Println(err)
 		}
@@ -186,7 +188,7 @@ func GetResourceByID(id int) Resource {
 	resourceTagMap = getResourceTagMap()
 	sqlStatement := `
 	SELECT * FROM RESOURCE WHERE ID=$1;`
-	err := DB.QueryRow(sqlStatement, id).Scan(&resource.ID, &resource.Name, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Type, &resource.Verified)
+	err := DB.QueryRow(sqlStatement, id).Scan(&resource.ID, &resource.Name, &resource.Type, &resource.Description, &resource.Downloads, &resource.Rating, &resource.Github, &resource.Tags, &resource.Verified)
 	if err != nil {
 		return Resource{}
 	}
