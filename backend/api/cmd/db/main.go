@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	app, err := app.FromEnv()
+	app, err := app.BaseConfigFromEnv()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "FATAL: failed to initialise: %s", err)
 		os.Exit(1)

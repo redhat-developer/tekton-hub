@@ -13,11 +13,15 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type Config interface {
+type Base interface {
 	Environment() EnvMode
 	Database() *Database
-	GitHub() *GitHub
 	Logger() *zap.SugaredLogger
+}
+
+type Config interface {
+	Base
+	GitHub() *GitHub
 	Addr() string
 }
 
@@ -37,13 +41,6 @@ type Database struct {
 	Password string
 }
 
-type GitHub struct {
-	AccessToken   string
-	OAuthClientID string
-	OAuthSecret   string
-	Client        *github.Client
-}
-
 func (db *Database) String() string {
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=xxxxxx dbname=%s sslmode=disable",
@@ -56,40 +53,71 @@ func (db *Database) ConnectionString() string {
 		db.Host, db.Port, db.User, db.Password, db.Name)
 }
 
-type Env struct {
+type GitHub struct {
+	AccessToken   string
+	OAuthClientID string
+	OAuthSecret   string
+	Client        *github.Client
+}
+
+type BaseConfig struct {
 	mode   EnvMode
 	logger *zap.SugaredLogger
 	db     *Database
-	gh     *GitHub
 }
 
-var _ Config = (*Env)(nil)
+var _ Base = (*BaseConfig)(nil)
 
-func (e *Env) Environment() EnvMode {
+func (e *BaseConfig) Environment() EnvMode {
 	return e.mode
 }
 
-func (e *Env) Logger() *zap.SugaredLogger {
+func (e *BaseConfig) Logger() *zap.SugaredLogger {
 	return e.logger
 }
 
-func (e *Env) Database() *Database {
+func (e *BaseConfig) Database() *Database {
 	return e.db
 }
 
-func (e *Env) GitHub() *GitHub {
+type ApiConfig struct {
+	*BaseConfig
+	gh *GitHub
+}
+
+var _ Config = (*ApiConfig)(nil)
+
+func (e *ApiConfig) GitHub() *GitHub {
 	return e.gh
 }
 
-func (e *Env) Addr() string {
+func (e *ApiConfig) Addr() string {
 	return ":5000"
 }
 
-func FromEnv() (*Env, error) {
+func loggerFromEnv() (*zap.SugaredLogger, EnvMode, error) {
 
-	// load from .env but skip if not found
+	// load from .env file but skip if not found
 	if err := godotenv.Load(); err != nil {
-		fmt.Fprintf(os.Stdout, "SKIP: loading .env failed: %s", err)
+		fmt.Fprintf(os.Stdout, "SKIP: loading .ApiConfig failed: %s", err)
+	}
+
+	mode := Environment()
+	var err error
+
+	var log *zap.SugaredLogger
+	if log, err = initLogger(mode); err != nil {
+		return nil, mode, err
+	}
+
+	log.With("name", "app").Infof("in %q mode ", mode)
+	return log, mode, nil
+}
+
+func BaseConfigFromEnv() (*BaseConfig, error) {
+	// load from .ApiConfig but skip if not found
+	if err := godotenv.Load(); err != nil {
+		fmt.Fprintf(os.Stdout, "SKIP: loading .ApiConfig failed: %s", err)
 	}
 
 	mode := Environment()
@@ -102,17 +130,31 @@ func FromEnv() (*Env, error) {
 
 	log.With("name", "app").Infof("in %q mode ", mode)
 
-	env := &Env{mode: mode, logger: log}
-
-	if env.db, err = initDB(); err != nil {
+	bc := &BaseConfig{mode: mode, logger: log}
+	if bc.db, err = initDB(); err != nil {
 		return nil, err
 	}
 
-	if env.gh, err = initGithub(); err != nil {
+	return bc, nil
+}
+
+func FromEnv() (*ApiConfig, error) {
+	bc, err := BaseConfigFromEnv()
+	if err != nil {
 		return nil, err
 	}
 
-	return env, nil
+	ApiConfig := &ApiConfig{BaseConfig: bc}
+
+	if ApiConfig.db, err = initDB(); err != nil {
+		return nil, err
+	}
+
+	if ApiConfig.gh, err = initGithub(); err != nil {
+		return nil, err
+	}
+
+	return ApiConfig, nil
 }
 
 func env(key string) (string, error) {

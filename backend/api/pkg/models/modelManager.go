@@ -22,7 +22,7 @@ var DB *sql.DB
 var GDB *gorm.DB
 
 // Connect will start a new database connection
-func Connect(app app.Config) error {
+func Connect(app app.Base) error {
 	log := app.Logger().With("name", "model")
 
 	log.Info("connecting to db: %s", app.Database())
