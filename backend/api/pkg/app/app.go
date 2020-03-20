@@ -95,25 +95,6 @@ func (e *ApiConfig) Addr() string {
 	return ":5000"
 }
 
-func loggerFromEnv() (*zap.SugaredLogger, EnvMode, error) {
-
-	// load from .env file but skip if not found
-	if err := godotenv.Load(); err != nil {
-		fmt.Fprintf(os.Stdout, "SKIP: loading .ApiConfig failed: %s", err)
-	}
-
-	mode := Environment()
-	var err error
-
-	var log *zap.SugaredLogger
-	if log, err = initLogger(mode); err != nil {
-		return nil, mode, err
-	}
-
-	log.With("name", "app").Infof("in %q mode ", mode)
-	return log, mode, nil
-}
-
 func BaseConfigFromEnv() (*BaseConfig, error) {
 	// load from .ApiConfig but skip if not found
 	if err := godotenv.Load(); err != nil {
