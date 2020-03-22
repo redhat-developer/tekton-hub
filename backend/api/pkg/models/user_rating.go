@@ -4,8 +4,8 @@ import "log"
 
 // UserRating represents relationship between User and Rating
 type UserRating struct {
-	UserID     int `json:"user_id"`
-	ResourceID int `json:"resource_id"`
+	UserID     int `gorm:"primary_key;" json:"user_id"`
+	ResourceID int `gorm:"primary_key;" json:"resource_id"`
 	Stars      int `json:"stars"`
 }
 

@@ -2,12 +2,13 @@
 
 ## Setup Tools
 
-### CRC
+- CRC
 
-TODO: links to CRC setup
-Follow CRC setup guidelines to setup your development environment
+  Follow CRC setup guidelines to setup your development environment. You can find the documentation [here](https://cloud.redhat.com/openshift/install/crc/installer-provisioned).
 
-### ko
+- OpenShift CLI (oc)
+
+-  ko. Get the installation steps [here](https://github.com/google/ko).
 
 ## Deploy Application on CRC
 
@@ -79,20 +80,20 @@ $ oc get pods
 NAME                   READY   STATUS    RESTARTS   AGE
 api-6675fbf9f5-fft4h   0/1     Error     3          72s
 db-748f56cb8c-rwqjc    1/1     Running   1          72s
-                              ^^^^^^^^^
+  ^^^^^^^^^^^^^               ^^^^^^^^^
+  <db-pod-name>
 ```
 
-Connect to database by port-forwarding `db` service
+Create database `tekton_hub` by `rsh` in the `db` pod.  You can get the pod name from above command or use `oc get pod -l app=db`
 
 ```
-oc port-forward svc/db 5432:5432
+oc rsh <db-pod-name>
 ```
 
-On a different terminal, use `psql` to create and load the database
+Once you are in the pod, use `psql` to create the database
 
 ```
-psql -h localhost -U postgres -p 5432 -c 'create database tekton_hub;'
-psql -h localhost -U postgres -p 5432 tekton_hub < backups/02-01-2020.dump
+psql  -c 'create database tekton_hub;'
 ```
 
 #### Ensure api service is running
@@ -108,7 +109,41 @@ api-6675fbf9f5-fft4h   0/1     Running   3          72s
 db-748f56cb8c-rwqjc    1/1     Running   1          72s
 
 ```
-**NOTE:** you may want to end the port-forward session
+
+Now, Both the pods are up but there is no data in the database.
+
+To create tables and initialise the data, we need to run the  db-migration.
+
+Run the below command to create migration image.
+
+```
+ko publish github.com/redhat-developer/tekton-hub/backend/api/cmd/db
+```
+
+The Database migration should be ran only once. So, we will run a kubernetes job.
+
+Edit the job yaml `config/db-migration/14-db-migration.yaml` and replace the image name with the image created in last step.
+
+```
+containers:
+      - name: db-migration
+        image: quay.io/sm43/db-e1225b1694ead6003d83a432fd4e95f5:latest     <<< replace here
+
+```
+Apply the migration job yaml.
+
+```
+oc apply -f config/db-migration/14-db-migration.yaml
+```
+
+
+Check the logs using ` oc logs job/db-migration `.
+
+Wait till the migration log shows
+```
+Migration did run successfully !!
+```
+
 
 #### Verify if api route is accessible
 
