@@ -29,7 +29,7 @@ func Connect(app app.Config) error {
 
 	log.Debugf("connecting to db: %s", conn)
 
-	db, err := gorm.Open("postgres", "user=postgres password=postgres dbname=tekton_hub sslmode=disable")
+	db, err := gorm.Open("postgres", conn)
 
 	if err != nil {
 		return err

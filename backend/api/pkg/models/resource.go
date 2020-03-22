@@ -17,7 +17,7 @@ type Resource struct {
 	Rating      float64        `json:"rating"`
 	Github      string         `json:"github"`
 	Tags        pq.StringArray `gorm:"type:text[]" json:"tags"`
-	Verified    bool           `json:"verified"`
+	Verified    bool           `gorm:"default:false" json:"verified"`
 }
 
 // AddCatalogResource is called to add resource from catalog

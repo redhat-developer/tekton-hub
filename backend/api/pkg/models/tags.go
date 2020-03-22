@@ -29,8 +29,9 @@ func GetAllTags() []Tag {
 // AddTag will add a new tag
 func AddTag(tag string) (int, error) {
 	var newTagID int
-	sqlStatement := `INSERT INTO TAG(NAME) VALUES($1) RETURNING ID`
-	err := DB.QueryRow(sqlStatement, tag).Scan(&newTagID)
+	categoryID := 8
+	sqlStatement := `INSERT INTO TAG(NAME,CATEGORY_ID) VALUES($1, $2) RETURNING ID`
+	err := DB.QueryRow(sqlStatement, tag, categoryID).Scan(&newTagID)
 	if err != nil {
 		return 0, err
 	}

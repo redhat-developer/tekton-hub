@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	app, err := app.FromEnv()
+	app, err := app.FromEnv("db")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "FATAL: failed to initialise: %s", err)
 		os.Exit(1)
@@ -23,6 +23,8 @@ func main() {
 	conn := app.Database().ConnectionString()
 
 	db, err := gorm.Open("postgres", conn)
+
+	defer db.Close()
 
 	if err != nil {
 		log.Fatalf("db connection failed: %s", err)

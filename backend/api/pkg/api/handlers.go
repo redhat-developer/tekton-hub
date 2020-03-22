@@ -231,7 +231,7 @@ func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
 	api.Log.Info(exists)
 
 	if !exists {
-		sqlStatement := `INSERT INTO USER_CREDENTIAL(ID,USERNAME,FIRST_NAME,TOKEN) VALUES($1,$2,$3,$4)`
+		sqlStatement := `INSERT INTO USER_CREDENTIAL(ID,USER_NAME,FIRST_NAME,TOKEN) VALUES($1,$2,$3,$4)`
 		_, err := models.DB.Exec(sqlStatement, id, "github", "github", t.AccessToken)
 		if err != nil {
 			api.Log.Error(err)

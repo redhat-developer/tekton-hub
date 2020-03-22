@@ -26,23 +26,95 @@ func initialiseTables(GDB *gorm.DB) {
 var initResourceTag = []ResourceTag{
 	ResourceTag{
 		ResourceID: 121,
-		TagID:      1,
+		TagID:      102,
 	},
 	ResourceTag{
 		ResourceID: 122,
-		TagID:      2,
+		TagID:      107,
 	},
 	ResourceTag{
 		ResourceID: 123,
-		TagID:      3,
+		TagID:      102,
 	},
 	ResourceTag{
 		ResourceID: 124,
-		TagID:      4,
+		TagID:      108,
 	},
 	ResourceTag{
 		ResourceID: 125,
-		TagID:      5,
+		TagID:      108,
+	},
+	ResourceTag{
+		ResourceID: 126,
+		TagID:      108,
+	},
+	ResourceTag{
+		ResourceID: 127,
+		TagID:      108,
+	},
+	ResourceTag{
+		ResourceID: 128,
+		TagID:      110,
+	},
+	ResourceTag{
+		ResourceID: 129,
+		TagID:      103,
+	},
+	ResourceTag{
+		ResourceID: 130,
+		TagID:      107,
+	},
+	ResourceTag{
+		ResourceID: 131,
+		TagID:      101,
+	},
+	ResourceTag{
+		ResourceID: 132,
+		TagID:      108,
+	},
+	ResourceTag{
+		ResourceID: 133,
+		TagID:      108,
+	},
+	ResourceTag{
+		ResourceID: 134,
+		TagID:      102,
+	},
+	ResourceTag{
+		ResourceID: 135,
+		TagID:      107,
+	},
+	ResourceTag{
+		ResourceID: 136,
+		TagID:      110,
+	},
+	ResourceTag{
+		ResourceID: 137,
+		TagID:      108,
+	},
+	ResourceTag{
+		ResourceID: 138,
+		TagID:      101,
+	},
+	ResourceTag{
+		ResourceID: 139,
+		TagID:      102,
+	},
+	ResourceTag{
+		ResourceID: 140,
+		TagID:      101,
+	},
+	ResourceTag{
+		ResourceID: 141,
+		TagID:      108,
+	},
+	ResourceTag{
+		ResourceID: 142,
+		TagID:      102,
+	},
+	ResourceTag{
+		ResourceID: 143,
+		TagID:      102,
 	},
 }
 
@@ -83,59 +155,54 @@ var initCategories = []Category{
 
 var initTags = []Tag{
 	Tag{
-		ID:         1,
+		ID:         101,
 		Name:       "build-tool",
 		CategoryID: 1,
 	},
 	Tag{
-		ID:         2,
+		ID:         102,
 		Name:       "cli",
 		CategoryID: 2,
 	},
 	Tag{
-		ID:         3,
+		ID:         103,
 		Name:       "gcp",
 		CategoryID: 3,
 	},
 	Tag{
-		ID:         4,
+		ID:         104,
 		Name:       "aws",
 		CategoryID: 3,
 	},
 	Tag{
-		ID:         5,
+		ID:         105,
 		Name:       "azure",
 		CategoryID: 3,
 	},
 	Tag{
-		ID:         6,
+		ID:         106,
 		Name:       "cloud",
 		CategoryID: 3,
 	},
 	Tag{
-		ID:         7,
+		ID:         107,
 		Name:       "deploy",
 		CategoryID: 4,
 	},
 	Tag{
-		ID:         8,
+		ID:         108,
 		Name:       "image-build",
 		CategoryID: 5,
 	},
 	Tag{
-		ID:         9,
+		ID:         109,
 		Name:       "notification",
 		CategoryID: 6,
 	},
 	Tag{
-		ID:         10,
+		ID:         110,
 		Name:       "test",
 		CategoryID: 7,
-	},
-	Tag{
-		ID:         11,
-		Name:       "other",
-		CategoryID: 8,
 	},
 }
 
