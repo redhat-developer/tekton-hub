@@ -1,6 +1,10 @@
 package models
 
-import "log"
+import (
+	"log"
+
+	"github.com/jinzhu/gorm"
+)
 
 // Tag is a model representing tags associated with tasks
 type Tag struct {
@@ -10,11 +14,11 @@ type Tag struct {
 }
 
 // GetAllTags will query for all tags
-func GetAllTags() []Tag {
+func GetAllTags(db *gorm.DB) []Tag {
 	tags := []Tag{}
 	sqlStatement := `
 	SELECT * FROM TAG;`
-	rows, err := DB.Query(sqlStatement)
+	rows, err := db.DB().Query(sqlStatement)
 	for rows.Next() {
 		tag := Tag{}
 		err = rows.Scan(&tag.ID, &tag.Name, &tag.CategoryID)
@@ -27,10 +31,10 @@ func GetAllTags() []Tag {
 }
 
 // AddTag will add a new tag
-func AddTag(tag string) (int, error) {
+func AddTag(db *gorm.DB, tag string) (int, error) {
 	var newTagID int
 	sqlStatement := `INSERT INTO TAG(NAME) VALUES($1) RETURNING ID`
-	err := DB.QueryRow(sqlStatement, tag).Scan(&newTagID)
+	err := db.DB().QueryRow(sqlStatement, tag).Scan(&newTagID)
 	if err != nil {
 		return 0, err
 	}

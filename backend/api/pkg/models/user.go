@@ -1,6 +1,10 @@
 package models
 
-import "log"
+import (
+	"log"
+
+	"github.com/jinzhu/gorm"
+)
 
 // User represents User model in database
 type User struct {
@@ -60,10 +64,10 @@ type UserResource struct {
 }
 
 // GetAllResourcesByUser will return all tasks uploaded by user
-func GetAllResourcesByUser(userID int) []UserTaskResponse {
+func GetAllResourcesByUser(db *gorm.DB, userID int) []UserTaskResponse {
 	sqlStatement := `SELECT ID,NAME,DOWNLOADS,RATING FROM RESOURCE T JOIN USER_RESOURCE
 	U ON T.ID=U.RESOURCE_ID WHERE U.USER_ID=$1`
-	rows, err := DB.Query(sqlStatement, userID)
+	rows, err := db.DB().Query(sqlStatement, userID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -81,34 +85,34 @@ func GetAllResourcesByUser(userID int) []UserTaskResponse {
 }
 
 // GetGithubToken will return github token by ID
-func GetGithubToken(userID int) string {
+func GetGithubToken(db *gorm.DB, userID int) string {
 	var token string
 	sqlStatement := `SELECT TOKEN FROM USER_CREDENTIAL WHERE ID=$1`
-	DB.QueryRow(sqlStatement, userID).Scan(&token)
+	db.DB().QueryRow(sqlStatement, userID).Scan(&token)
 	return token
 }
 
 // AddResourceRawPath will add a raw path for resource
-func AddResourceRawPath(resourcePath string, resourceID int, resourceType string) {
+func AddResourceRawPath(db *gorm.DB, resourcePath string, resourceID int, resourceType string) {
 	sqlStatement := `INSERT INTO RESOURCE_RAW_PATH(RESOURCE_ID,RAW_PATH,TYPE) VALUES($1,$2,$3)`
-	_, err := DB.Exec(sqlStatement, resourceID, resourcePath, resourceType)
+	_, err := db.DB().Exec(sqlStatement, resourceID, resourcePath, resourceType)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
 // GetResourceGithubDetails will return resource path and github details
-func GetResourceGithubDetails(resourceID int) ResourceGithubResponse {
+func GetResourceGithubDetails(db *gorm.DB, resourceID int) ResourceGithubResponse {
 	sqlStatement := `SELECT * FROM GITHUB_DETAIL WHERE RESOURCE_ID=$1`
 	githubDetails := ResourceGithubResponse{}
-	DB.QueryRow(sqlStatement, resourceID).Scan(&githubDetails.ResourceID, &githubDetails.Owner, &githubDetails.RepositoryName, &githubDetails.Path, &githubDetails.ReadmePath)
+	db.DB().QueryRow(sqlStatement, resourceID).Scan(&githubDetails.ResourceID, &githubDetails.Owner, &githubDetails.RepositoryName, &githubDetails.Path, &githubDetails.ReadmePath)
 	return githubDetails
 }
 
 // GetResourceRawLinks will return raw github links by ID
-func GetResourceRawLinks(resourceID int) RawLinksResponse {
+func GetResourceRawLinks(db *gorm.DB, resourceID int) RawLinksResponse {
 	sqlStatement := `SELECT * FROM RESOURCE_RAW_PATH WHERE RESOURCE_ID=$1`
-	rows, err := DB.Query(sqlStatement, resourceID)
+	rows, err := db.DB().Query(sqlStatement, resourceID)
 	if err != nil {
 		log.Println(err)
 	}

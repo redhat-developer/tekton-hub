@@ -3,6 +3,8 @@ package models
 import (
 	"fmt"
 	"log"
+
+	"github.com/jinzhu/gorm"
 )
 
 // Rating represents Rating model in database
@@ -23,20 +25,20 @@ type PrevStarRequest struct {
 }
 
 // GetRatingDetialsByResourceID retrieves rating details of a task
-func GetRatingDetialsByResourceID(resourceID int) Rating {
+func GetRatingDetialsByResourceID(db *gorm.DB, resourceID int) Rating {
 	sqlStatement := `SELECT * FROM RATING WHERE RESOURCE_ID=$1`
 	taskRating := Rating{}
-	err := DB.QueryRow(sqlStatement, resourceID).Scan(&taskRating.ID, &taskRating.ResourceID, &taskRating.OneStar, &taskRating.TwoStar, &taskRating.ThreeStar, &taskRating.FourStar, &taskRating.FiveStar)
+	err := db.DB().QueryRow(sqlStatement, resourceID).Scan(&taskRating.ID, &taskRating.ResourceID, &taskRating.OneStar, &taskRating.TwoStar, &taskRating.ThreeStar, &taskRating.FourStar, &taskRating.FiveStar)
 	if err != nil {
 		log.Println(err)
 	}
 	return taskRating
 }
 
-func calculateAverageRating(resourceID int) float64 {
+func calculateAverageRating(db *gorm.DB, resourceID int) float64 {
 	rating := Rating{}
 	sqlStatement := `SELECT * FROM RATING WHERE RESOURCE_ID=$1`
-	err := DB.QueryRow(sqlStatement, resourceID).Scan(&rating.ID, &rating.ResourceID, &rating.OneStar, &rating.TwoStar, &rating.ThreeStar, &rating.FourStar, &rating.FiveStar)
+	err := db.DB().QueryRow(sqlStatement, resourceID).Scan(&rating.ID, &rating.ResourceID, &rating.OneStar, &rating.TwoStar, &rating.ThreeStar, &rating.FourStar, &rating.FiveStar)
 	if err != nil {
 		log.Println(err)
 	}
@@ -61,10 +63,10 @@ func getStarsInString(stars int) string {
 	return ""
 }
 
-func addStars(taskID int, stars int, prevStars int) error {
+func addStars(db *gorm.DB, taskID int, stars int, prevStars int) error {
 	starsString := getStarsInString(stars)
 	sqlStatement := fmt.Sprintf("INSERT INTO RATING(%v,RESOURCE_ID) VALUES($1,$2) ON CONFLICT (RESOURCE_ID) DO UPDATE SET %v=RATING.%v+1", starsString, starsString, starsString)
-	_, err := DB.Exec(sqlStatement, 1, taskID)
+	_, err := db.DB().Exec(sqlStatement, 1, taskID)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -72,20 +74,20 @@ func addStars(taskID int, stars int, prevStars int) error {
 	return nil
 }
 
-func updateStars(resourceID int, stars int, prevStars int) {
+func updateStars(db *gorm.DB, resourceID int, stars int, prevStars int) {
 	starsString := getStarsInString(stars)
 	sqlStatement := fmt.Sprintf("UPDATE RATING SET %v=%v+1 WHERE RESOURCE_ID=$1", starsString, starsString)
-	_, err := DB.Exec(sqlStatement, resourceID)
+	_, err := db.DB().Exec(sqlStatement, resourceID)
 	if err != nil {
 		log.Println(err)
 	}
-	deleteOldStars(resourceID, prevStars)
+	deleteOldStars(db, resourceID, prevStars)
 }
 
-func deleteOldStars(resourceID int, prevStars int) {
+func deleteOldStars(db *gorm.DB, resourceID int, prevStars int) {
 	starsString := getStarsInString(prevStars)
 	sqlStatement := fmt.Sprintf("UPDATE RATING SET %v=%v-1 WHERE RESOURCE_ID=$1", starsString, starsString)
-	_, err := DB.Exec(sqlStatement, resourceID)
+	_, err := db.DB().Exec(sqlStatement, resourceID)
 	if err != nil {
 		log.Println(err)
 	}

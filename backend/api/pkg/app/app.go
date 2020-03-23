@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
+	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -17,6 +18,7 @@ type Base interface {
 	Environment() EnvMode
 	Database() *Database
 	Logger() *zap.SugaredLogger
+	DB() *gorm.DB
 }
 
 type Config interface {
@@ -63,21 +65,31 @@ type GitHub struct {
 type BaseConfig struct {
 	mode   EnvMode
 	logger *zap.SugaredLogger
-	db     *Database
+	dbConf *Database
+	db     *gorm.DB
 }
 
 var _ Base = (*BaseConfig)(nil)
 
-func (e *BaseConfig) Environment() EnvMode {
-	return e.mode
+func (bc *BaseConfig) Environment() EnvMode {
+	return bc.mode
 }
 
-func (e *BaseConfig) Logger() *zap.SugaredLogger {
-	return e.logger
+func (bc *BaseConfig) Logger() *zap.SugaredLogger {
+	return bc.logger
 }
 
-func (e *BaseConfig) Database() *Database {
-	return e.db
+func (bc *BaseConfig) Database() *Database {
+	return bc.dbConf
+}
+
+func (bc *BaseConfig) DB() *gorm.DB {
+	return bc.db
+}
+
+func (bc *BaseConfig) Cleanup() {
+	bc.db.Close()
+	bc.logger.Sync()
 }
 
 type ApiConfig struct {
@@ -96,7 +108,7 @@ func (e *ApiConfig) Addr() string {
 }
 
 func BaseConfigFromEnv() (*BaseConfig, error) {
-	// load from .ApiConfig but skip if not found
+	// load from .env file but skip if not found
 	if err := godotenv.Load(); err != nil {
 		fmt.Fprintf(os.Stdout, "SKIP: loading .ApiConfig failed: %s", err)
 	}
@@ -112,9 +124,18 @@ func BaseConfigFromEnv() (*BaseConfig, error) {
 	log.With("name", "app").Infof("in %q mode ", mode)
 
 	bc := &BaseConfig{mode: mode, logger: log}
-	if bc.db, err = initDB(); err != nil {
+	if bc.dbConf, err = initDB(); err != nil {
+		log.Error(err, "failed to obtain database configuration")
 		return nil, err
 	}
+
+	bc.db, err = gorm.Open("postgres", bc.dbConf.ConnectionString())
+	if err != nil {
+		log.Error(err, "failed to establish database connection")
+		return nil, err
+	}
+
+	log.Infof("Successfully connected to db %s", bc.dbConf)
 
 	return bc, nil
 }
@@ -126,10 +147,6 @@ func FromEnv() (*ApiConfig, error) {
 	}
 
 	ApiConfig := &ApiConfig{BaseConfig: bc}
-
-	if ApiConfig.db, err = initDB(); err != nil {
-		return nil, err
-	}
 
 	if ApiConfig.gh, err = initGithub(); err != nil {
 		return nil, err

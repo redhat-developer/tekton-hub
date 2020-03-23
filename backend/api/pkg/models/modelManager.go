@@ -2,45 +2,15 @@ package models
 
 import (
 	"bufio"
-	"database/sql"
 	"log"
 	"os"
 	"strings"
 
 	"github.com/google/go-github/github"
-	"github.com/jinzhu/gorm"
-	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
 
 	// Blank for package side effect
 	_ "github.com/lib/pq"
 )
-
-// DB is a PostgreSQL object
-var DB *sql.DB
-
-//GDB is a Gorm object
-var GDB *gorm.DB
-
-// Connect will start a new database connection
-func Connect(app app.Base) error {
-	log := app.Logger().With("name", "model")
-
-	log.Info("connecting to db: %s", app.Database())
-
-	db, err := gorm.Open("postgres", app.Database().ConnectionString())
-	if err != nil {
-		return err
-	}
-
-	// *gorm.DB Object
-	GDB = db
-
-	//*sql.DB Object
-	DB = db.DB()
-
-	log.Info("Successfully connected")
-	return nil
-}
 
 func extractDescriptionFromREADME(readmeFile *github.RepositoryContent, dir *github.RepositoryContent) string {
 	file, err := os.Open("catalog/" + dir.GetName() + "/" + readmeFile.GetName())

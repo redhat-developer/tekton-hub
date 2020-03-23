@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
+	"github.com/jinzhu/gorm"
 )
 
 // TaskTags represents many-many between Task and Tag models
@@ -19,7 +21,7 @@ type ResourceTag struct {
 }
 
 // GetAllResourcesWithGivenTags queries for all resources with given tags
-func GetAllResourcesWithGivenTags(resourceType string, verified string, tags []string) []Resource {
+func GetAllResourcesWithGivenTags(db *gorm.DB, resourceType string, verified string, tags []string) []Resource {
 	resources := []Resource{}
 	args := make([]interface{}, len(tags))
 	for index, value := range tags {
@@ -36,8 +38,8 @@ func GetAllResourcesWithGivenTags(resourceType string, verified string, tags []s
 		rows           *sql.Rows
 		err            error
 	)
-	resourceTagMap = getResourceTagMap()
-	rows, err = executeTagsQuery(tags, params, args)
+	resourceTagMap = getResourceTagMap(db)
+	rows, err = executeTagsQuery(db, tags, params, args)
 	defer rows.Close()
 	if err != nil {
 		log.Println(err)
@@ -49,12 +51,12 @@ func GetAllResourcesWithGivenTags(resourceType string, verified string, tags []s
 			log.Println(err)
 		}
 		resource.Tags = resourceTagMap[resource.ID]
-		matchTypeAndVerified(resourceType, verified, resource, &resources)
+		matchTypeAndVerified(db, resourceType, verified, resource, &resources)
 	}
 	return resources
 }
 
-func executeTagsQuery(tags []string, params string, args []interface{}) (*sql.Rows, error) {
+func executeTagsQuery(db *gorm.DB, tags []string, params string, args []interface{}) (*sql.Rows, error) {
 	var (
 		rows         *sql.Rows
 		err          error
@@ -66,17 +68,17 @@ func executeTagsQuery(tags []string, params string, args []interface{}) (*sql.Ro
 	FROM RESOURCE AS T JOIN RESOURCE_TAG AS TT ON (T.ID=TT.RESOURCE_ID) JOIN TAG
 	AS TG ON (TG.ID=TT.TAG_ID AND TG.NAME in (` +
 			params + `));`
-		rows, err = DB.Query(sqlStatement, args...)
+		rows, err = db.DB().Query(sqlStatement, args...)
 	} else {
 		sqlStatement = `
 	SELECT DISTINCT T.ID,T.NAME,T.TYPE,T.DESCRIPTION,T.DOWNLOADS,T.RATING,T.GITHUB,T.VERIFIED
 	FROM RESOURCE T`
-		rows, err = DB.Query(sqlStatement)
+		rows, err = db.DB().Query(sqlStatement)
 	}
 	return rows, err
 }
 
-func matchTypeAndVerified(resourceType string, verified string, resource Resource, resources *[]Resource) {
+func matchTypeAndVerified(db *gorm.DB, resourceType string, verified string, resource Resource, resources *[]Resource) {
 	isVerified := getBoolString(resource.Verified)
 	if resourceType != "all" && verified != "all" {
 		if resourceType == resource.Type && isVerified == verified {
@@ -104,9 +106,9 @@ func getBoolString(p bool) string {
 	return "all"
 }
 
-func getResourceTagMap() map[int][]string {
+func getResourceTagMap(db *gorm.DB) map[int][]string {
 	sqlStatement := `SELECT DISTINCT T.ID,TG.NAME FROM RESOURCE AS T JOIN RESOURCE_TAG AS TT ON (T.ID=TT.RESOURCE_ID) JOIN TAG AS TG ON (TG.ID=TT.TAG_ID);`
-	rows, err := DB.Query(sqlStatement)
+	rows, err := db.DB().Query(sqlStatement)
 	// mapping task ID with tag names
 	var taskTagMap map[int][]string
 	taskTagMap = make(map[int][]string)

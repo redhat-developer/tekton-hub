@@ -85,7 +85,7 @@ func (u *Uploader) getLatestCommit(owner string, repositoryName string) string {
 
 // NewUpload handles uploading of new task/pipeline
 func (u *Uploader) NewUpload(name, description, objectType string, tags []string, github string, userID int) interface{} {
-	isSameResource := models.CheckSameResourceUpload(userID, name)
+	isSameResource := models.CheckSameResourceUpload(u.app.DB(), userID, name)
 	if isSameResource {
 		return map[string]interface{}{"status": false, "message": objectType + " already exists"}
 	}
@@ -140,14 +140,14 @@ func (u *Uploader) NewUpload(name, description, objectType string, tags []string
 		Type:        objectType,
 	}
 	rawResourcePath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", resourcePath)
-	resourceID, err := models.AddResource(&resource, userID, owner, repositoryName, resourcePath)
+	resourceID, err := models.AddResource(u.app.DB(), &resource, userID, owner, repositoryName, resourcePath)
 	if err != nil {
 		log.Println(err)
 		return map[string]interface{}{"status": false, "message": err}
 	}
 
 	// Add a raw path
-	models.AddResourceRawPath(rawResourcePath, resourceID, objectType)
+	models.AddResourceRawPath(u.app.DB(), rawResourcePath, resourceID, objectType)
 
 	return map[string]interface{}{"status": true, "message": "Upload Successfull"}
 }
@@ -176,7 +176,7 @@ func (u *Uploader) doesResourceExist(paths []string, owner string, repositoryNam
 // NewUploadPipeline handles uploading of new task/pipeline
 func (u *Uploader) NewUploadPipeline(name string, description string, objectType string, tags []string, github string, userID int) interface{} {
 	log.Println(objectType)
-	isSameResource := models.CheckSameResourceUpload(userID, name)
+	isSameResource := models.CheckSameResourceUpload(u.app.DB(), userID, name)
 	if isSameResource {
 		return map[string]interface{}{"status": false, "message": objectType + " already exists"}
 	}
@@ -243,18 +243,18 @@ func (u *Uploader) NewUploadPipeline(name string, description string, objectType
 		Type:        objectType,
 	}
 	rawResourcePath := fmt.Sprintf("https://raw.githubusercontent.com/%v/%v/%v/%v", owner, repositoryName, "master", resourcePath)
-	resourceID, err := models.AddResource(&resource, userID, owner, repositoryName, resourcePath)
+	resourceID, err := models.AddResource(u.app.DB(), &resource, userID, owner, repositoryName, resourcePath)
 	if err != nil {
 		log.Println(err)
 		return map[string]interface{}{"status": false, "message": err}
 	}
 
 	// Add a raw path for resource
-	models.AddResourceRawPath(rawResourcePath, resourceID, objectType)
+	models.AddResourceRawPath(u.app.DB(), rawResourcePath, resourceID, objectType)
 
 	// Add raw paths of pipelines
 	for _, rawPath := range rawTaskPaths {
-		models.AddResourceRawPath(rawPath, resourceID, "task")
+		models.AddResourceRawPath(u.app.DB(), rawPath, resourceID, "task")
 	}
 	return map[string]interface{}{"status": true, "message": "Upload Successfull"}
 }
@@ -333,7 +333,7 @@ func (u *Uploader) search(owner string, repositoryName string, objectType string
 func (u *Uploader) getGithubClientForUser(userID int) (*github.Client, context.Context) {
 	sqlStatement := `SELECT TOKEN FROM USER_CREDENTIAL WHERE ID=$1`
 	var token string
-	err := models.DB.QueryRow(sqlStatement, userID).Scan(&token)
+	err := u.app.DB().DB().QueryRow(sqlStatement, userID).Scan(&token)
 	if err != nil {
 		fmt.Println(err)
 		return nil, nil

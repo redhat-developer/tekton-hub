@@ -2,6 +2,8 @@ package models
 
 import (
 	"log"
+
+	"github.com/jinzhu/gorm"
 )
 
 // Category is a model representing categories associated with tags
@@ -17,9 +19,9 @@ type CategoryTag struct {
 }
 
 // GetAllCategorieswithTags will query for all Categories with their associated tags
-func GetAllCategorieswithTags() map[string][]string {
+func GetAllCategorieswithTags(db *gorm.DB) map[string][]string {
 	categoryTagMap := make(map[string][]string)
-	rows, err := GDB.Table("category").Select("category.name as category, tag.name as tag").Joins("inner join tag on tag.category_id = category.id").Rows()
+	rows, err := db.Table("category").Select("category.name as category, tag.name as tag").Joins("inner join tag on tag.category_id = category.id").Rows()
 	for rows.Next() {
 		category := CategoryTag{}
 		err = rows.Scan(&category.Category, &category.Tag)

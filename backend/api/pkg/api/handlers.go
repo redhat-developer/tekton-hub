@@ -34,7 +34,7 @@ func New(app app.Config) *Api {
 // GetAllResources writes json encoded resources to ResponseWriter
 func (api *Api) GetAllResources(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetAllResources())
+	json.NewEncoder(w).Encode(models.GetAllResources(api.app.DB()))
 }
 
 // GetResourceByID writes json encoded resources to ResponseWriter
@@ -44,19 +44,19 @@ func (api *Api) GetResourceByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "Invalid User ID"})
 	}
-	json.NewEncoder(w).Encode(models.GetResourceByID(resourceID))
+	json.NewEncoder(w).Encode(models.GetResourceByID(api.app.DB(), resourceID))
 }
 
 // GetAllTags writes json encoded list of tags to Responsewriter
 func (api *Api) GetAllTags(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetAllTags())
+	json.NewEncoder(w).Encode(models.GetAllTags(api.app.DB()))
 }
 
 // GetAllCategorieswithTags writes json encoded list of categories to Responsewriter
 func (api *Api) GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetAllCategorieswithTags())
+	json.NewEncoder(w).Encode(models.GetAllCategorieswithTags(api.app.DB()))
 }
 
 // GetAllFilteredResourcesByTag writes json encoded list of filtered tasks to Responsewriter
@@ -66,7 +66,7 @@ func (api *Api) GetAllFilteredResourcesByTag(w http.ResponseWriter, r *http.Requ
 	if r.FormValue("tags") != "" {
 		tags = strings.Split(r.FormValue("tags"), "|")
 	}
-	json.NewEncoder(w).Encode(models.GetAllResourcesWithGivenTags(mux.Vars(r)["type"], mux.Vars(r)["verified"], tags))
+	json.NewEncoder(w).Encode(models.GetAllResourcesWithGivenTags(api.app.DB(), mux.Vars(r)["type"], mux.Vars(r)["verified"], tags))
 }
 
 // GetResourceYAMLFile returns a compressed zip with task files
@@ -75,7 +75,7 @@ func (api *Api) GetResourceYAMLFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		api.Log.Error(err)
 	}
-	githubDetails := models.GetResourceGithubDetails(resourceID)
+	githubDetails := models.GetResourceGithubDetails(api.app.DB(), resourceID)
 	gh := api.app.GitHub().Client
 	desc, err := polling.GetFileContent(context.Background(), gh, githubDetails.Owner, githubDetails.RepositoryName, githubDetails.Path, nil)
 	if err != nil {
@@ -98,7 +98,7 @@ func (api *Api) GetResourceReadmeFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		api.Log.Error(err)
 	}
-	githubDetails := models.GetResourceGithubDetails(resourceID)
+	githubDetails := models.GetResourceGithubDetails(api.app.DB(), resourceID)
 	if githubDetails.ReadmePath == "" {
 		json.NewEncoder(w).Encode("noreadme")
 		return
@@ -123,7 +123,7 @@ func (api *Api) UpdateRating(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		api.Log.Error(err)
 	}
-	json.NewEncoder(w).Encode(models.UpdateRating(ratingRequestBody.UserID, ratingRequestBody.ResourceID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
+	json.NewEncoder(w).Encode(models.UpdateRating(api.app.DB(), ratingRequestBody.UserID, ratingRequestBody.ResourceID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
 }
 
 // GetRatingDetails returns rating details of a task
@@ -133,7 +133,7 @@ func (api *Api) GetRatingDetails(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		api.Log.Error(err)
 	}
-	json.NewEncoder(w).Encode(models.GetRatingDetialsByResourceID(resourceID))
+	json.NewEncoder(w).Encode(models.GetRatingDetialsByResourceID(api.app.DB(), resourceID))
 }
 
 // AddRating add's a new rating
@@ -144,7 +144,7 @@ func (api *Api) AddRating(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		api.Log.Error(err)
 	}
-	json.NewEncoder(w).Encode(models.AddRating(ratingRequestBody.UserID, ratingRequestBody.ResourceID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
+	json.NewEncoder(w).Encode(models.AddRating(api.app.DB(), ratingRequestBody.UserID, ratingRequestBody.ResourceID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
 }
 
 // Upload a new task/pipeline
@@ -171,7 +171,7 @@ func (api *Api) GetPrevStars(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		api.Log.Error(err)
 	}
-	json.NewEncoder(w).Encode(models.GetUserRating(previousStarRequestBody.UserID, previousStarRequestBody.ResourceID))
+	json.NewEncoder(w).Encode(models.GetUserRating(api.app.DB(), previousStarRequestBody.UserID, previousStarRequestBody.ResourceID))
 
 }
 
@@ -224,7 +224,8 @@ func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
 	// Add user if doesn't exist
 	sqlStatement := `SELECT EXISTS(SELECT 1 FROM USER_CREDENTIAL WHERE ID=$1)`
 	var exists bool
-	err = models.DB.QueryRow(sqlStatement, id).Scan(&exists)
+	db := api.app.DB().DB()
+	err = db.QueryRow(sqlStatement, id).Scan(&exists)
 	if err != nil {
 		api.Log.Error(err)
 	}
@@ -232,14 +233,14 @@ func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
 
 	if !exists {
 		sqlStatement := `INSERT INTO USER_CREDENTIAL(ID,USERNAME,FIRST_NAME,TOKEN) VALUES($1,$2,$3,$4)`
-		_, err := models.DB.Exec(sqlStatement, id, "github", "github", t.AccessToken)
+		_, err := db.Exec(sqlStatement, id, "github", "github", t.AccessToken)
 		if err != nil {
 			api.Log.Error(err)
 		}
 	} else {
 		// Update token if user exists
 		sqlStatement = `UPDATE USER_CREDENTIAL SET TOKEN=$2 WHERE ID=$1`
-		_, err = models.DB.Exec(sqlStatement, id, t.AccessToken)
+		_, err = db.Exec(sqlStatement, id, t.AccessToken)
 		if err != nil {
 			api.Log.Error(err)
 		}
@@ -284,7 +285,7 @@ func (api *Api) GetAllResourcesByUserHandler(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "Invalid User ID"})
 	}
-	json.NewEncoder(w).Encode(models.GetAllResourcesByUser(userID))
+	json.NewEncoder(w).Encode(models.GetAllResourcesByUser(api.app.DB(), userID))
 }
 
 // DeleteResourceHandler handles resource deletion
@@ -294,7 +295,7 @@ func (api *Api) DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		api.Log.Error(err)
 	}
-	err = models.DeleteResource(resourceID)
+	err = models.DeleteResource(api.app.DB(), resourceID)
 	if err != nil {
 		api.Log.Error(err)
 		json.NewEncoder(w).Encode(map[string]interface{}{"status": true, "message": err})
@@ -309,6 +310,6 @@ func (api *Api) GetResourceLinksHandler(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		api.Log.Error(err)
 	}
-	links := models.GetResourceRawLinks(resourceID)
+	links := models.GetResourceRawLinks(api.app.DB(), resourceID)
 	json.NewEncoder(w).Encode(links)
 }
