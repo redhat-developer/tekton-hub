@@ -7,9 +7,6 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
-
-	// Blank for package side effect
-	_ "github.com/lib/pq"
 )
 
 func extractDescriptionFromREADME(readmeFile *github.RepositoryContent, dir *github.RepositoryContent) string {

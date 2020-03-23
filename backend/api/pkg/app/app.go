@@ -12,13 +12,17 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/oauth2"
+
+	// Blank for package side effect: loads postgres drivers
+	_ "github.com/lib/pq"
 )
 
 type Base interface {
 	Environment() EnvMode
-	Database() *Database
 	Logger() *zap.SugaredLogger
+	Database() *Database
 	DB() *gorm.DB
+	Cleanup()
 }
 
 type Config interface {
