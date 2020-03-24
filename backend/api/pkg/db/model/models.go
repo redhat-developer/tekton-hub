@@ -5,16 +5,6 @@ import (
 )
 
 type (
-	// User represents User model in database
-	User struct {
-		gorm.Model
-		Name      string `gorm:"not null;unique"`
-		FirstName string
-		LastName  string
-		Email     string
-		Token     string
-	}
-
 	Category struct {
 		gorm.Model
 		Name string `gorm:"size:100;not null;unique"`
@@ -23,7 +13,7 @@ type (
 
 	Tag struct {
 		gorm.Model
-		Name       string `gorm:"not null;unique"`
+		Name       string `gorm:"size:100;not null;unique"`
 		Category   Category
 		CategoryID int
 	}
@@ -34,42 +24,54 @@ type (
 		URL        string
 		Owner      string
 		ContextDir string
+		Resources  []Resource
 	}
 
 	Resource struct {
 		gorm.Model
-		Name         string
-		Type         string
-		Downloads    int
-		Rating       float64
-		Repository   Repository `gorm:"foreignkey:RepositoryID"`
-		RepositoryID int
+		Name             string
+		Type             string
+		Downloads        uint
+		Rating           float64
+		RepositoryID     uint
+		ResourceVersions []ResourceVersion
+		Tags             []Tag `gorm:"many2many:resource_tags;"`
 	}
 
 	ResourceVersion struct {
 		gorm.Model
-		Resource   Resource
-		ResourceID int
-
 		Description string
 		Version     string
 		URL         string
+		Resource    Resource
+		ResourceID  uint
 	}
 
-	ResourceTags struct {
+	// ResourceTags struct {
+	// 	gorm.Model
+	// 	Tag        Tag
+	// 	TagID      int
+	// 	Resource   Resource
+	// 	ResourceID int
+	// }
+
+	// User represents User model in database
+	User struct {
 		gorm.Model
-		Tag        Tag
-		TagID      int
-		Resource   Resource
-		ResourceID int
+		Name      string `gorm:"not null;unique"`
+		FirstName string
+		LastName  string
+		Email     string
+		Token     string
 	}
 
+	// ResourceUserRating represents User's rating to resources
 	ResourceUserRating struct {
 		gorm.Model
-		UserID     int
+		UserID     uint
 		User       User
 		Resource   Resource
-		ResourceID int
-		Rating     int
+		ResourceID uint
+		Rating     uint
 	}
 )
