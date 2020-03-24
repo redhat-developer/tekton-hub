@@ -16,6 +16,7 @@ type (
 		Name       string `gorm:"size:100;not null;unique"`
 		Category   Category
 		CategoryID int
+		Resources  []*Resource `gorm:"many2many:resource_tags;"`
 	}
 
 	Repository struct {
@@ -35,7 +36,7 @@ type (
 		Rating           float64
 		RepositoryID     uint
 		ResourceVersions []ResourceVersion
-		Tags             []Tag `gorm:"many2many:resource_tags;"`
+		Tags             []*Tag `gorm:"many2many:resource_tags;"`
 	}
 
 	ResourceVersion struct {
@@ -46,14 +47,6 @@ type (
 		Resource    Resource
 		ResourceID  uint
 	}
-
-	// ResourceTags struct {
-	// 	gorm.Model
-	// 	Tag        Tag
-	// 	TagID      int
-	// 	Resource   Resource
-	// 	ResourceID int
-	// }
 
 	// User represents User model in database
 	User struct {
