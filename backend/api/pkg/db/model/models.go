@@ -30,13 +30,13 @@ type (
 
 	Resource struct {
 		gorm.Model
-		Name             string
-		Type             string
-		Downloads        uint
-		Rating           float64
-		RepositoryID     uint
-		ResourceVersions []ResourceVersion
-		Tags             []*Tag `gorm:"many2many:resource_tags;"`
+		Name         string
+		Type         string
+		Downloads    uint
+		Rating       float64
+		RepositoryID uint
+		Versions     []ResourceVersion
+		Tags         []*Tag `gorm:"many2many:resource_tags;"`
 	}
 
 	ResourceVersion struct {

@@ -14,27 +14,90 @@ import (
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/authentication"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
+
+	//"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/polling"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/service"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/upload"
 	"go.uber.org/zap"
 )
 
 type Api struct {
-	app app.Config
-	Log *zap.SugaredLogger
+	app     app.Config
+	Log     *zap.SugaredLogger
+	service service.Service
 }
 
 func New(app app.Config) *Api {
 	return &Api{
-		app: app,
-		Log: app.Logger().With("name", "api"),
+		app:     app,
+		Log:     app.Logger().With("name", "api"),
+		service: service.New(app),
 	}
+}
+
+type ErrorInfo struct {
+	Code   string `json:"code"`
+	Detail string
+}
+
+func (e *ErrorInfo) Error() string {
+	return e.Detail
+}
+
+func fromErrors(err error, rest ...error) []ErrorInfo {
+	errs := []ErrorInfo{
+		ErrorInfo{Detail: err.Error(), Code: "unknown"},
+	}
+	for _, e := range rest {
+		errs = append(errs, ErrorInfo{Detail: e.Error(), Code: "unknown"})
+	}
+	return errs
+}
+
+func keyNotFound(key string) *ErrorInfo {
+	return &ErrorInfo{Detail: "key" + key + "is missing", Code: "invalid-key"}
+}
+
+func intVar(vars map[string]string, key string, def int) (int, error) {
+	v, ok := vars[key]
+	if !ok {
+		return def, keyNotFound(key)
+	}
+	value, err := strconv.Atoi(v)
+	if err != nil {
+		return def, err
+	}
+	return value, nil
+}
+
+func uintVar(vars map[string]string, key string, def uint) (uint, error) {
+	v, ok := vars[key]
+	if !ok {
+		return def, keyNotFound(key)
+	}
+	value, err := strconv.Atoi(v)
+	if err != nil || value < 0 {
+		return def, err
+	}
+	return uint(value), nil
 }
 
 // GetAllResources writes json encoded resources to ResponseWriter
 func (api *Api) GetAllResources(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetAllResources(api.app.DB()))
+	limit, _ := uintVar(mux.Vars(r), "limit", 100)
+	resources, err := api.service.Resource().All(service.Filter{Limit: limit})
+
+	res := struct {
+		Data   []service.ResourceDetail `json:"data"`
+		Errors []ErrorInfo              `json:"errors"`
+	}{
+		Data:   resources,
+		Errors: fromErrors(err),
+	}
+
+	json.NewEncoder(w).Encode(res)
 }
 
 // GetResourceByID writes json encoded resources to ResponseWriter
