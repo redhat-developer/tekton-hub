@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/jinzhu/gorm"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/db/model"
 	"go.uber.org/zap"
@@ -11,42 +13,69 @@ type Resource struct {
 	log *zap.SugaredLogger
 }
 
+// ResourceDetail abstracts necessary fields for UI
 type ResourceDetail struct {
-	ID       uint   `json:"id"`
-	Source   string // official, verified, community
-	Type     string
-	Name     string   `json:"name"`
-	Versions []string `json:"versions"`
-	Tags     []string `json:"tags"`
+	ID            uint      `json:"id"`
+	Name          string    `json:"name"`
+	Catalog       Catalog   `json:"catalog"`
+	Type          string    `json:"type"`
+	Description   string    `json:"description"`
+	Versions      []Version `json:"versions"`
+	Tags          []Tag     `json:"tags"`
+	Rating        float64   `json:"rating"`
+	LastUpdatedAt time.Time `json:"last_updated_at"`
 }
 
-func (d *ResourceDetail) Init(r *model.Resource) {
-	d.ID = r.ID
-	d.Name = r.Name
+type Catalog struct {
+	ID   uint   `json:"id"`
+	Type string `json:"type"`
+}
 
-	d.Versions = make([]string, len(r.Versions))
-	for i, v := range r.Versions {
-		d.Versions[i] = v.Version
-	}
-	d.Tags = make([]string, len(r.Tags))
-	for i, t := range r.Tags {
-		d.Tags[i] = t.Name
-	}
+type Version struct {
+	ID      uint   `json:"id"`
+	Version string `json:"version"`
+}
+
+type Tag struct {
+	ID  uint   `json:"id"`
+	Tag string `json:"tag"`
 }
 
 type Filter struct {
 	Limit uint
 }
 
-func (r *Resource) All(f Filter) ([]ResourceDetail, error) {
-	all := []*model.Resource{}
-	// TODO load tags and versions
-	// sort by rating and then by name
-	//     db.Order("name DESC")
-	//     db.Order("name DESC", true) // reorder
-	//     db.Order(gorm.Expr("name = ? DESC", "first")) // sql expression
-	r.db.Model(&model.Resource{}).Find(all).Limit(f.Limit)
+// Init Convert Resource object to ResourceDetails
+func (d *ResourceDetail) Init(r *model.Resource) {
+	d.ID = r.ID
+	d.Name = r.Name
+	d.Type = r.Type
+	d.Rating = r.Rating
 
+	d.Versions = make([]Version, len(r.Versions))
+	for i, v := range r.Versions {
+		d.Versions[i].ID = v.ID
+		d.Versions[i].Version = v.Version
+	}
+	d.Tags = make([]Tag, len(r.Tags))
+	for i, t := range r.Tags {
+		d.Tags[i].ID = t.ID
+		d.Tags[i].Tag = t.Name
+	}
+
+	d.Catalog.ID = r.Catalog.ID
+	d.Catalog.Type = r.Catalog.Type
+
+	latestVersion := r.Versions[len(r.Versions)-1]
+	d.Description = latestVersion.Description
+	d.LastUpdatedAt = latestVersion.UpdatedAt
+}
+
+// All Resources
+func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
+
+	var all []*model.Resource
+	r.db.Order("rating desc, name").Limit(filter.Limit).Preload("Catalog").Preload("Versions").Preload("Tags").Find(&all)
 	ret := make([]ResourceDetail, len(all))
 	for i, r := range all {
 		ret[i].Init(r)

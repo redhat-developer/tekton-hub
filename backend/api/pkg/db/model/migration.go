@@ -19,7 +19,7 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 			&User{},
 			&Category{},
 			&Tag{},
-			&Repository{},
+			&Catalog{},
 			&Resource{},
 			&ResourceVersion{},
 			&ResourceUserRating{},
@@ -45,7 +45,7 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 			return err
 		}
 
-		if err := fkey(Resource{}, "repository_id", "repositories"); err != nil {
+		if err := fkey(Resource{}, "catalog_id", "catalogs"); err != nil {
 			return err
 		}
 
@@ -57,6 +57,13 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 			ResourceUserRating{},
 			"resource_id", "resources",
 			"user_id", "users"); err != nil {
+			return err
+		}
+
+		if err := fkey(
+			ResourceTag{},
+			"resource_id", "resources",
+			"tag_id", "tags"); err != nil {
 			return err
 		}
 
@@ -73,6 +80,7 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 	}
 
 	log.Info("Migration ran successfully !!")
+
 	return nil
 }
 

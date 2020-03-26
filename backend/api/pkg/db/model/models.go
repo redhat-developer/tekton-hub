@@ -5,12 +5,15 @@ import (
 )
 
 type (
+
+	//Category model represents categories which associated with group of tags
 	Category struct {
 		gorm.Model
 		Name string `gorm:"size:100;not null;unique"`
 		Tags []Tag
 	}
 
+	// Tag model represents tags associated with a resource
 	Tag struct {
 		gorm.Model
 		Name       string `gorm:"size:100;not null;unique"`
@@ -19,36 +22,46 @@ type (
 		Resources  []*Resource `gorm:"many2many:resource_tags;"`
 	}
 
-	Repository struct {
+	//Catalog model represents origin repo to which resource belongs to
+	Catalog struct {
 		gorm.Model
 		Name       string
+		Type       string
 		URL        string
 		Owner      string
 		ContextDir string
 		Resources  []Resource
 	}
 
+	// Resource represents model which describe resources from a catalog
 	Resource struct {
 		gorm.Model
-		Name         string
-		Type         string
-		Downloads    uint
-		Rating       float64
-		RepositoryID uint
-		Versions     []ResourceVersion
-		Tags         []*Tag `gorm:"many2many:resource_tags;"`
+		Name      string
+		Type      string
+		Rating    float64
+		Catalog   Catalog
+		CatalogID uint
+		Versions  []ResourceVersion
+		Tags      []*Tag `gorm:"many2many:resource_tags;"`
 	}
 
+	// ResourceVersion represents diffrent versions of a Resource
 	ResourceVersion struct {
 		gorm.Model
-		Description string
 		Version     string
+		Description string
 		URL         string
 		Resource    Resource
 		ResourceID  uint
 	}
 
-	// User represents User model in database
+	// ResourceTag represent struct for resource_tag, needed for creating foreign key
+	ResourceTag struct {
+		ResourceID uint
+		TagID      uint
+	}
+
+	// User model represents user details
 	User struct {
 		gorm.Model
 		Name      string `gorm:"not null;unique"`
@@ -58,7 +71,7 @@ type (
 		Token     string
 	}
 
-	// ResourceUserRating represents User's rating to resources
+	// ResourceUserRating represents User's rating of a resource
 	ResourceUserRating struct {
 		gorm.Model
 		UserID     uint

@@ -71,12 +71,12 @@ func intVar(vars map[string]string, key string, def int) (int, error) {
 	return value, nil
 }
 
-func uintVar(vars map[string]string, key string, def uint) (uint, error) {
-	v, ok := vars[key]
-	if !ok {
-		return def, keyNotFound(key)
-	}
-	value, err := strconv.Atoi(v)
+func uintVar(vars string, key string, def uint) (uint, error) {
+	//v, _ := vars[key]
+	// if !ok {
+	// 	return def, keyNotFound(key)
+	// }
+	value, err := strconv.Atoi(vars)
 	if err != nil || value < 0 {
 		return def, err
 	}
@@ -86,15 +86,15 @@ func uintVar(vars map[string]string, key string, def uint) (uint, error) {
 // GetAllResources writes json encoded resources to ResponseWriter
 func (api *Api) GetAllResources(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	limit, _ := uintVar(mux.Vars(r), "limit", 100)
-	resources, err := api.service.Resource().All(service.Filter{Limit: limit})
+	limit, _ := uintVar(r.FormValue("limit"), "limit", 100)
+	resources, _ := api.service.Resource().All(service.Filter{Limit: limit})
 
 	res := struct {
 		Data   []service.ResourceDetail `json:"data"`
 		Errors []ErrorInfo              `json:"errors"`
 	}{
 		Data:   resources,
-		Errors: fromErrors(err),
+		Errors: []ErrorInfo{},
 	}
 
 	json.NewEncoder(w).Encode(res)
