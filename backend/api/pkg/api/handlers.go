@@ -141,7 +141,6 @@ func (api *Api) GetResourceByVersionID(w http.ResponseWriter, r *http.Request) {
 		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
-
 	versionID, err := intPathVar(r, "versionID")
 	if err != nil {
 		invalidRequest(w, http.StatusBadRequest, err)
@@ -173,7 +172,9 @@ func (api *Api) GetResourceByVersionID(w http.ResponseWriter, r *http.Request) {
 
 // GetAllCategorieswithTags writes json encoded list of categories to Responsewriter
 func (api *Api) GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request) {
+
 	categories, _ := api.service.Category().All()
+
 	res := struct {
 		Data   []service.CategoryDetail `json:"data"`
 		Errors []ResponseError          `json:"errors"`
@@ -181,6 +182,40 @@ func (api *Api) GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request)
 		Data:   categories,
 		Errors: []ResponseError{},
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+}
+
+// GetResourceRating returns user's rating of a resource
+func (api *Api) GetResourceRating(w http.ResponseWriter, r *http.Request) {
+
+	userID, err := intPathVar(r, "userID")
+	if err != nil {
+		invalidRequest(w, http.StatusBadRequest, err)
+		return
+	}
+	resourceID, err := intPathVar(r, "resourceID")
+	if err != nil {
+		invalidRequest(w, http.StatusBadRequest, err)
+		return
+	}
+
+	ids := service.UserResource{
+		UserID:     userID,
+		ResourceID: resourceID,
+	}
+
+	rating, _ := api.service.Rating().GetResourceRating(ids)
+
+	res := struct {
+		Data   service.RatingDetails `json:"data"`
+		Errors []ResponseError       `json:"errors"`
+	}{
+		Data:   rating,
+		Errors: []ResponseError{},
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
 }
@@ -256,16 +291,6 @@ func (api *Api) UpdateRating(w http.ResponseWriter, r *http.Request) {
 		api.Log.Error(err)
 	}
 	json.NewEncoder(w).Encode(models.UpdateRating(api.app.DB(), ratingRequestBody.UserID, ratingRequestBody.ResourceID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
-}
-
-// GetRatingDetails returns rating details of a task
-func (api *Api) GetRatingDetails(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	resourceID, err := strconv.Atoi(mux.Vars(r)["id"])
-	if err != nil {
-		api.Log.Error(err)
-	}
-	json.NewEncoder(w).Encode(models.GetRatingDetialsByResourceID(api.app.DB(), resourceID))
 }
 
 // AddRating add's a new rating

@@ -22,7 +22,7 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 			&Catalog{},
 			&Resource{},
 			&ResourceVersion{},
-			&ResourceUserRating{},
+			&UserResourceRating{},
 		).Error; err != nil {
 			return err
 		}
@@ -54,7 +54,7 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 		}
 
 		if err := fkey(
-			ResourceUserRating{},
+			UserResourceRating{},
 			"resource_id", "resources",
 			"user_id", "users"); err != nil {
 			return err

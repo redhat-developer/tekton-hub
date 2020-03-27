@@ -9,6 +9,7 @@ import (
 type Service interface {
 	Resource() *Resource
 	Category() *Category
+	Rating() *Rating
 }
 
 type ServiceImpl struct {
@@ -31,4 +32,8 @@ func (s *ServiceImpl) Resource() *Resource {
 
 func (s *ServiceImpl) Category() *Category {
 	return &Category{s.db, s.log}
+}
+
+func (s *ServiceImpl) Rating() *Rating {
+	return &Rating{s.db, s.log}
 }

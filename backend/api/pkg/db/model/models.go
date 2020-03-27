@@ -71,8 +71,8 @@ type (
 		Token     string
 	}
 
-	// ResourceUserRating represents User's rating of a resource
-	ResourceUserRating struct {
+	// UserResourceRating represents User's rating of a resource
+	UserResourceRating struct {
 		gorm.Model
 		UserID     uint
 		User       User
