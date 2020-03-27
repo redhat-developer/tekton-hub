@@ -75,7 +75,10 @@ func (d *ResourceDetail) Init(r *model.Resource) {
 func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 
 	var all []*model.Resource
-	r.db.Order("rating desc, name").Limit(filter.Limit).Preload("Catalog").Preload("Versions").Preload("Tags").Find(&all)
+	r.db.Order("rating desc, name").Limit(filter.Limit).
+		Preload("Catalog").Preload("Versions").Preload("Tags").
+		Find(&all)
+
 	ret := make([]ResourceDetail, len(all))
 	for i, r := range all {
 		ret[i].Init(r)
