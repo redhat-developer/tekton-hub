@@ -44,7 +44,7 @@ func New(app app.Config) *Api {
 
 type ResponseError struct {
 	Code   string `json:"code"`
-	Detail string
+	Detail string `json:"detail"`
 }
 
 func (e *ResponseError) Error() string {
@@ -67,6 +67,19 @@ func intQueryVar(r *http.Request, key string, def int) (int, *ResponseError) {
 	return res, nil
 }
 
+func intPathVar(r *http.Request, key string) (int, *ResponseError) {
+	value := mux.Vars(r)[key]
+
+	res, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, &ResponseError{
+			Code:   errInvalidType,
+			Detail: "Path param " + key + " must be an int"}
+	}
+
+	return res, nil
+}
+
 func invalidRequest(w http.ResponseWriter, status int, err *ResponseError) {
 	type emptyList []interface{}
 
@@ -80,6 +93,21 @@ func invalidRequest(w http.ResponseWriter, status int, err *ResponseError) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(res)
+}
+
+func errorResponse(w http.ResponseWriter, err *ResponseError) {
+	type emptyList []interface{}
+
+	res := struct {
+		Data   emptyList       `json:"data"`
+		Errors []ResponseError `json:"errors"`
+	}{
+		Data:   emptyList{},
+		Errors: []ResponseError{*err},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -105,14 +133,42 @@ func (api *Api) GetAllResources(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-// GetResourceByID writes json encoded resources to ResponseWriter
-func (api *Api) GetResourceByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	resourceID, err := strconv.Atoi(mux.Vars(r)["id"])
+// GetResourceByVersionID writes json encoded resources to ResponseWriter
+func (api *Api) GetResourceByVersionID(w http.ResponseWriter, r *http.Request) {
+
+	resourceID, err := intPathVar(r, "resourceID")
 	if err != nil {
-		json.NewEncoder(w).Encode(map[string]interface{}{"status": false, "message": "Invalid User ID"})
+		invalidRequest(w, http.StatusBadRequest, err)
+		return
 	}
-	json.NewEncoder(w).Encode(models.GetResourceByID(api.app.DB(), resourceID))
+
+	versionID, err := intPathVar(r, "versionID")
+	if err != nil {
+		invalidRequest(w, http.StatusBadRequest, err)
+		return
+	}
+	rv := service.ResourceVersion{
+		ResourceID: resourceID,
+		VersionID:  versionID,
+	}
+
+	resource, retErr := api.service.Resource().ByVersionID(rv)
+
+	if retErr != nil {
+		errorResponse(w, &ResponseError{Code: "invalid-input", Detail: retErr.Error()})
+		return
+	}
+
+	res := struct {
+		Data   service.ResourceVersionDetail `json:"data"`
+		Errors []ResponseError               `json:"errors"`
+	}{
+		Data:   resource,
+		Errors: []ResponseError{},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
 }
 
 // GetAllTags writes json encoded list of tags to Responsewriter

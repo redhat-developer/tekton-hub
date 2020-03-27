@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -24,6 +25,20 @@ type ResourceDetail struct {
 	Tags          []Tag     `json:"tags"`
 	Rating        float64   `json:"rating"`
 	LastUpdatedAt time.Time `json:"last_updated_at"`
+}
+
+// ResourceVersionDetail abstracts necessary fields for UI
+type ResourceVersionDetail struct {
+	ResourceID  uint   `json:"resource_id"`
+	VersionID   uint   `json:"version_id"`
+	Version     string `json:"version"`
+	Description string `json:"description"`
+	URL         string `json:"url"`
+}
+
+type ResourceVersion struct {
+	ResourceID int
+	VersionID  int
 }
 
 type Catalog struct {
@@ -84,4 +99,28 @@ func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 		ret[i].Init(r)
 	}
 	return ret, nil
+}
+
+// Init converts ResourceVersion Object to ResourceVersionDetail
+func (d *ResourceVersionDetail) Init(r *model.ResourceVersion, rv ResourceVersion) {
+	d.ResourceID = uint(rv.ResourceID)
+	d.VersionID = r.ID
+	d.Version = r.Version
+	d.Description = r.Description
+	d.URL = r.URL
+}
+
+// ByVersionID Get resource by version Id
+func (r *Resource) ByVersionID(rv ResourceVersion) (ResourceVersionDetail, error) {
+
+	var resources []*model.ResourceVersion
+	r.db.First(&resources, rv.VersionID)
+
+	if len(resources) == 0 {
+		return ResourceVersionDetail{}, errors.New("Record not found")
+	}
+	var versionDetail ResourceVersionDetail
+	versionDetail.Init(resources[0], rv)
+
+	return versionDetail, nil
 }
