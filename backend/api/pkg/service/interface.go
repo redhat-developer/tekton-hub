@@ -8,6 +8,7 @@ import (
 
 type Service interface {
 	Resource() *Resource
+	Category() *Category
 }
 
 type ServiceImpl struct {
@@ -26,4 +27,8 @@ func New(base app.Base) *ServiceImpl {
 
 func (s *ServiceImpl) Resource() *Resource {
 	return &Resource{s.db, s.log}
+}
+
+func (s *ServiceImpl) Category() *Category {
+	return &Category{s.db, s.log}
 }

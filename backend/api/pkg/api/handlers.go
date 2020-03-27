@@ -171,16 +171,24 @@ func (api *Api) GetResourceByVersionID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
+// GetAllCategorieswithTags writes json encoded list of categories to Responsewriter
+func (api *Api) GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request) {
+	categories, _ := api.service.Category().All()
+	res := struct {
+		Data   []service.CategoryDetail `json:"data"`
+		Errors []ResponseError          `json:"errors"`
+	}{
+		Data:   categories,
+		Errors: []ResponseError{},
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+}
+
 // GetAllTags writes json encoded list of tags to Responsewriter
 func (api *Api) GetAllTags(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(models.GetAllTags(api.app.DB()))
-}
-
-// GetAllCategorieswithTags writes json encoded list of categories to Responsewriter
-func (api *Api) GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.GetAllCategorieswithTags(api.app.DB()))
 }
 
 // GetAllFilteredResourcesByTag writes json encoded list of filtered tasks to Responsewriter
