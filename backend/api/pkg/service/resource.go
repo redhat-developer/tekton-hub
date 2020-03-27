@@ -42,7 +42,7 @@ type Tag struct {
 }
 
 type Filter struct {
-	Limit uint
+	Limit int
 }
 
 // Init Convert Resource object to ResourceDetails

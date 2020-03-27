@@ -22,6 +22,12 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	errParseForm   string = "form-parse-error"
+	errMissingKey  string = "key-not-found"
+	errInvalidType string = "invalid-type"
+)
+
 type Api struct {
 	app     app.Config
 	Log     *zap.SugaredLogger
@@ -36,67 +42,66 @@ func New(app app.Config) *Api {
 	}
 }
 
-type ErrorInfo struct {
+type ResponseError struct {
 	Code   string `json:"code"`
 	Detail string
 }
 
-func (e *ErrorInfo) Error() string {
+func (e *ResponseError) Error() string {
 	return e.Detail
 }
 
-func fromErrors(err error, rest ...error) []ErrorInfo {
-	errs := []ErrorInfo{
-		ErrorInfo{Detail: err.Error(), Code: "unknown"},
+func intQueryVar(r *http.Request, key string, def int) (int, *ResponseError) {
+	value := r.URL.Query().Get(key)
+	if value == "" {
+		return def, nil
 	}
-	for _, e := range rest {
-		errs = append(errs, ErrorInfo{Detail: e.Error(), Code: "unknown"})
-	}
-	return errs
-}
 
-func keyNotFound(key string) *ErrorInfo {
-	return &ErrorInfo{Detail: "key" + key + "is missing", Code: "invalid-key"}
-}
-
-func intVar(vars map[string]string, key string, def int) (int, error) {
-	v, ok := vars[key]
-	if !ok {
-		return def, keyNotFound(key)
-	}
-	value, err := strconv.Atoi(v)
+	res, err := strconv.Atoi(value)
 	if err != nil {
-		return def, err
+		return def, &ResponseError{
+			Code:   errInvalidType,
+			Detail: "query param " + key + " must be an int"}
 	}
-	return value, nil
+
+	return res, nil
 }
 
-func uintVar(vars string, key string, def uint) (uint, error) {
-	//v, _ := vars[key]
-	// if !ok {
-	// 	return def, keyNotFound(key)
-	// }
-	value, err := strconv.Atoi(vars)
-	if err != nil || value < 0 {
-		return def, err
+func invalidRequest(w http.ResponseWriter, status int, err *ResponseError) {
+	type emptyList []interface{}
+
+	res := struct {
+		Data   emptyList       `json:"data"`
+		Errors []ResponseError `json:"errors"`
+	}{
+		Data:   emptyList{},
+		Errors: []ResponseError{*err},
 	}
-	return uint(value), nil
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(res)
 }
 
 // GetAllResources writes json encoded resources to ResponseWriter
 func (api *Api) GetAllResources(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	limit, _ := uintVar(r.FormValue("limit"), "limit", 100)
+	limit, err := intQueryVar(r, "limit", 100)
+	if err != nil {
+		invalidRequest(w, http.StatusBadRequest, err)
+		return
+	}
+
 	resources, _ := api.service.Resource().All(service.Filter{Limit: limit})
 
 	res := struct {
 		Data   []service.ResourceDetail `json:"data"`
-		Errors []ErrorInfo              `json:"errors"`
+		Errors []ResponseError          `json:"errors"`
 	}{
 		Data:   resources,
-		Errors: []ErrorInfo{},
+		Errors: []ResponseError{},
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
 }
 
