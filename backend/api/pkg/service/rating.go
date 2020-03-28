@@ -32,20 +32,16 @@ func (r *RatingDetails) Init(rating *model.UserResourceRating) {
 // GetResourceRating returns user's rating of a resource
 func (r *Rating) GetResourceRating(ur UserResource) (RatingDetails, error) {
 
-	var rating []*model.UserResourceRating
-
-	r.db.Where("user_id = ? AND resource_id = ?", ur.UserID, ur.ResourceID).Find(&rating).RecordNotFound()
-
-	if len(rating) == 0 {
+	rating := &model.UserResourceRating{}
+	if r.db.Where("user_id = ? AND resource_id = ?", ur.UserID, ur.ResourceID).Find(&rating).RecordNotFound() {
 		return RatingDetails{
 			UserID:         uint(ur.UserID),
 			ResourceID:     uint(ur.ResourceID),
 			ResourceRating: 0,
 		}, nil
 	}
-
 	var resRating RatingDetails
-	resRating.Init(rating[0])
+	resRating.Init(rating)
 
 	return resRating, nil
 }

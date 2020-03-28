@@ -113,14 +113,12 @@ func (d *ResourceVersionDetail) Init(r *model.ResourceVersion, rv ResourceVersio
 // ByVersionID Get resource by version Id
 func (r *Resource) ByVersionID(rv ResourceVersion) (ResourceVersionDetail, error) {
 
-	var resources []*model.ResourceVersion
-	r.db.First(&resources, rv.VersionID)
-
-	if len(resources) == 0 {
+	resource := &model.ResourceVersion{}
+	if r.db.First(&resource, rv.VersionID).RecordNotFound() {
 		return ResourceVersionDetail{}, errors.New("Record not found")
 	}
 	var versionDetail ResourceVersionDetail
-	versionDetail.Init(resources[0], rv)
+	versionDetail.Init(resource, rv)
 
 	return versionDetail, nil
 }
