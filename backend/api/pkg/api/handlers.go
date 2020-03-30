@@ -220,6 +220,40 @@ func (api *Api) GetResourceRating(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
+// UpdateResourceRating will add/update a user's re rating
+func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
+
+	userID, pathErr := intPathVar(r, "userID")
+	if pathErr != nil {
+		invalidRequest(w, http.StatusBadRequest, pathErr)
+		return
+	}
+	ratingRequestBody := service.RatingDetails{UserID: uint(userID)}
+	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
+	if err != nil {
+		errorResponse(w, &ResponseError{Code: "invalid-body", Detail: err.Error()})
+		return
+	}
+
+	if ratingRequestBody.ResourceRating > 5 {
+		errorResponse(w, &ResponseError{Code: "invalid-rating", Detail: "Rating should be in range 1 to 5"})
+		return
+	}
+
+	ratingResponse, _ := api.service.Rating().UpdateResourceRating(ratingRequestBody)
+
+	res := struct {
+		Data   string          `json:"data"`
+		Errors []ResponseError `json:"errors"`
+	}{
+		Data:   ratingResponse,
+		Errors: []ResponseError{},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+}
+
 // GetAllTags writes json encoded list of tags to Responsewriter
 func (api *Api) GetAllTags(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -280,17 +314,6 @@ func (api *Api) GetResourceReadmeFile(w http.ResponseWriter, r *http.Request) {
 		api.Log.Error(err)
 	}
 	w.Write([]byte(content))
-}
-
-// UpdateRating will add a new rating
-func (api *Api) UpdateRating(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	ratingRequestBody := AddRatingsRequest{}
-	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
-	if err != nil {
-		api.Log.Error(err)
-	}
-	json.NewEncoder(w).Encode(models.UpdateRating(api.app.DB(), ratingRequestBody.UserID, ratingRequestBody.ResourceID, ratingRequestBody.Stars, ratingRequestBody.PrevStars))
 }
 
 // AddRating add's a new rating

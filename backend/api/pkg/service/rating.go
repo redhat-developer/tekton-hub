@@ -1,6 +1,8 @@
 package service
 
 import (
+	"math"
+
 	"github.com/jinzhu/gorm"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/db/model"
 	"go.uber.org/zap"
@@ -44,4 +46,25 @@ func (r *Rating) GetResourceRating(ur UserResource) (RatingDetails, error) {
 	resRating.Init(rating)
 
 	return resRating, nil
+}
+
+// UpdateResourceRating update user's rating of a resource and resource's average rating
+func (r *Rating) UpdateResourceRating(rd RatingDetails) (string, error) {
+
+	r.db.Where("user_id = ? AND resource_id = ?", rd.UserID, rd.ResourceID).
+		Assign(&model.UserResourceRating{Rating: rd.ResourceRating}).
+		FirstOrCreate(&model.UserResourceRating{
+			UserID:     rd.UserID,
+			ResourceID: rd.ResourceID,
+			Rating:     rd.ResourceRating,
+		})
+
+	var avg float64
+	r.db.Table("user_resource_ratings").Where("resource_id = ?", rd.ResourceID).
+		Select("avg(rating)").Row().Scan(&avg)
+
+	r.db.Model(&model.Resource{}).Where("id = ?", rd.ResourceID).
+		Update("rating", math.Round(avg*10)/10)
+
+	return "Rating Updated", nil
 }
