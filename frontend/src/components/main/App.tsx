@@ -33,6 +33,7 @@ import BasicDetailParent from '../basic-detail/BasicDetailParent';
 import BackgroundImageHeader from '../background-image/BackgroundImage';
 import Login from '../Authentication/Login';
 import Footer from '../footer/Footer';
+import {PlusIcon} from '@patternfly/react-icons';
 interface mainProps {
 
 }
@@ -72,9 +73,9 @@ const App: React.FC<mainProps> = () => {
         onClick={logoutUser}> Logout </span>
     </Link>;
     displayUpload = <Link to="/upload">
-      {/* <span >
+      <span >
         <PlusIcon size="sm" color='white' />
-      </span> */}
+      </span>
       {' '}
     </Link>;
     userimage = <Link to="/user-profile">
