@@ -110,32 +110,15 @@ db-748f56cb8c-rwqjc    1/1     Running   1          72s
 
 ```
 
-Now, Both the pods are up but there is no data in the database.
+Now, Both the pods are up but the database is empty.
 
-To create tables and initialise the data, we need to run the  db-migration.
+To create tables and initialise the data, we need to run the db-migration.
 
-Run the below command to create migration image.
-
-```
-ko publish github.com/redhat-developer/tekton-hub/backend/api/cmd/db
-```
-
-The Database migration should be ran only once. So, we will run a kubernetes job.
-
-Edit the job yaml `config/db-migration/14-db-migration.yaml` and replace the image name with the image created in last step.
+Run the below command to create migration image and run the job.
 
 ```
-containers:
-      - name: db-migration
-        image: quay.io/sm43/db-e1225b1694ead6003d83a432fd4e95f5:latest     <<< replace here
-
+ko apply -f config/db-migration/14-db-migration.yaml
 ```
-Apply the migration job yaml.
-
-```
-oc apply -f config/db-migration/14-db-migration.yaml
-```
-
 
 Check the logs using ` oc logs job/db-migration `.
 
@@ -143,7 +126,6 @@ Wait till the migration log shows
 ```
 Migration did run successfully !!
 ```
-
 
 #### Verify if api route is accessible
 
