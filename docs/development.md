@@ -114,7 +114,7 @@ Now, Both the pods are up but the database is empty.
 
 To create tables and initialise the data, we need to run the db-migration.
 
-Run the below command to create migration image and the job.
+Run the below command to create migration image and run the job.
 
 ```
 ko apply -f config/db-migration/14-db-migration.yaml

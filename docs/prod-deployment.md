@@ -130,7 +130,7 @@ oc rsh <db-pod-name>
 ```
 Once you are in the pod, use `psql` to create the database.
 ```
-psql  -c 'create database tekton_hub;'
+psql -c 'create database tekton_hub;'
 ```
 
 Use `exit` to get out off the pod.
