@@ -1,30 +1,33 @@
 module github.com/redhat-developer/tekton-hub/backend/api
 
 require (
+	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
+	github.com/davecgh/go-spew v1.1.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v0.1.0
 	github.com/go-logr/zapr v0.1.1
-	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/google/martian v2.1.0+incompatible
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/jinzhu/gorm v1.9.12
 	github.com/joho/godotenv v1.3.0
+	github.com/labstack/gommon v0.3.0
 	github.com/lib/pq v1.2.0
-	github.com/mattbaird/jsonpatch v0.0.0-20171005235357-81af80346b1a // indirect
-	github.com/tektoncd/pipeline v0.9.2
+	github.com/mitchellh/go-homedir v1.1.0
+	github.com/mitchellh/mapstructure v1.1.2
+	github.com/pkg/errors v0.8.1
+	github.com/tektoncd/pipeline v0.11.0
 	go.uber.org/zap v1.13.0
-	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
-	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
-	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
+	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	gopkg.in/gormigrate.v1 v1.6.0
-	gopkg.in/yaml.v2 v2.2.7 // indirect
-	k8s.io/api v0.17.0 // indirect
-	k8s.io/client-go v0.0.0-20190805141520-2fe0317bcee0 // indirect
+	gopkg.in/yaml.v1 v1.0.0-20140924161607-9f9df34309c0
+	k8s.io/apimachinery v0.17.2
+	k8s.io/client-go v0.17.2
 	k8s.io/utils v0.0.0-20191218082557-f07c713de883 // indirect
-	knative.dev/pkg v0.0.0-20191230183737-ead56ad1f3bd // indirect
+	sigs.k8s.io/controller-runtime v0.5.1
 )
 
 go 1.13

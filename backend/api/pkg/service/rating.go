@@ -52,6 +52,7 @@ func (r *Rating) GetResourceRating(ur UserResource) (RatingDetails, error) {
 // UpdateResourceRating update user's rating of a resource and resource's average rating
 func (r *Rating) UpdateResourceRating(rd UpdateRatingDetails) (ResourceAverageRating, error) {
 
+	// TODO(shivam): need to use the err; perhaps return it?
 	if err := r.db.Where("user_id = ? AND resource_id = ?", rd.UserID, rd.ResourceID).
 		Assign(&model.UserResourceRating{Rating: rd.ResourceRating}).
 		FirstOrCreate(&model.UserResourceRating{

@@ -23,6 +23,7 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 			&Resource{},
 			&ResourceVersion{},
 			&UserResourceRating{},
+			&SyncJob{},
 		).Error; err != nil {
 			return err
 		}
@@ -67,11 +68,15 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 			return err
 		}
 
+		if err := fkey(SyncJob{}, "catalog_id", "catalogs"); err != nil {
+			return err
+		}
+
 		// Add Data to the Tables
 		initialiseTables(db)
 
 		// Add Resources
-		initData(db)
+		//initData(db)
 
 		log.Info("Data added successfully !!")
 
@@ -90,6 +95,7 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 
 func initialiseTables(db *gorm.DB) {
 	var categories = map[string][]string{
+		"Others":         []string{},
 		"Build Tools":    []string{"build-tool"},
 		"CLI":            []string{"cli"},
 		"Cloud":          []string{"gcp", "aws", "azure", "cloud"},
@@ -97,7 +103,6 @@ func initialiseTables(db *gorm.DB) {
 		"Image Build":    []string{"image-build"},
 		"Notification":   []string{"notification"},
 		"Test Framework": []string{"test"},
-		"Other":          []string{},
 	}
 
 	for name, tags := range categories {
@@ -108,4 +113,14 @@ func initialiseTables(db *gorm.DB) {
 			db.Model(&cat).Association("Tags").Append(&Tag{Name: tag})
 		}
 	}
+
+	cat := &Catalog{
+		Name:     "Tekton",
+		Type:     "official",
+		Owner:    "tektoncd",
+		URL:      "https://github.com/Pipelines-Marketplace/catalog",
+		Revision: "master",
+	}
+	db.Create(cat)
+
 }
