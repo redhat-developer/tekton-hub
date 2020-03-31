@@ -20,8 +20,7 @@ import {
   GithubIcon,
   BuildIcon,
   DomainIcon,
-}
-  from '@patternfly/react-icons';
+} from '@patternfly/react-icons';
 import '@patternfly/react-core/dist/styles/base.css';
 import Rating from '../rating/Rating';
 import {API_URL} from '../../constants';
@@ -51,7 +50,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
   } else {
     taskArr.push([]);
   }
-  //  adding icon for details page
+  // ading icon for details page
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
     resourceIcon = <BuildIcon
@@ -107,9 +106,6 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
         marginTop: '-2em', width: '120%', paddingBottom: '2em',
       }}>
         <CardHead style={{paddingTop: '2em'}}>
-          {/* <img src={avatarImg} alt="Task"
-
-          /> */}
           <div style={{height: '7em', paddingLeft: '10em', marginTop: '5em'}}>
             {resourceIcon}
           </div>

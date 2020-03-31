@@ -153,6 +153,7 @@ const Filter: React.FC = (props: any) => {
     );
     status.checklist.forEach((it: any) => {
       it.isChecked = false;
+
     });
     // for bydefault fetchApi after clearAll checkbox
     fetchApi('all', 'false', ' ');
@@ -225,6 +226,7 @@ const Filter: React.FC = (props: any) => {
 
   return (
     <div className="filter-size">
+
       <h2 style={{marginBottom: '1em'}}>
         {' '}
         <Button component='a' variant='link'

@@ -80,7 +80,7 @@ func (e *Env) Addr() string {
 	return ":5000"
 }
 
-func FromEnv() (*Env, error) {
+func FromEnv(deploy string) (*Env, error) {
 
 	// load from .env but skip if not found
 	if err := godotenv.Load(); err != nil {
@@ -103,8 +103,11 @@ func FromEnv() (*Env, error) {
 		return nil, err
 	}
 
-	if env.gh, err = initGithub(); err != nil {
-		return nil, err
+	// fetch only for api deployment
+	if deploy == "api" {
+		if env.gh, err = initGithub(); err != nil {
+			return nil, err
+		}
 	}
 
 	return env, nil

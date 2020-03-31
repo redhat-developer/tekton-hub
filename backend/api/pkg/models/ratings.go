@@ -7,13 +7,13 @@ import (
 
 // Rating represents Rating model in database
 type Rating struct {
-	ID         int `json:"id"`
-	ResourceID int `json:"resource_id"`
-	OneStar    int `json:"one"`
-	TwoStar    int `json:"two"`
-	ThreeStar  int `json:"three"`
-	FourStar   int `json:"four"`
-	FiveStar   int `json:"five"`
+	ID         int `gorm:"primary_key;" json:"id"`
+	ResourceID int `gorm:"primary_key;unique" json:"resource_id"`
+	OneStar    int `json:"one" gorm:"default:0"`
+	TwoStar    int `json:"two" gorm:"default:0"`
+	ThreeStar  int `json:"three" gorm:"default:0"`
+	FourStar   int `json:"four" gorm:"default:0"`
+	FiveStar   int `json:"five" gorm:"default:0"`
 }
 
 // PrevStarRequest represents previous stars
@@ -48,15 +48,15 @@ func calculateAverageRating(resourceID int) float64 {
 func getStarsInString(stars int) string {
 	switch stars {
 	case 1:
-		return "ONESTAR"
+		return "ONE_STAR"
 	case 2:
-		return "TWOSTAR"
+		return "TWO_STAR"
 	case 3:
-		return "THREESTAR"
+		return "THREE_STAR"
 	case 4:
-		return "FOURSTAR"
+		return "FOUR_STAR"
 	case 5:
-		return "FIVESTAR"
+		return "FIVE_STAR"
 	}
 	return ""
 }
