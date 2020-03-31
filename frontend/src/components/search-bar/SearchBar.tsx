@@ -131,14 +131,14 @@ const SearchBar: React.FC = (props: any) => {
 
   const onTextChanged = (e: any) => {
     const value = e;
-    let suggestions = [];
+    let suggestions: any = [];
+    const regex = new RegExp(`${value}`, 'i');
+    suggestions = props.TaskDataList.sort().filter((v: any) => regex.test(v.name));
     if (value.length === 0) {
       store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: props.TaskDataList});
     } else {
-      const regex = new RegExp(`^${value}`, 'i');
-      suggestions = taskNameArr.sort().filter((v: any) => regex.test(v));
+      store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: suggestions});
     }
-    setState(suggestions);
     setText(value);
   };
 
