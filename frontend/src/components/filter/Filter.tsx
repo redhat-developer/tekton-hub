@@ -153,7 +153,6 @@ const Filter: React.FC = (props: any) => {
     );
     status.checklist.forEach((it: any) => {
       it.isChecked = false;
-
     });
     // for bydefault fetchApi after clearAll checkbox
     fetchApi('all', 'false', ' ');
