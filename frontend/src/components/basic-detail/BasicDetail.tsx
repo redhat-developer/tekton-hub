@@ -17,7 +17,6 @@ import {
   TextVariants,
 } from '@patternfly/react-core';
 import {
-  DownloadIcon,
   GithubIcon,
   BuildIcon,
   DomainIcon,
@@ -31,7 +30,6 @@ export interface BasicDetailPropObject {
   id: any
   name: string;
   description: string;
-  downloads: number;
   rating: number;
   yaml: string;
   github: string
@@ -149,10 +147,6 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
             <Flex breakpointMods={[{modifier: 'column', breakpoint: 'lg'}]}>
               <FlexItem>
                 <Rating />
-              </FlexItem>
-              <FlexItem>
-                <DownloadIcon style={{marginRight: '1em'}} />
-                {props.task.downloads}
               </FlexItem>
               <FlexItem style={{marginLeft: '-3em'}}>
                 <React.Fragment>
