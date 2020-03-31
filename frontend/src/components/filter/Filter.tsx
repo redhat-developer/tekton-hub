@@ -55,7 +55,8 @@ const Filter: React.FC = (props: any) => {
     fetch(`${API_URL}/resources/${typeurl}/${verifiedurl}?tags=${categoryurl} `)
         .then((resp) => resp.json())
         .then((data) => {
-          const taskarr = data.sort((a: any, b: any) => a > b ? 1 : -1);
+          const taskarr = data.sort((a: any, b: any) =>
+          a.name > b.name ? 1 : -1);
           store.dispatch(
               {
                 type: FETCH_TASK_SUCCESS,
