@@ -29,8 +29,6 @@ type ResourceDetail struct {
 
 // ResourceVersionDetail abstracts necessary fields for UI
 type ResourceVersionDetail struct {
-	ResourceID  uint   `json:"resource_id"`
-	VersionID   uint   `json:"version_id"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
 	URL         string `json:"url"`
@@ -102,9 +100,7 @@ func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 }
 
 // Init converts ResourceVersion Object to ResourceVersionDetail
-func (d *ResourceVersionDetail) Init(r *model.ResourceVersion, rv ResourceVersion) {
-	d.ResourceID = uint(rv.ResourceID)
-	d.VersionID = r.ID
+func (d *ResourceVersionDetail) Init(r *model.ResourceVersion) {
 	d.Version = r.Version
 	d.Description = r.Description
 	d.URL = r.URL
@@ -118,7 +114,7 @@ func (r *Resource) ByVersionID(rv ResourceVersion) (ResourceVersionDetail, error
 		return ResourceVersionDetail{}, errors.New("Record not found")
 	}
 	var versionDetail ResourceVersionDetail
-	versionDetail.Init(resource, rv)
+	versionDetail.Init(resource)
 
 	return versionDetail, nil
 }

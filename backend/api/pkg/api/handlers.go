@@ -228,7 +228,7 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 		invalidRequest(w, http.StatusBadRequest, pathErr)
 		return
 	}
-	ratingRequestBody := service.RatingDetails{UserID: uint(userID)}
+	ratingRequestBody := service.UpdateRatingDetails{UserID: uint(userID)}
 	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
 	if err != nil {
 		errorResponse(w, &ResponseError{Code: "invalid-body", Detail: err.Error()})
@@ -240,13 +240,14 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ratingResponse, _ := api.service.Rating().UpdateResourceRating(ratingRequestBody)
+	api.service.Rating().UpdateResourceRating(ratingRequestBody)
 
+	type emptyList []interface{}
 	res := struct {
-		Data   string          `json:"data"`
+		Data   emptyList       `json:"data"`
 		Errors []ResponseError `json:"errors"`
 	}{
-		Data:   ratingResponse,
+		Data:   emptyList{},
 		Errors: []ResponseError{},
 	}
 
