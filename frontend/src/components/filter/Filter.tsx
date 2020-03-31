@@ -55,13 +55,7 @@ const Filter: React.FC = (props: any) => {
     fetch(`${API_URL}/resources/${typeurl}/${verifiedurl}?tags=${categoryurl} `)
         .then((resp) => resp.json())
         .then((data) => {
-          const taskarr = data.sort((first: any, second: any) => {
-            if (first.name > second.name) {
-              return 1;
-            } else {
-              return -1;
-            }
-          });
+          const taskarr = data.sort((a: any, b: any) => a > b ? 1 : -1);
           store.dispatch(
               {
                 type: FETCH_TASK_SUCCESS,
@@ -106,7 +100,7 @@ const Filter: React.FC = (props: any) => {
     setCheckBoxStatus({...checkBoxStatus, [target.value]: target.checked});
     status.checklist.forEach((it: any) => {
       if (it.id === event.target.id) {
-        it.isChecked = event.target.checked;
+        return it.isChecked = event.target.checked;
       }
     },
     );
@@ -157,9 +151,8 @@ const Filter: React.FC = (props: any) => {
     setCheckBoxStatus(
         tempObj,
     );
-    status.checklist.map((it: any) => {
+    status.checklist.forEach((it: any) => {
       it.isChecked = false;
-      return status;
     });
     // for bydefault fetchApi after clearAll checkbox
     fetchApi('all', 'false', ' ');
@@ -231,7 +224,7 @@ const Filter: React.FC = (props: any) => {
   }
 
   return (
-    <div className="filter-size" key="">
+    <div className="filter-size">
       <h2 style={{marginBottom: '1em'}}>
         {' '}
         <Button component='a' variant='link'
