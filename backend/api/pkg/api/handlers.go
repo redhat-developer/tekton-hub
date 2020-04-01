@@ -190,14 +190,20 @@ func (api *Api) GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request)
 // GetResourceRating returns user's rating of a resource
 func (api *Api) GetResourceRating(w http.ResponseWriter, r *http.Request) {
 
-	userID, err := intPathVar(r, "userID")
-	if err != nil {
-		invalidRequest(w, http.StatusBadRequest, err)
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		errorResponse(w, &ResponseError{Code: "invalid-header", Detail: "Token is missing in header"})
 		return
 	}
-	resourceID, err := intPathVar(r, "resourceID")
-	if err != nil {
-		invalidRequest(w, http.StatusBadRequest, err)
+	resourceID, err1 := intPathVar(r, "resourceID")
+	if err1 != nil {
+		invalidRequest(w, http.StatusBadRequest, err1)
+		return
+	}
+
+	userID := api.service.User().VerifyToken(token)
+	if userID == 0 {
+		errorResponse(w, &ResponseError{Code: "invalid-token", Detail: "User with associated token not found."})
 		return
 	}
 
@@ -223,12 +229,24 @@ func (api *Api) GetResourceRating(w http.ResponseWriter, r *http.Request) {
 // UpdateResourceRating will add/update a user's re rating
 func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 
-	userID, pathErr := intPathVar(r, "userID")
-	if pathErr != nil {
-		invalidRequest(w, http.StatusBadRequest, pathErr)
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		errorResponse(w, &ResponseError{Code: "invalid-header", Detail: "Token is missing in header"})
 		return
 	}
-	ratingRequestBody := service.UpdateRatingDetails{UserID: uint(userID)}
+	resourceID, err1 := intPathVar(r, "resourceID")
+	if err1 != nil {
+		invalidRequest(w, http.StatusBadRequest, err1)
+		return
+	}
+
+	userID := api.service.User().VerifyToken(token)
+	if userID == 0 {
+		errorResponse(w, &ResponseError{Code: "invalid-token", Detail: "User with associated token not found."})
+		return
+	}
+
+	ratingRequestBody := service.UpdateRatingDetails{UserID: uint(userID), ResourceID: uint(resourceID)}
 	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
 	if err != nil {
 		errorResponse(w, &ResponseError{Code: "invalid-body", Detail: err.Error()})

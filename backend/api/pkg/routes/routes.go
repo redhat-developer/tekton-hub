@@ -13,9 +13,8 @@ func Register(r *mux.Router, conf app.Config) {
 	r.HandleFunc("/resources", api.GetAllResources).Methods("GET")                                        //
 	r.HandleFunc("/resource/{resourceID}/version/{versionID}", api.GetResourceByVersionID).Methods("GET") //
 	r.HandleFunc("/categories", api.GetAllCategorieswithTags).Methods("GET")                              //
-	r.HandleFunc("/rating/{userID}/resource/{resourceID}", api.GetResourceRating).Methods("GET")          //
-	r.HandleFunc("/rating/{userID}", api.UpdateResourceRating).Methods("PUT") //
-
+	r.HandleFunc("/resource/{resourceID}/rating", api.GetResourceRating).Methods("GET")                   //
+	r.HandleFunc("/resource/{resourceID}/rating", api.UpdateResourceRating).Methods("PUT")                //
 
 	r.HandleFunc("/resource/{id}", api.DeleteResourceHandler).Methods("DELETE")
 	r.HandleFunc("/resource/yaml/{id}", api.GetResourceYAMLFile).Methods("GET")     //

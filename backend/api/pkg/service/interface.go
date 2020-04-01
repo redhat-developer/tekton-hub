@@ -10,6 +10,7 @@ type Service interface {
 	Resource() *Resource
 	Category() *Category
 	Rating() *Rating
+	User() *User
 }
 
 type ServiceImpl struct {
@@ -36,4 +37,8 @@ func (s *ServiceImpl) Category() *Category {
 
 func (s *ServiceImpl) Rating() *Rating {
 	return &Rating{s.db, s.log}
+}
+
+func (s *ServiceImpl) User() *User {
+	return &User{s.db, s.log}
 }
