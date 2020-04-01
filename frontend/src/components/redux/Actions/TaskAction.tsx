@@ -8,7 +8,8 @@ export function fetchTaskSuccess() {
         .then((response) => response.json())
         .then((TaskData) => dispatch({
           type: FETCH_TASK_SUCCESS,
-          payload: TaskData,
+          payload: TaskData.sort((first: any, second: any) =>
+          first.name > second.name ? 1 : -1),
         }));
   };
 }

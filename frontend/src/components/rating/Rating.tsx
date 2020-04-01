@@ -14,7 +14,7 @@ import {Link} from 'react-router-dom';
 import {fetchTaskName} from
   '../redux/Actions/TaskActionName';
 import {API_URL} from '../../constants';
-import {OkIcon} from '@patternfly/react-icons';
+import {StarIcon} from '@patternfly/react-icons';
 
 let prevStar:number =0;
 let newStar:number =0;
@@ -227,7 +227,7 @@ const Rating: React.FC = (props:any) => {
 
         <Flex breakpointMods={[{modifier: 'row', breakpoint: 'lg'}]}>
           <FlexItem>
-            <OkIcon color="green"/>
+            <StarIcon />
           </FlexItem>
 
           <Tooltip

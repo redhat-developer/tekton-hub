@@ -38,10 +38,9 @@ const SearchBar: React.FC = (props: any) => {
     props.fetchTaskList();
     // eslint-disable-next-line
   }, []);
-
   // Getting all data from store
-  if (props.TaskDataList) {
-    tempArr = props.TaskDataList.map((task: any) => {
+  if (props.TaskData) {
+    tempArr = props.TaskData.map((task: any) => {
       const taskData: TaskPropData = {
         id: task.id,
         name: task.name,
@@ -59,8 +58,8 @@ const SearchBar: React.FC = (props: any) => {
   // Dropdown menu
   const [isOpen, set] = useState(false);
   const dropdownItems = [
-    <DropdownItem key="link" onClick={sortByName}>Name</DropdownItem>,
-    <DropdownItem key="link" onClick={sortByRatings}>Ratings</DropdownItem>,
+    <DropdownItem key="name" onClick={sortByName}>Name</DropdownItem>,
+    <DropdownItem key="Rating" onClick={sortByRatings}>Ratings</DropdownItem>,
   ];
   const ontoggle = (isOpen: React.SetStateAction<boolean>) => set(isOpen);
   const onSelect = () => set(!isOpen);
@@ -116,8 +115,6 @@ const SearchBar: React.FC = (props: any) => {
       store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: tempTask});
     }
   };
-
-
   const taskNameArr: any = [];
   if (props.TaskDataList) {
     for (let i = 0; i < tempArr.length; i++) {
@@ -131,14 +128,20 @@ const SearchBar: React.FC = (props: any) => {
 
   const onTextChanged = (e: any) => {
     const value = e;
-    let suggestions = [];
+    let suggestions: any = [];
+    const regex = new RegExp(`${value}`, 'i');
+    suggestions = props.TaskDataList.sort().filter((v: any) => regex.test(v.name));
     if (value.length === 0) {
-      store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: props.TaskDataList});
+      store.dispatch({
+        type: 'FETCH_TASK_SUCCESS', payload: props.TaskDataList.sort((first: any, second: any) =>
+          first.name > second.name ? 1 : -1),
+      });
     } else {
-      const regex = new RegExp(`^${value}`, 'i');
-      suggestions = taskNameArr.sort().filter((v: any) => regex.test(v));
+      store.dispatch({
+        type: 'FETCH_TASK_SUCCESS', payload: suggestions.sort((first: any, second: any) =>
+          first.name > second.name ? 1 : -1),
+      });
     }
-    setState(suggestions);
     setText(value);
   };
 

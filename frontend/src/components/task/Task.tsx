@@ -19,7 +19,7 @@ import {
   Label,
 } from '@patternfly/react-core';
 import {
-  OkIcon,
+  StarIcon,
   BuildIcon,
   DomainIcon,
 } from '@patternfly/react-icons';
@@ -70,7 +70,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
             </div>
 
             <CardActions className="cardActions">
-              <OkIcon style={{color: 'green'}} />
+              <StarIcon style = {{color: '#484848'}}/>
               <TextContent className="text">{props.task.rating.toFixed(1)}</TextContent>
             </CardActions>
           </CardHead>
