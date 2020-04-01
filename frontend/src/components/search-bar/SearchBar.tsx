@@ -135,9 +135,15 @@ const SearchBar: React.FC = (props: any) => {
     const regex = new RegExp(`${value}`, 'i');
     suggestions = props.TaskDataList.sort().filter((v: any) => regex.test(v.name));
     if (value.length === 0) {
-      store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: props.TaskDataList});
+      store.dispatch({
+        type: 'FETCH_TASK_SUCCESS', payload: props.TaskDataList.sort((first: any, second: any) =>
+          first.name > second.name ? 1 : -1),
+      });
     } else {
-      store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: suggestions});
+      store.dispatch({
+        type: 'FETCH_TASK_SUCCESS', payload: suggestions.sort((first: any, second: any) =>
+          first.name > second.name ? 1 : -1),
+      });
     }
     setText(value);
   };
