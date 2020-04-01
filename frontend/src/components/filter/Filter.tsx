@@ -13,7 +13,11 @@ import {
 import {API_URL} from '../../constants';
 import {InfoCircleIcon, DomainIcon, BuildIcon} from '@patternfly/react-icons';
 import store from '../redux/store';
-import {FETCH_TASK_SUCCESS} from '../redux/Actions/TaskActionType';
+import {
+  FETCH_TASK_SUCCESS,
+  FETCH_TASK_LIST,
+}
+  from '../redux/Actions/TaskActionType';
 import './filter.css';
 import {FlexModifiers, Flex, FlexItem} from '@patternfly/react-core';
 const tempObj: any = {};
@@ -60,6 +64,12 @@ const Filter: React.FC = (props: any) => {
           store.dispatch(
               {
                 type: FETCH_TASK_SUCCESS,
+                payload: taskarr,
+              },
+          );
+          store.dispatch(
+              {
+                type: FETCH_TASK_LIST,
                 payload: taskarr,
               },
           );

@@ -38,10 +38,9 @@ const SearchBar: React.FC = (props: any) => {
     props.fetchTaskList();
     // eslint-disable-next-line
   }, []);
-
   // Getting all data from store
-  if (props.TaskDataList) {
-    tempArr = props.TaskDataList.map((task: any) => {
+  if (props.TaskData) {
+    tempArr = props.TaskData.map((task: any) => {
       const taskData: TaskPropData = {
         id: task.id,
         name: task.name,
@@ -116,8 +115,6 @@ const SearchBar: React.FC = (props: any) => {
       store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: tempTask});
     }
   };
-
-
   const taskNameArr: any = [];
   if (props.TaskDataList) {
     for (let i = 0; i < tempArr.length; i++) {
