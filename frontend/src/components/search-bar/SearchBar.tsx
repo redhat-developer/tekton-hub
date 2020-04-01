@@ -59,8 +59,8 @@ const SearchBar: React.FC = (props: any) => {
   // Dropdown menu
   const [isOpen, set] = useState(false);
   const dropdownItems = [
-    <DropdownItem key="link" onClick={sortByName}>Name</DropdownItem>,
-    <DropdownItem key="link" onClick={sortByRatings}>Ratings</DropdownItem>,
+    <DropdownItem key="name" onClick={sortByName}>Name</DropdownItem>,
+    <DropdownItem key="Rating" onClick={sortByRatings}>Ratings</DropdownItem>,
   ];
   const ontoggle = (isOpen: React.SetStateAction<boolean>) => set(isOpen);
   const onSelect = () => set(!isOpen);

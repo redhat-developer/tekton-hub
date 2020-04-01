@@ -37,7 +37,7 @@ const TaskContainer: React.FC = (props: any) => {
     );
   }
   if (props.TaskData != null) {
-    tempArr = props.TaskData.sort((a: any, b: any) => a.name > b.name ? 1 : -1);
+    tempArr = props.TaskData;
   }
 
   if (tempArr.length === 0) {
