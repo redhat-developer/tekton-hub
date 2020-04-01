@@ -1,5 +1,6 @@
 import React from 'react';
-import {Card,
+import {
+  Card,
   CardHead,
   Flex,
   FlexItem,
@@ -7,23 +8,23 @@ import {Card,
   CardActions,
   Button,
 } from '@patternfly/react-core';
-import {DownloadIcon, OkIcon, Remove2Icon} from '@patternfly/react-icons';
+import {DownloadIcon, Remove2Icon, StarIcon} from '@patternfly/react-icons';
 import imgAvatar from '../assets/logo/imgAvatar.png';
 import {API_URL} from '../../constants';
 import {Link} from 'react-router-dom';
 
 export interface TaskPropObject {
-    id: number;
-    name : string;
-    rating : number;
-    downloads : number;
-  }
+  id: number;
+  name: string;
+  rating: number;
+  downloads: number;
+}
 
 export interface TaskProp {
-    task: TaskPropObject
-  }
+  task: TaskPropObject
+}
 
-const UserProfileChild: React.FC<TaskProp> = (props:any) => {
+const UserProfileChild: React.FC<TaskProp> = (props: any) => {
   const deleteFunction = (e: any) => {
     const taskId = e.target.id;
 
@@ -39,10 +40,12 @@ const UserProfileChild: React.FC<TaskProp> = (props:any) => {
         props.task.map((item: any) => {
           return (
 
-            <Card style={{marginLeft: '2em', marginRight: '7em',
-              marginTop: '2em', width: '100%', padding: '0'}} key = "">
+            <Card style={{
+              marginLeft: '2em', marginRight: '7em',
+              marginTop: '2em', width: '100%', padding: '0',
+            }} key="">
               <CardHead>
-                <img src ={imgAvatar} alt="Task"
+                <img src={imgAvatar} alt="Task"
                   style={{height: '3em', marginLeft: '2em'}}
                 />
 
@@ -51,7 +54,7 @@ const UserProfileChild: React.FC<TaskProp> = (props:any) => {
                   <FlexItem>
                     <TextContent
                       style={{marginLeft: '3em', marginTop: '0.5em'}}>
-                      <Link to={'/detail/'+item.id} key= "">
+                      <Link to={'/detail/' + item.id} key="">
                         {item.name}
                       </Link>
                     </TextContent>
@@ -62,17 +65,17 @@ const UserProfileChild: React.FC<TaskProp> = (props:any) => {
                 <CardActions style={{marginRight: '5em'}}>
 
                   <DownloadIcon
-                    style = {{marginRight: '0.2em'}} className="download"/>
+                    style={{marginRight: '0.2em'}} className="download" />
                   <TextContent className="text">{item.downloads}</TextContent>
 
-                  <OkIcon style={{color: 'green'}}/>
+                  <StarIcon style={{color: '#484848'}} />
                   <TextContent className="text">{item.rating}</TextContent>
 
-                  <Button id = {item.id} variant="danger"
-                    style = {{marginLeft: '3em'}} type="submit"
-                    onClick = {deleteFunction}>Delete
+                  <Button id={item.id} variant="danger"
+                    style={{marginLeft: '3em'}} type="submit"
+                    onClick={deleteFunction}>Delete
                     <Remove2Icon
-                      style = {{marginLeft: '1em', marginTop: '0.3em'}}/>
+                      style={{marginLeft: '1em', marginTop: '0.3em'}} />
                   </Button>
 
                 </CardActions>
