@@ -192,7 +192,8 @@ func (api *Api) GetResourceRating(w http.ResponseWriter, r *http.Request) {
 
 	token := r.Header.Get("Authorization")
 	if token == "" {
-		errorResponse(w, &ResponseError{Code: "invalid-header", Detail: "Token is missing in header"})
+		err := &ResponseError{Code: "invalid-header", Detail: "Token is missing in header"}
+		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
 	resourceID, err1 := intPathVar(r, "resourceID")
@@ -203,7 +204,8 @@ func (api *Api) GetResourceRating(w http.ResponseWriter, r *http.Request) {
 
 	userID := api.service.User().VerifyToken(token)
 	if userID == 0 {
-		errorResponse(w, &ResponseError{Code: "invalid-token", Detail: "User with associated token not found."})
+		err := &ResponseError{Code: "invalid-header", Detail: "User with associated token not found."}
+		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -231,30 +233,34 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 
 	token := r.Header.Get("Authorization")
 	if token == "" {
-		errorResponse(w, &ResponseError{Code: "invalid-header", Detail: "Token is missing in header"})
+		err := &ResponseError{Code: "invalid-header", Detail: "Token is missing in header"}
+		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
-	resourceID, err1 := intPathVar(r, "resourceID")
-	if err1 != nil {
-		invalidRequest(w, http.StatusBadRequest, err1)
+	resourceID, err := intPathVar(r, "resourceID")
+	if err != nil {
+		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
 
 	userID := api.service.User().VerifyToken(token)
 	if userID == 0 {
-		errorResponse(w, &ResponseError{Code: "invalid-token", Detail: "User with associated token not found."})
+		err := &ResponseError{Code: "invalid-header", Detail: "User with associated token not found."}
+		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
 
 	ratingRequestBody := service.UpdateRatingDetails{UserID: uint(userID), ResourceID: uint(resourceID)}
-	err := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
-	if err != nil {
-		errorResponse(w, &ResponseError{Code: "invalid-body", Detail: err.Error()})
+	jsonErr := json.NewDecoder(r.Body).Decode(&ratingRequestBody)
+	if jsonErr != nil {
+		err := &ResponseError{Code: "invalid-body", Detail: jsonErr.Error()}
+		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
 
 	if ratingRequestBody.ResourceRating > 5 {
-		errorResponse(w, &ResponseError{Code: "invalid-rating", Detail: "Rating should be in range 1 to 5"})
+		err := &ResponseError{Code: "invalid-body", Detail: "Rating should be in range 1 to 5"}
+		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
 
