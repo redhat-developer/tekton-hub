@@ -64,11 +64,10 @@ type (
 	// User model represents user details
 	User struct {
 		gorm.Model
-		Name      string `gorm:"not null;unique"`
-		FirstName string
-		LastName  string
-		Email     string
-		Token     string
+		UserName string `gorm:"not null;unique"`
+		Name     string
+		Email    string
+		Token    string
 	}
 
 	// UserResourceRating represents User's rating of a resource

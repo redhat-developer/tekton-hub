@@ -3,16 +3,12 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
-	"github.com/redhat-developer/tekton-hub/backend/api/pkg/authentication"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
 
 	//"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
@@ -280,6 +276,42 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
+// GithubAuth handles OAuth by Github
+func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
+
+	token := service.OAuthAuthorizeToken{}
+	if err := json.NewDecoder(r.Body).Decode(&token); err != nil {
+		err := &ResponseError{Code: "invalid-body", Detail: err.Error()}
+		invalidRequest(w, http.StatusBadRequest, err)
+		return
+	}
+	api.Log.Info("OAuthAuthorizeToken - ", token.Token)
+
+	accessToken, err := api.service.User().GetGitHubAccessToken(token)
+	if err != nil {
+		err := &ResponseError{Code: "invalid-header", Detail: "Invalid Token"}
+		invalidRequest(w, http.StatusBadRequest, err)
+		return
+	}
+
+	userDetails := api.service.User().GetUserDetails(service.OAuthAccessToken{AccessToken: accessToken})
+
+	user := api.service.User().Add(userDetails)
+
+	resToken, _ := api.service.User().GenerateJWT(user)
+
+	res := struct {
+		Data   service.OAuthResponse `json:"data"`
+		Errors []ResponseError       `json:"errors"`
+	}{
+		Data:   service.OAuthResponse{Token: resToken},
+		Errors: []ResponseError{},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+}
+
 // GetAllTags writes json encoded list of tags to Responsewriter
 func (api *Api) GetAllTags(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -381,112 +413,77 @@ func (api *Api) GetPrevStars(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func ghOAuthURLForCode(code string) string {
-	clientID := os.Getenv("CLIENT_ID")
-	clientSecret := os.Getenv("CLIENT_SECRET")
-	return fmt.Sprintf(
-		"https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s",
-		clientID, clientSecret, code)
-}
+// // GithubAuth handles OAuth by Github
+// func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
 
-// GithubAuth handles OAuth by Github
-func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
+// 	token := Code{}
+// 	if err := json.NewDecoder(r.Body).Decode(&token); err != nil {
+// 		api.Log.Error(err)
+// 	}
+// 	api.Log.Info("Code", token.Token)
 
-	token := Code{}
-	if err := json.NewDecoder(r.Body).Decode(&token); err != nil {
-		api.Log.Error(err)
-	}
-	api.Log.Info("Code", token.Token)
+// 	reqURL := ghOAuthURLForCode(token.Token)
+// 	api.Log.Info(reqURL)
 
-	reqURL := ghOAuthURLForCode(token.Token)
-	api.Log.Info(reqURL)
+// 	req, err := http.NewRequest(http.MethodPost, reqURL, nil)
+// 	if err != nil {
+// 		fmt.Fprintf(os.Stdout, "could not create HTTP request: %v", err)
+// 	}
+// 	req.Header.Set("accept", "application/json")
 
-	req, err := http.NewRequest(http.MethodPost, reqURL, nil)
-	if err != nil {
-		fmt.Fprintf(os.Stdout, "could not create HTTP request: %v", err)
-	}
-	req.Header.Set("accept", "application/json")
+// 	// Send out the HTTP request
+// 	httpClient := http.Client{}
+// 	res, err := httpClient.Do(req)
+// 	if err != nil {
+// 		println(os.Stdout, "could not send HTTP request: %v", err)
+// 	}
+// 	defer res.Body.Close()
 
-	// Send out the HTTP request
-	httpClient := http.Client{}
-	res, err := httpClient.Do(req)
-	if err != nil {
-		println(os.Stdout, "could not send HTTP request: %v", err)
-	}
-	defer res.Body.Close()
+// 	// Parse the request body into the `OAuthAccessResponse` struct
+// 	var t OAuthAccessResponse
+// 	if err := json.NewDecoder(res.Body).Decode(&t); err != nil {
+// 		fmt.Fprintf(os.Stdout, "could not parse JSON response: %v", err)
+// 		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: errAuthFailure, Detail: "invalid token"})
+// 		return
+// 	}
 
-	// Parse the request body into the `OAuthAccessResponse` struct
-	var t OAuthAccessResponse
-	if err := json.NewDecoder(res.Body).Decode(&t); err != nil {
-		fmt.Fprintf(os.Stdout, "could not parse JSON response: %v", err)
-		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: errAuthFailure, Detail: "invalid token"})
-		return
-	}
+// 	api.Log.Info("Access Token", t.AccessToken)
+// 	username, id := api.getUserDetails(t.AccessToken)
+// 	api.Log.Info(username, id)
+// 	authToken, err := authentication.GenerateJWT(int(id))
+// 	if err != nil {
+// 		api.Log.Error(err)
+// 	}
 
-	api.Log.Info("Access Token", t.AccessToken)
-	username, id := api.getUserDetails(t.AccessToken)
-	api.Log.Info(username, id)
-	authToken, err := authentication.GenerateJWT(int(id))
-	if err != nil {
-		api.Log.Error(err)
-	}
+// 	// Add user if doesn't exist
+// 	sqlStatement := `SELECT EXISTS(SELECT 1 FROM USER_CREDENTIAL WHERE ID=$1)`
+// 	var exists bool
+// 	db := api.app.DB().DB()
+// 	err = db.QueryRow(sqlStatement, id).Scan(&exists)
+// 	if err != nil {
+// 		api.Log.Error(err)
+// 	}
+// 	api.Log.Info(exists)
 
-	// Add user if doesn't exist
-	sqlStatement := `SELECT EXISTS(SELECT 1 FROM USER_CREDENTIAL WHERE ID=$1)`
-	var exists bool
-	db := api.app.DB().DB()
-	err = db.QueryRow(sqlStatement, id).Scan(&exists)
-	if err != nil {
-		api.Log.Error(err)
-	}
-	api.Log.Info(exists)
+// 	if !exists {
+// 		sqlStatement := `INSERT INTO USER_CREDENTIAL(ID,USERNAME,FIRST_NAME,TOKEN) VALUES($1,$2,$3,$4)`
+// 		_, err := db.Exec(sqlStatement, id, "github", "github", t.AccessToken)
+// 		if err != nil {
+// 			api.Log.Error(err)
+// 		}
+// 	} else {
+// 		// Update token if user exists
+// 		sqlStatement = `UPDATE USER_CREDENTIAL SET TOKEN=$2 WHERE ID=$1`
+// 		_, err = db.Exec(sqlStatement, id, t.AccessToken)
+// 		if err != nil {
+// 			api.Log.Error(err)
+// 		}
+// 	}
 
-	if !exists {
-		sqlStatement := `INSERT INTO USER_CREDENTIAL(ID,USERNAME,FIRST_NAME,TOKEN) VALUES($1,$2,$3,$4)`
-		_, err := db.Exec(sqlStatement, id, "github", "github", t.AccessToken)
-		if err != nil {
-			api.Log.Error(err)
-		}
-	} else {
-		// Update token if user exists
-		sqlStatement = `UPDATE USER_CREDENTIAL SET TOKEN=$2 WHERE ID=$1`
-		_, err = db.Exec(sqlStatement, id, t.AccessToken)
-		if err != nil {
-			api.Log.Error(err)
-		}
-	}
+// 	w.Header().Set("Content-Type", "application/json")
+// 	json.NewEncoder(w).Encode(map[string]interface{}{"token": authToken, "user_id": int(id)})
+// }
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"token": authToken, "user_id": int(id)})
-}
-
-func (api *Api) getUserDetails(accessToken string) (string, int) {
-	httpClient := http.Client{}
-	reqURL := fmt.Sprintf("https://api.github.com/user")
-	req, err := http.NewRequest(http.MethodGet, reqURL, nil)
-	req.Header.Set("Authorization", "token "+accessToken)
-	if err != nil {
-		api.Log.Error(err)
-	}
-	req.Header.Set("Access-Control-Allow-Origin", "*")
-	req.Header.Set("accept", "application/json")
-
-	// Send out the HTTP request
-	res, err := httpClient.Do(req)
-	if err != nil {
-		api.Log.Error(err)
-	}
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
-	api.Log.Info(string(body))
-	var userData map[string]interface{}
-	if err := json.Unmarshal(body, &userData); err != nil {
-		api.Log.Error(err)
-	}
-	username := userData["login"].(string)
-	id := userData["id"].(float64)
-	return string(username), int(id)
-}
 
 // GetAllResourcesByUserHandler will return all tasks uploaded by user
 func (api *Api) GetAllResourcesByUserHandler(w http.ResponseWriter, r *http.Request) {

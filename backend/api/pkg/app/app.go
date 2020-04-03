@@ -63,6 +63,7 @@ type GitHub struct {
 	AccessToken   string
 	OAuthClientID string
 	OAuthSecret   string
+	JWTSigningKey string
 	Client        *github.Client
 }
 
@@ -217,6 +218,9 @@ func initGithub() (*GitHub, error) {
 		return nil, err
 	}
 	if gh.OAuthSecret, err = env("CLIENT_SECRET"); err != nil {
+		return nil, err
+	}
+	if gh.JWTSigningKey, err = env("JWT_SIGNING_KEY"); err != nil {
 		return nil, err
 	}
 

@@ -14,16 +14,18 @@ type Service interface {
 }
 
 type ServiceImpl struct {
-	app app.Base
+	app app.Config
 	log *zap.SugaredLogger
 	db  *gorm.DB
+	gh  *app.GitHub
 }
 
-func New(base app.Base) *ServiceImpl {
+func New(app app.Config) *ServiceImpl {
 	return &ServiceImpl{
-		app: base,
-		log: base.Logger().With("name", "db"),
-		db:  base.DB(),
+		app: app,
+		log: app.Logger().With("name", "db"),
+		db:  app.DB(),
+		gh:  app.GitHub(),
 	}
 }
 
@@ -40,5 +42,5 @@ func (s *ServiceImpl) Rating() *Rating {
 }
 
 func (s *ServiceImpl) User() *User {
-	return &User{s.db, s.log}
+	return &User{s.db, s.log, s.gh}
 }

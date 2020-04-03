@@ -56,7 +56,7 @@ func (r *Rating) UpdateResourceRating(rd UpdateRatingDetails) {
 		})
 
 	var avg float64
-	r.db.Table("user_resource_ratings").Where("resource_id = ?", rd.ResourceID).
+	r.db.Model(&model.UserResourceRating{}).Where("resource_id = ?", rd.ResourceID).
 		Select("avg(rating)").Row().Scan(&avg)
 
 	r.db.Model(&model.Resource{}).Where("id = ?", rd.ResourceID).
