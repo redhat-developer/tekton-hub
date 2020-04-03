@@ -7,9 +7,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
-
-	//"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
-
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/service"
 	"go.uber.org/zap"
 )

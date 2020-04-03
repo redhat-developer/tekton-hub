@@ -59,3 +59,8 @@ spec:
                 secretKeyRef:
                   name: api
                   key: CLIENT_SECRET
+            - name: JWT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api
+                  key: JWT_SIGNING_KEY
