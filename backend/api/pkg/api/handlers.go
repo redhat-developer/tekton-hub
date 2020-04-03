@@ -26,6 +26,7 @@ const (
 	errParseForm   string = "form-parse-error"
 	errMissingKey  string = "key-not-found"
 	errInvalidType string = "invalid-type"
+	errAuthFailure string = "auth-failed"
 )
 
 type Api struct {
@@ -412,12 +413,16 @@ func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		println(os.Stdout, "could not send HTTP request: %v", err)
 	}
+	defer res.Body.Close()
 
 	// Parse the request body into the `OAuthAccessResponse` struct
 	var t OAuthAccessResponse
 	if err := json.NewDecoder(res.Body).Decode(&t); err != nil {
 		fmt.Fprintf(os.Stdout, "could not parse JSON response: %v", err)
+		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: errAuthFailure, Detail: "invalid token"})
+		return
 	}
+
 	api.Log.Info("Access Token", t.AccessToken)
 	username, id := api.getUserDetails(t.AccessToken)
 	api.Log.Info(username, id)
