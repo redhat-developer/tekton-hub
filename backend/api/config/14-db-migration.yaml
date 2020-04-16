@@ -1,25 +1,15 @@
----
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: api
+  name: db-migration
   namespace: tekton-hub
 spec:
-  selector:
-    matchLabels:
-      app: api
-  replicas: 1
   template:
-    metadata:
-      labels:
-        app: api
     spec:
       containers:
-        - name: api
-          image: github.com/redhat-developer/tekton-hub/backend/api/cmd/api
-          ports:
-            - containerPort: 5000
-          env:
+      - name: db-migration
+        image: quay.io/sm43/db-e1225b1694ead6003d83a432fd4e95f5:latest
+        env:
             - name: POSTGRESQL_HOST
               value: db
             - name: POSTGRESQL_PORT
@@ -42,8 +32,6 @@ spec:
                 secretKeyRef:
                   name: db
                   key: POSTGRESQL_PASSWORD
-            - name: VALIDATION_API
-              value: http://validation:5001
             - name: GITHUB_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -59,8 +47,5 @@ spec:
                 secretKeyRef:
                   name: api
                   key: CLIENT_SECRET
-            - name: JWT_SIGNING_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: JWT_SIGNING_KEY
+      restartPolicy: Never
+  backoffLimit: 3

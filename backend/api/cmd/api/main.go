@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -8,8 +9,8 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
-	"github.com/redhat-developer/tekton-hub/backend/api/pkg/models"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/routes"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/sync"
 )
 
 func main() {
@@ -18,17 +19,13 @@ func main() {
 		fmt.Fprintf(os.Stderr, "FATAL: failed to initialise: %s", err)
 		os.Exit(1)
 	}
+	defer app.Cleanup()
 
-	log := app.Logger()
-	defer log.Sync()
+	sync := sync.New(app)
+	sync.Sync(context.Background())
 
-	if err := models.Connect(app); err != nil {
-		log.Fatalf("db connection failed: %s", err)
-	}
-	defer models.DB.Close()
-
+	// HTTP
 	router := mux.NewRouter()
-	// models.AddResourcesFromCatalog("tektoncd", "catalog")
 	routes.Register(router, app)
 
 	cors := handlers.CORS(
@@ -41,6 +38,7 @@ func main() {
 		}),
 	)
 
+	log := app.Logger()
 	log.Infof("Listening on %s", app.Addr())
 	log.Fatal(http.ListenAndServe(app.Addr(), cors(router)))
 }

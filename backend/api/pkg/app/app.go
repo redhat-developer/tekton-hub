@@ -7,17 +7,27 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
+	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/oauth2"
+
+	// Blank for package side effect: loads postgres drivers
+	_ "github.com/lib/pq"
 )
 
-type Config interface {
+type Base interface {
 	Environment() EnvMode
-	Database() *Database
-	GitHub() *GitHub
 	Logger() *zap.SugaredLogger
+	Database() *Database
+	DB() *gorm.DB
+	Cleanup()
+}
+
+type Config interface {
+	Base
+	GitHub() *GitHub
 	Addr() string
 }
 
@@ -37,13 +47,6 @@ type Database struct {
 	Password string
 }
 
-type GitHub struct {
-	AccessToken   string
-	OAuthClientID string
-	OAuthSecret   string
-	Client        *github.Client
-}
-
 func (db *Database) String() string {
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=xxxxxx dbname=%s sslmode=disable",
@@ -56,40 +59,63 @@ func (db *Database) ConnectionString() string {
 		db.Host, db.Port, db.User, db.Password, db.Name)
 }
 
-type Env struct {
+type GitHub struct {
+	AccessToken   string
+	OAuthClientID string
+	OAuthSecret   string
+	JWTSigningKey string
+	Client        *github.Client
+}
+
+type BaseConfig struct {
 	mode   EnvMode
 	logger *zap.SugaredLogger
-	db     *Database
-	gh     *GitHub
+	dbConf *Database
+	db     *gorm.DB
 }
 
-var _ Config = (*Env)(nil)
+var _ Base = (*BaseConfig)(nil)
 
-func (e *Env) Environment() EnvMode {
-	return e.mode
+func (bc *BaseConfig) Environment() EnvMode {
+	return bc.mode
 }
 
-func (e *Env) Logger() *zap.SugaredLogger {
-	return e.logger
+func (bc *BaseConfig) Logger() *zap.SugaredLogger {
+	return bc.logger
 }
 
-func (e *Env) Database() *Database {
-	return e.db
+func (bc *BaseConfig) Database() *Database {
+	return bc.dbConf
 }
 
-func (e *Env) GitHub() *GitHub {
+func (bc *BaseConfig) DB() *gorm.DB {
+	return bc.db
+}
+
+func (bc *BaseConfig) Cleanup() {
+	bc.db.Close()
+	bc.logger.Sync()
+}
+
+type ApiConfig struct {
+	*BaseConfig
+	gh *GitHub
+}
+
+var _ Config = (*ApiConfig)(nil)
+
+func (e *ApiConfig) GitHub() *GitHub {
 	return e.gh
 }
 
-func (e *Env) Addr() string {
+func (e *ApiConfig) Addr() string {
 	return ":5000"
 }
 
-func FromEnv() (*Env, error) {
-
-	// load from .env but skip if not found
+func BaseConfigFromEnv() (*BaseConfig, error) {
+	// load from .env file but skip if not found
 	if err := godotenv.Load(); err != nil {
-		fmt.Fprintf(os.Stdout, "SKIP: loading .env failed: %s", err)
+		fmt.Fprintf(os.Stdout, "SKIP: loading .ApiConfig failed: %s", err)
 	}
 
 	mode := Environment()
@@ -102,17 +128,36 @@ func FromEnv() (*Env, error) {
 
 	log.With("name", "app").Infof("in %q mode ", mode)
 
-	env := &Env{mode: mode, logger: log}
-
-	if env.db, err = initDB(); err != nil {
+	bc := &BaseConfig{mode: mode, logger: log}
+	if bc.dbConf, err = initDB(); err != nil {
+		log.Error(err, "failed to obtain database configuration")
 		return nil, err
 	}
 
-	if env.gh, err = initGithub(); err != nil {
+	bc.db, err = gorm.Open("postgres", bc.dbConf.ConnectionString())
+	if err != nil {
+		log.Error(err, "failed to establish database connection")
 		return nil, err
 	}
 
-	return env, nil
+	log.Infof("Successfully connected to db %s", bc.dbConf)
+
+	return bc, nil
+}
+
+func FromEnv() (*ApiConfig, error) {
+	bc, err := BaseConfigFromEnv()
+	if err != nil {
+		return nil, err
+	}
+
+	ApiConfig := &ApiConfig{BaseConfig: bc}
+
+	if ApiConfig.gh, err = initGithub(); err != nil {
+		return nil, err
+	}
+
+	return ApiConfig, nil
 }
 
 func env(key string) (string, error) {
@@ -173,6 +218,9 @@ func initGithub() (*GitHub, error) {
 		return nil, err
 	}
 	if gh.OAuthSecret, err = env("CLIENT_SECRET"); err != nil {
+		return nil, err
+	}
+	if gh.JWTSigningKey, err = env("JWT_SIGNING_KEY"); err != nil {
 		return nil, err
 	}
 

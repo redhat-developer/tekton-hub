@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jinzhu/gorm"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/db/model"
 
@@ -13,24 +12,16 @@ import (
 )
 
 func main() {
-	app, err := app.FromEnv()
+	app, err := app.BaseConfigFromEnv()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "FATAL: failed to initialise: %s", err)
 		os.Exit(1)
 	}
+	defer app.Cleanup()
 
 	log := app.Logger()
-	defer log.Sync()
-
-	conn := app.Database().ConnectionString()
-	db, err := gorm.Open("postgres", conn)
-	if err != nil {
-		log.Fatalf("DB connection failed: %s", err)
-	}
-
-	// Create Tables
-	if err = model.Migrate(db, log); err != nil {
+	if err = model.Migrate(app.DB(), log); err != nil {
 		log.Fatal("DB initialisation failed", err)
 	}
-
+	log.Info("DB initialisation successful")
 }

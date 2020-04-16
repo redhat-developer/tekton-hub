@@ -12,6 +12,13 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 	// NOTE: If writing a migration for a new table then add the same in InitSchema
 	migration := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		// NOTE: Add Migration Here
+		{
+			ID: "202004061300",
+			Migrate: func(db *gorm.DB) error {
+				initData(db)
+				return nil
+			},
+		},
 	})
 
 	migration.InitSchema(func(db *gorm.DB) error {
@@ -19,11 +26,10 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 			&User{},
 			&Category{},
 			&Tag{},
-			&Repository{},
+			&Catalog{},
 			&Resource{},
-			&ResourceTags{},
 			&ResourceVersion{},
-			&ResourceUserRating{},
+			&UserResourceRating{},
 		).Error; err != nil {
 			return err
 		}
@@ -46,14 +52,7 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 			return err
 		}
 
-		if err := fkey(Resource{}, "repository_id", "repositories"); err != nil {
-			return err
-		}
-		if err := fkey(
-			ResourceTags{},
-			"resource_id", "resources",
-			"tag_id", "tags",
-		); err != nil {
+		if err := fkey(Resource{}, "catalog_id", "catalogs"); err != nil {
 			return err
 		}
 
@@ -62,14 +61,25 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 		}
 
 		if err := fkey(
-			ResourceUserRating{},
+			UserResourceRating{},
 			"resource_id", "resources",
 			"user_id", "users"); err != nil {
 			return err
 		}
 
+		if err := fkey(
+			ResourceTag{},
+			"resource_id", "resources",
+			"tag_id", "tags"); err != nil {
+			return err
+		}
+
 		// Add Data to the Tables
 		initialiseTables(db)
+
+		// Add Resources
+		initData(db)
+
 		log.Info("Data added successfully !!")
 
 		return nil
@@ -81,6 +91,7 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 	}
 
 	log.Info("Migration ran successfully !!")
+
 	return nil
 }
 
