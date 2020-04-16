@@ -109,8 +109,11 @@ func (api *Api) GetAllResources(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resources, _ := api.service.Resource().All(service.Filter{Limit: limit})
-
+	resources, resourceErr := api.service.Resource().All(service.Filter{Limit: limit})
+	if resourceErr != nil {
+		invalidRequest(w, http.StatusInternalServerError, &ResponseError{Code: "db-error", Detail: resourceErr.Error()})
+		return
+	}
 	res := struct {
 		Data   []service.ResourceDetail `json:"data"`
 		Errors []ResponseError          `json:"errors"`
@@ -123,36 +126,26 @@ func (api *Api) GetAllResources(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-// GetResourceByVersionID writes json encoded resources to ResponseWriter
-func (api *Api) GetResourceByVersionID(w http.ResponseWriter, r *http.Request) {
+// GetResourceVersions writes json encoded resources to ResponseWriter
+func (api *Api) GetResourceVersions(w http.ResponseWriter, r *http.Request) {
 
 	resourceID, err := intPathVar(r, "resourceID")
 	if err != nil {
 		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
-	versionID, err := intPathVar(r, "versionID")
-	if err != nil {
-		invalidRequest(w, http.StatusBadRequest, err)
-		return
-	}
-	rv := service.ResourceVersion{
-		ResourceID: resourceID,
-		VersionID:  versionID,
-	}
 
-	resource, retErr := api.service.Resource().ByVersionID(rv)
-
+	resourceVersions, retErr := api.service.Resource().AllVersions(uint(resourceID))
 	if retErr != nil {
-		errorResponse(w, &ResponseError{Code: "invalid-input", Detail: retErr.Error()})
+		invalidRequest(w, http.StatusInternalServerError, &ResponseError{Code: "db-error", Detail: retErr.Error()})
 		return
 	}
 
 	res := struct {
-		Data   service.ResourceVersionDetail `json:"data"`
-		Errors []ResponseError               `json:"errors"`
+		Data   []service.ResourceVersionDetail `json:"data"`
+		Errors []ResponseError                 `json:"errors"`
 	}{
-		Data:   resource,
+		Data:   resourceVersions,
 		Errors: []ResponseError{},
 	}
 
@@ -163,7 +156,11 @@ func (api *Api) GetResourceByVersionID(w http.ResponseWriter, r *http.Request) {
 // GetAllCategorieswithTags writes json encoded list of categories to Responsewriter
 func (api *Api) GetAllCategorieswithTags(w http.ResponseWriter, r *http.Request) {
 
-	categories, _ := api.service.Category().All()
+	categories, retErr := api.service.Category().All()
+	if retErr != nil {
+		invalidRequest(w, http.StatusInternalServerError, &ResponseError{Code: "db-error", Detail: retErr.Error()})
+		return
+	}
 
 	res := struct {
 		Data   []service.CategoryDetail `json:"data"`
@@ -182,20 +179,18 @@ func (api *Api) GetResourceRating(w http.ResponseWriter, r *http.Request) {
 
 	token := r.Header.Get("Authorization")
 	if token == "" {
-		err := &ResponseError{Code: "invalid-header", Detail: "Token is missing in header"}
-		invalidRequest(w, http.StatusBadRequest, err)
+		invalidRequest(w, http.StatusBadRequest, &ResponseError{Code: "invalid-header", Detail: "Token is missing in header"})
 		return
 	}
-	resourceID, err1 := intPathVar(r, "resourceID")
-	if err1 != nil {
-		invalidRequest(w, http.StatusBadRequest, err1)
+	resourceID, err := intPathVar(r, "resourceID")
+	if err != nil {
+		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
 
-	userID := api.service.User().VerifyToken(token)
-	if userID == 0 {
-		err := &ResponseError{Code: "invalid-header", Detail: "User with associated token not found."}
-		invalidRequest(w, http.StatusBadRequest, err)
+	userID, userErr := api.service.User().VerifyJWT(token)
+	if userErr != nil {
+		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: "invalid-header", Detail: userErr.Error()})
 		return
 	}
 
@@ -223,7 +218,7 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 
 	token := r.Header.Get("Authorization")
 	if token == "" {
-		err := &ResponseError{Code: "invalid-header", Detail: "Token is missing in header"}
+		err := &ResponseError{Code: "invalid-header", Detail: "JWT is missing"}
 		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
@@ -233,10 +228,9 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := api.service.User().VerifyToken(token)
-	if userID == 0 {
-		err := &ResponseError{Code: "invalid-header", Detail: "User with associated token not found."}
-		invalidRequest(w, http.StatusBadRequest, err)
+	userID, userErr := api.service.User().VerifyJWT(token)
+	if userErr != nil {
+		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: "invalid-header", Detail: userErr.Error()})
 		return
 	}
 
@@ -254,7 +248,10 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	api.service.Rating().UpdateResourceRating(ratingRequestBody)
+	if retErr := api.service.Rating().UpdateResourceRating(ratingRequestBody); retErr != nil {
+		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: "db-error", Detail: retErr.Error()})
+		return
+	}
 
 	type emptyList []interface{}
 	res := struct {
@@ -272,26 +269,39 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 // GithubAuth handles OAuth by Github
 func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
 
-	token := service.OAuthAuthorizeToken{}
-	if err := json.NewDecoder(r.Body).Decode(&token); err != nil {
-		err := &ResponseError{Code: "invalid-body", Detail: err.Error()}
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		err := &ResponseError{Code: "invalid-header", Detail: "Authorization Token is missing"}
 		invalidRequest(w, http.StatusBadRequest, err)
 		return
 	}
-	api.Log.Info("OAuthAuthorizeToken - ", token.Token)
+	api.Log.Info("User's OAuthAuthorizeToken - ", token)
 
-	accessToken, err := api.service.User().GetGitHubAccessToken(token)
+	accessToken, err := api.service.User().GetGitHubAccessToken(service.OAuthAuthorizeToken{Token: token})
 	if err != nil {
-		err := &ResponseError{Code: "invalid-header", Detail: "Invalid Token"}
-		invalidRequest(w, http.StatusBadRequest, err)
+		err := &ResponseError{Code: "invalid-token", Detail: err.Error()}
+		invalidRequest(w, http.StatusUnauthorized, err)
 		return
 	}
 
-	userDetails := api.service.User().GetUserDetails(service.OAuthAccessToken{AccessToken: accessToken})
+	userDetails, err := api.service.User().GetUserDetails(service.OAuthAccessToken{AccessToken: accessToken})
+	if err != nil {
+		err := &ResponseError{Code: "github-error", Detail: err.Error()}
+		invalidRequest(w, http.StatusInternalServerError, err)
+		return
+	}
 
-	user := api.service.User().Add(userDetails)
+	user, retErr := api.service.User().Add(userDetails)
+	if retErr != nil {
+		invalidRequest(w, http.StatusInternalServerError, &ResponseError{Code: "db-error", Detail: retErr.Error()})
+		return
+	}
 
-	resToken, _ := api.service.User().GenerateJWT(user)
+	resToken, retErr := api.service.User().GenerateJWT(user)
+	if retErr != nil {
+		invalidRequest(w, http.StatusInternalServerError, &ResponseError{Code: "jwt-error", Detail: retErr.Error()})
+		return
+	}
 
 	res := struct {
 		Data   service.OAuthResponse `json:"data"`

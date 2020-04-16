@@ -11,7 +11,7 @@ func Register(r *mux.Router, conf app.Config) {
 	api := api.New(conf)
 
 	r.HandleFunc("/resources", api.GetAllResources).Methods("GET")                                        //
-	r.HandleFunc("/resource/{resourceID}/version/{versionID}", api.GetResourceByVersionID).Methods("GET") //
+	r.HandleFunc("/resource/{resourceID}/versions", api.GetResourceVersions).Methods("GET")				  //
 	r.HandleFunc("/categories", api.GetAllCategorieswithTags).Methods("GET")                              //
 	r.HandleFunc("/resource/{resourceID}/rating", api.GetResourceRating).Methods("GET")                   //
 	r.HandleFunc("/resource/{resourceID}/rating", api.UpdateResourceRating).Methods("PUT")                //

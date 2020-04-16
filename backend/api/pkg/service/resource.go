@@ -34,11 +34,6 @@ type ResourceVersionDetail struct {
 	URL         string `json:"url"`
 }
 
-type ResourceVersion struct {
-	ResourceID int
-	VersionID  int
-}
-
 type Catalog struct {
 	ID   uint   `json:"id"`
 	Type string `json:"type"`
@@ -51,7 +46,7 @@ type Version struct {
 
 type Tag struct {
 	ID  uint   `json:"id"`
-	Tag string `json:"tag"`
+	Tag string `json:"name"`
 }
 
 type Filter struct {
@@ -88,9 +83,11 @@ func (d *ResourceDetail) Init(r *model.Resource) {
 func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 
 	var all []*model.Resource
-	r.db.Order("rating desc, name").Limit(filter.Limit).
+	if err := r.db.Order("rating desc, name").Limit(filter.Limit).
 		Preload("Catalog").Preload("Versions").Preload("Tags").
-		Find(&all)
+		Find(&all).Error; err != nil {
+		return []ResourceDetail{}, errors.New("Failed to fetch Resources")
+	}
 
 	ret := make([]ResourceDetail, len(all))
 	for i, r := range all {
@@ -106,15 +103,18 @@ func (d *ResourceVersionDetail) Init(r *model.ResourceVersion) {
 	d.URL = r.URL
 }
 
-// ByVersionID Get resource by version Id
-func (r *Resource) ByVersionID(rv ResourceVersion) (ResourceVersionDetail, error) {
+// AllVersions Get all versions of a Resource
+func (r *Resource) AllVersions(resourceID uint) ([]ResourceVersionDetail, error) {
 
-	resource := &model.ResourceVersion{}
-	if r.db.First(&resource, rv.VersionID).RecordNotFound() {
-		return ResourceVersionDetail{}, errors.New("Record not found")
+	var all []*model.ResourceVersion
+	if err := r.db.Where("resource_id = ?", resourceID).Find(&all).Error; err != nil {
+		return []ResourceVersionDetail{}, errors.New("Failed to fetch Resources")
 	}
-	var versionDetail ResourceVersionDetail
-	versionDetail.Init(resource)
 
-	return versionDetail, nil
+	ret := make([]ResourceVersionDetail, len(all))
+	for i, r := range all {
+		ret[i].Init(r)
+	}
+
+	return ret, nil
 }

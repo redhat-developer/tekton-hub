@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/jinzhu/gorm"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/db/model"
 	"go.uber.org/zap"
@@ -34,7 +36,9 @@ func (d *CategoryDetail) Init(c *model.Category) {
 func (c *Category) All() ([]CategoryDetail, error) {
 
 	var all []*model.Category
-	c.db.Preload("Tags").Find(&all)
+	if err := c.db.Preload("Tags").Find(&all).Error; err != nil {
+		return []CategoryDetail{}, errors.New("Failed to fetch categories")
+	}
 
 	ret := make([]CategoryDetail, len(all))
 	for i, r := range all {
