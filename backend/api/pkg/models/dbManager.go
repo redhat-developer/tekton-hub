@@ -13,6 +13,13 @@ func CreateAndInitialiseTables(db *gorm.DB) error {
 	gormigrateObj := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		// Add Migration Here
 		// If writing a migration for a new table then add the same in InitSchema
+		{
+			ID: "202004172213",
+			Migrate: func(db *gorm.DB) error {
+				updateDbData(db)
+				return nil
+			},
+		},
 	})
 
 	gormigrateObj.InitSchema(func(db *gorm.DB) error {

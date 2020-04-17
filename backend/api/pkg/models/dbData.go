@@ -2,24 +2,36 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-func initialiseTables(GDB *gorm.DB) {
+func initialiseTables(db *gorm.DB) {
 	for _, resource := range initResource {
-		GDB.Create(&resource)
+		db.Create(&resource)
 	}
 	for _, category := range initCategories {
-		GDB.Create(&category)
+		db.Create(&category)
 	}
 	for _, tag := range initTags {
-		GDB.Create(&tag)
+		db.Create(&tag)
 	}
 	for _, resourceTags := range initResourceTag {
-		GDB.Create(&resourceTags)
+		db.Create(&resourceTags)
 	}
 	for _, githubDetail := range initGithubDetail {
-		GDB.Create(&githubDetail)
+		db.Create(&githubDetail)
 	}
 	for _, resourceRawPath := range initResourceRawPath {
-		GDB.Create(&resourceRawPath)
+		db.Create(&resourceRawPath)
+	}
+	for _, resource := range initResource2 {
+		db.Create(&resource)
+	}
+	for _, githubDetail := range initGithubDetail2 {
+		db.Create(&githubDetail)
+	}
+	for _, resourceRawPath := range initResourceRawPath2 {
+		db.Create(&resourceRawPath)
+	}
+	for _, resourceTags := range initResourceTag2 {
+		db.Create(&resourceTags)
 	}
 }
 
@@ -499,4 +511,215 @@ var initResourceRawPath = []ResourceRawPath{
 	{141, "https://raw.githubusercontent.com/tektoncd/catalog/master/s2i/s2i.yaml", "task"},
 	{142, "https://raw.githubusercontent.com/tektoncd/catalog/master/terraform-cli/terraform-cli-task.yaml", "task"},
 	{143, "https://raw.githubusercontent.com/tektoncd/catalog/master/tkn/tkn.yaml", "task"},
+}
+
+func updateDbData(db *gorm.DB) {
+	for _, resource := range initResource2 {
+		db.Create(&resource)
+	}
+	for _, githubDetail := range initGithubDetail2 {
+		db.Create(&githubDetail)
+	}
+	for _, resourceRawPath := range initResourceRawPath2 {
+		db.Create(&resourceRawPath)
+	}
+	for _, resourceTags := range initResourceTag2 {
+		db.Create(&resourceTags)
+	}
+}
+
+var initResourceTag2 = []ResourceTag{
+	ResourceTag{
+		ResourceID: 148,
+		TagID:      106,
+	},
+	ResourceTag{
+		ResourceID: 149,
+		TagID:      106,
+	},
+	ResourceTag{
+		ResourceID: 150,
+		TagID:      106,
+	},
+	ResourceTag{
+		ResourceID: 151,
+		TagID:      106,
+	},
+	ResourceTag{
+		ResourceID: 152,
+		TagID:      108,
+	},
+	ResourceTag{
+		ResourceID: 155,
+		TagID:      109,
+	},
+	ResourceTag{
+		ResourceID: 156,
+		TagID:      109,
+	},
+}
+
+var initResource2 = []Resource{
+	Resource{
+		ID:          144,
+		Name:        "git-clone",
+		Type:        "task",
+		Description: "These Tasks are Git tasks to work with repositories used by other tasks in your Pipeline.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          145,
+		Name:        "github-add-comment",
+		Type:        "task",
+		Description: "This Task will add a comment to a pull request or an issue.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          146,
+		Name:        "github-close-issue",
+		Type:        "task",
+		Description: "This Task will close a pull request or an issue.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          147,
+		Name:        "github-set-status",
+		Type:        "task",
+		Description: "This task will set the CI as running and add a link to the openshift console viewer url.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          148,
+		Name:        "gcs-create-bucket",
+		Type:        "task",
+		Description: "These Tasks are for copying to and from GCS buckets from Pipelines.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          149,
+		Name:        "gcs-delete-bucket",
+		Type:        "task",
+		Description: "These Tasks are for copying to and from GCS buckets from Pipelines.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          150,
+		Name:        "gcs-upload",
+		Type:        "task",
+		Description: "These Tasks are for copying to and from GCS buckets from Pipelines.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          151,
+		Name:        "gcs-download",
+		Type:        "task",
+		Description: "These Tasks are for copying to and from GCS buckets from Pipelines.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          152,
+		Name:        "jib-gradle",
+		Type:        "task",
+		Description: "This Task builds Java/Kotlin/Groovy/Scala source into a container image using Google's Jib tool.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          153,
+		Name:        "sendmail",
+		Type:        "task",
+		Description: "This task sends a simple email to receivers via SMTP server.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          154,
+		Name:        "pull-request",
+		Type:        "task",
+		Description: "This Task allows a user to interact with an SCM (source control management) system through an abstracted interface.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          155,
+		Name:        "send-to-channel-slack",
+		Type:        "task",
+		Description: "These tasks post a simple message to a slack channel. ",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+	Resource{
+		ID:          156,
+		Name:        "send-to-webhook-slack",
+		Type:        "task",
+		Description: "This task uses Incomming Webhooks of the slack to send the message.",
+		Rating:      0,
+		Github:      "http://github.com/tektoncd/catalog",
+		Tags:        []string{},
+		Verified:    false,
+	},
+}
+
+var initGithubDetail2 = []GithubDetail{
+	{144, "tektoncd", "catalog", "git/git-clone.yaml", "git/README.md"},
+	{145, "tektoncd", "catalog", "github/add_comment.yaml", "github/README.md"},
+	{146, "tektoncd", "catalog", "github/close_issue.yaml", "github/README.md"},
+	{147, "tektoncd", "catalog", "github/set_status.yaml", "github/README.md"},
+	{148, "tektoncd", "catalog", "gcs/gcs-create-bucket.yaml", "gcs/README.md"},
+	{149, "tektoncd", "catalog", "gcs/gcs-delete-bucket.yaml", "gcs/README.md"},
+	{150, "tektoncd", "catalog", "gcs/gcs-upload.yaml", "gcs/README.md"},
+	{151, "tektoncd", "catalog", "gcs/gcs-download.yaml", "gcs/README.md"},
+	{152, "tektoncd", "catalog", "jib-gradle/jib-gradle.yaml", "jib-gradle/README.md"},
+	{153, "tektoncd", "catalog", "mail/sendmail.yaml", "mail/README.md"},
+	{154, "tektoncd", "catalog", "pullrequest/pr.yaml", "pullrequest/README.md"},
+	{155, "tektoncd", "catalog", "slackmessage/send-to-channel-slack.yaml", "slackmessage/README.md"},
+	{156, "tektoncd", "catalog", "slackmessage/send-to-webhook-slack.yaml", "slackmessage/README.md"},
+}
+
+var initResourceRawPath2 = []ResourceRawPath{
+	{144, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/git/git-clone.yaml", "task"},
+	{145, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/github/add_comment.yaml", "task"},
+	{146, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/github/close_issue.yaml", "task"},
+	{147, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/github/set_status.yaml", "task"},
+	{148, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/gcs/gcs-create-bucket.yaml", "task"},
+	{149, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/gcs/gcs-delete-bucket.yaml", "task"},
+	{150, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/gcs/gcs-upload.yaml", "task"},
+	{151, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/gcs/gcs-download.yaml", "task"},
+	{152, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/jib-gradle/jib-gradle.yaml", "task"},
+	{153, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/mail/sendmail.yaml", "task"},
+	{154, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/pullrequest/pr.yaml", "task"},
+	{155, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/slackmessage/send-to-channel-slack.yaml", "task"},
+	{156, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/slackmessage/send-to-webhook-slack.yaml", "task"},
 }
