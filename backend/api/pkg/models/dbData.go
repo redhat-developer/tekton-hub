@@ -21,18 +21,8 @@ func initialiseTables(db *gorm.DB) {
 	for _, resourceRawPath := range initResourceRawPath {
 		db.Create(&resourceRawPath)
 	}
-	for _, resource := range initResource2 {
-		db.Create(&resource)
-	}
-	for _, githubDetail := range initGithubDetail2 {
-		db.Create(&githubDetail)
-	}
-	for _, resourceRawPath := range initResourceRawPath2 {
-		db.Create(&resourceRawPath)
-	}
-	for _, resourceTags := range initResourceTag2 {
-		db.Create(&resourceTags)
-	}
+	// Add New data to Existing DB
+	updateDbData(db)
 }
 
 var initResourceTag = []ResourceTag{
@@ -513,22 +503,23 @@ var initResourceRawPath = []ResourceRawPath{
 	{143, "https://raw.githubusercontent.com/tektoncd/catalog/master/tkn/tkn.yaml", "task"},
 }
 
+// Update Db Data with the latest of Catalog
 func updateDbData(db *gorm.DB) {
-	for _, resource := range initResource2 {
+	for _, resource := range updateResource {
 		db.Create(&resource)
 	}
-	for _, githubDetail := range initGithubDetail2 {
+	for _, githubDetail := range updateGithubDetail {
 		db.Create(&githubDetail)
 	}
-	for _, resourceRawPath := range initResourceRawPath2 {
+	for _, resourceRawPath := range updateResourceRawPath {
 		db.Create(&resourceRawPath)
 	}
-	for _, resourceTags := range initResourceTag2 {
+	for _, resourceTags := range updateResourceTag {
 		db.Create(&resourceTags)
 	}
 }
 
-var initResourceTag2 = []ResourceTag{
+var updateResourceTag = []ResourceTag{
 	ResourceTag{
 		ResourceID: 148,
 		TagID:      106,
@@ -559,7 +550,7 @@ var initResourceTag2 = []ResourceTag{
 	},
 }
 
-var initResource2 = []Resource{
+var updateResource = []Resource{
 	Resource{
 		ID:          144,
 		Name:        "git-clone",
@@ -692,7 +683,7 @@ var initResource2 = []Resource{
 	},
 }
 
-var initGithubDetail2 = []GithubDetail{
+var updateGithubDetail = []GithubDetail{
 	{144, "tektoncd", "catalog", "git/git-clone.yaml", "git/README.md"},
 	{145, "tektoncd", "catalog", "github/add_comment.yaml", "github/README.md"},
 	{146, "tektoncd", "catalog", "github/close_issue.yaml", "github/README.md"},
@@ -708,7 +699,7 @@ var initGithubDetail2 = []GithubDetail{
 	{156, "tektoncd", "catalog", "slackmessage/send-to-webhook-slack.yaml", "slackmessage/README.md"},
 }
 
-var initResourceRawPath2 = []ResourceRawPath{
+var updateResourceRawPath = []ResourceRawPath{
 	{144, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/git/git-clone.yaml", "task"},
 	{145, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/github/add_comment.yaml", "task"},
 	{146, "https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/github/close_issue.yaml", "task"},
