@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: db-migration
-        image: quay.io/sm43/db-e1225b1694ead6003d83a432fd4e95f5:latest
+        image: github.com/redhat-developer/tekton-hub/backend/api/cmd/db
         env:
             - name: POSTGRESQL_HOST
               value: db
@@ -32,20 +32,5 @@ spec:
                 secretKeyRef:
                   name: db
                   key: POSTGRESQL_PASSWORD
-            - name: GITHUB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: GITHUB_TOKEN
-            - name: CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: CLIENT_ID
-            - name: CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: CLIENT_SECRET
       restartPolicy: Never
   backoffLimit: 3
