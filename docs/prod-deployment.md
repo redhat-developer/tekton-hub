@@ -162,12 +162,12 @@ Run the below command to create migration image.
 Use git tag created in the Step 1 and replace it with <git-tag> to tag the image in the below command. eg. `-t v0.3`.
 
 ```
-ko resolve -f config/db-migration -t <git-tag>
+ko resolve -f config/db-migration -t <git-tag> > db-migration.yaml
 ```
 
 The Database migration should be ran only once. So, we will run a kubernetes job.
 
-Edit the `config/db-migration/14-db-migration.yaml` and update the image name to look like as below. Remove the `sha` from image name.
+Edit the `db-migration.yaml` and update the image name to look like as below. Remove the `sha` from image name.
 
 ```
 ...
@@ -181,7 +181,7 @@ Edit the `config/db-migration/14-db-migration.yaml` and update the image name to
 Apply the migration job yaml.
 
 ```
-oc apply -f config/db-migration/14-db-migration.yaml
+oc apply -f db-migration.yaml
 ```
 
 Check the logs using ` oc logs job/db-migration `.
