@@ -4,12 +4,13 @@ import { API_URL } from '../../../constants';
 // eslint-disable-next-line require-jsdoc
 export function fetchResourceList() {
     return function (dispatch: any) {
-        fetch(`https://api-tekton-hub.apps.cluster-blr-65f3.blr-65f3.example.opentlc.com/resources?limit=20`)
+        fetch(`https://api-tekton-hub.apps.cluster-blr-8fcf.blr-8fcf.example.opentlc.com/resources`)
             .then((response) => response.json())
-            .then((TaskData) => dispatch({
-                type: FETCH_RESOURCE_LIST,
-                payload: TaskData,
-            }));
+            .then((TaskData) =>
+                dispatch({
+                    type: FETCH_RESOURCE_LIST,
+                    payload: TaskData.data,
+                }));
     };
 }
 

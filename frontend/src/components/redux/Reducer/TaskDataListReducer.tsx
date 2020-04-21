@@ -1,4 +1,4 @@
-import {FETCH_TASK_LIST} from '../Actions/TaskActionType';
+import { FETCH_TASK_LIST } from '../Actions/TaskActionType';
 const reducer = (state = [], action: any) => {
   switch (action.type) {
     case FETCH_TASK_LIST:

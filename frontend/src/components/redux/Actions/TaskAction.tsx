@@ -1,18 +1,20 @@
-import {FETCH_TASK_SUCCESS} from '../Actions/TaskActionType';
-import {API_URL} from '../../../constants';
+import { FETCH_TASK_SUCCESS } from '../Actions/TaskActionType';
+import { API_URL } from '../../../constants';
 
 // eslint-disable-next-line require-jsdoc
 export function fetchTaskSuccess() {
-  return function(dispatch: any) {
-    fetch(`${API_URL}/resources`)
-        .then((response) => response.json())
-        .then((TaskData) => dispatch({
+  return function (dispatch: any) {
+    fetch(`https://api-tekton-hub.apps.cluster-blr-8fcf.blr-8fcf.example.opentlc.com/resources?limit=5`)
+      .then((response) => response.json())
+      .then((TaskData) => {
+        dispatch({
           type: FETCH_TASK_SUCCESS,
-          payload: TaskData.sort((first: any, second: any) =>
-          first.name > second.name ? 1 : -1),
-        }));
+          payload: TaskData.data.sort((first: any, second: any) =>
+            first.name > second.name ? 1 : -1),
+        })
+      });
   };
 }
 
 export default fetchTaskSuccess
-;
+  ;

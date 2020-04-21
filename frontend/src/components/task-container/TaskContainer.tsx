@@ -1,5 +1,5 @@
 import React from 'react';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import {
   Gallery,
   EmptyState,
@@ -9,10 +9,9 @@ import {
 }
   from '@patternfly/react-core';
 import Task from '../task/Task';
-import {fetchTaskSuccess} from '../redux/Actions/TaskAction';
-import {fetchTaskName} from '../redux/Actions/TaskActionName';
+import { fetchTaskSuccess } from '../redux/Actions/TaskAction';
 import './index.css';
-import {CubesIcon} from '@patternfly/react-icons';
+import { CubesIcon } from '@patternfly/react-icons';
 import Loader from '../loader/loader';
 export interface TaskPropData {
   name: string,
@@ -26,7 +25,7 @@ export interface TaskPropData {
 const TaskContainer: React.FC = (props: any) => {
   let tempArr: any;
   React.useEffect(() => {
-    props.fetchTaskSuccess();
+    fetchTaskSuccess();
     // eslint-disable-next-line
   }, []);
   if (props.TaskData === undefined) {
@@ -56,10 +55,11 @@ const TaskContainer: React.FC = (props: any) => {
       </div>
     );
   }
+
   return (
     <div className="block">
 
-      <Gallery gutter="lg" style={{marginRight: '-2.85em'}}>
+      <Gallery gutter="lg" style={{ marginRight: '-2.85em' }}>
 
         {
           tempArr.map((task: any) => <Task key={task.id} task={task} />)
@@ -72,8 +72,6 @@ const TaskContainer: React.FC = (props: any) => {
 };
 const mapStateToProps = (state: any) => ({
   TaskData: state.TaskData.TaskData,
-  TaskName: state.TaskName.TaskName,
-
 });
 export default
-connect(mapStateToProps, {fetchTaskSuccess, fetchTaskName})(TaskContainer);
+  connect(mapStateToProps, fetchTaskSuccess)(TaskContainer);
