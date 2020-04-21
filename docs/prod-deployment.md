@@ -15,11 +15,12 @@
 
 ### Step 1: Create a git tag
 
-Create a new git tag and use the same tag to tag the images. You can see the previous tag [here](https://github.com/redhat-developer/tekton-hub/releases).
+Create a new git tag and use the same tag to tag the images. You can see the
+previous tag [here](https://github.com/redhat-developer/tekton-hub/releases).
 
 Checkout the latest code and create a new tag.
 ```
-git tag <tag-name>
+git tag -as <tag-name>
 ```
 And push it to upstream/master.
 ```
@@ -42,7 +43,8 @@ export KO_DOCKER_REPO=quay.io/tekton-hub
 
 `ko` resolve and apply the `api.yaml`
 
-Use git tag created in the Step 1 and replace it with `<git-tag>` to tag the image in the below command. eg. `-t v0.3`.
+Use git tag created in the Step 1 and replace it with `<git-tag>` to tag the
+image in the below command. eg. `-t v0.3`.
 
 Make sure you are logged in to the quay.io/tekton-hub.
 
@@ -50,11 +52,13 @@ Make sure you are logged in to the quay.io/tekton-hub.
 ko resolve -t <git-tag> -f config/ > api.yaml
 ```
 
-The command above will create a container image and push it to the `quay.io/tekton-hub`.
+The command above will create a container image and push it to the
+`quay.io/tekton-hub`.
 
 #### Update the GitHub Api secret, token and Image name
 
-Edit `api.yaml` and update the secret - `api`. Set GitHub `oauth` client id and secret, access token.
+Edit `api.yaml` and update the secret - `api`. Set GitHub `oauth` client id and
+secret, access token.
 
 ```
 apiVersion: v1
@@ -84,7 +88,8 @@ stringData:
   POSTGRESQL_PORT: "5432"
 ```
 
-Update the image name in `api.yaml` to look like as below. Remove the sha from image name.
+Update the image name in `api.yaml` to look like as below. Remove the sha from
+image name.
 
 ```
 spec:
@@ -124,7 +129,8 @@ db-748f56cb8c-rwqjc    1/1     Running   1          72s
    db-pod-name
 ```
 
-Create database `tekton_hub` by rsh into the db pod. You can get the pod name from above command or use `oc get pod -l app=db`
+Create database `tekton_hub` by rsh into the db pod. You can get the pod name
+from above command or use `oc get pod -l app=db`
 ```
 oc rsh <db-pod-name>
 ```
@@ -149,7 +155,9 @@ api-6675fbf9f5-fft4h   0/1     Running   3          72s
 db-748f56cb8c-rwqjc    1/1     Running   1          72s
 
 ```
-If the api pod is still not in running state, try deleting the pod, new pod will be created.
+If the api pod is still not in running state, try deleting the pod, new pod
+will be created.
+
 ```
 oc delete pod <api-pod-name>
 ```
@@ -165,9 +173,11 @@ Use git tag created in the Step 1 and replace it with <git-tag> to tag the image
 ko resolve -f config/db-migration -t <git-tag>
 ```
 
-The Database migration should be ran only once. So, we will run a kubernetes job.
+The Database migration should be ran only once. So, we will run a kubernetes
+job.
 
-Edit the `config/db-migration/14-db-migration.yaml` and update the image name to look like as below. Remove the `sha` from image name.
+Edit the `config/db-migration/14-db-migration.yaml` and update the image name
+to look like as below. Remove the `sha` from image name.
 
 ```
 ...
@@ -214,11 +224,13 @@ export KO_DOCKER_REPO=quay.io/tekton-hub
 ```
 `ko` resolve and apply the `validation.yaml`.
 
-Use git tag created in Step 1 and replace it with `<git-tag>` to tag the image in below command. eg. `-t v0.3`
+Use git tag created in Step 1 and replace it with `<git-tag>` to tag the image
+in below command. eg. `-t v0.3`
 ```
 ko resolve -t <git-tag> -f config/ > validation.yaml
 ```
-Update the image name in validation.yaml to look like as below. Remove the `sha` from image name.
+Update the image name in validation.yaml to look like as below. Remove the
+`sha` from image name.
 
 
 ```
@@ -247,11 +259,13 @@ cd frontend
 
 #### Build and Publish Image
 
-Use image name as `ui` and git tag from Step 1 and replace it with `<git-tag>` for tagging the image in below command. eg. `ui:v03`
+Use image name as `ui` and git tag from Step 1 and replace it with `<git-tag>`
+for tagging the image in below command. eg. `ui:v03`
 
 Make sure you are logged in to the quay.io/tekton-hub.
 ```
-docker build -t quay.io/tekton-hub/ui:<git-tag> . && docker push quay.io/tekton-hub/ui:<git-tag>
+docker build -t quay.io/tekton-hub/ui:<git-tag> . &&
+  docker push quay.io/tekton-hub/ui:<git-tag>
 ```
 #### Update the deployment image
 
@@ -266,9 +280,11 @@ Update `config/11-deployement` to use the image built above.
 
 #### Update the GitHub OAuth Client ID
 
-Edit `config/10-config.yaml` and set your GitHub OAuth Client ID and Api Service Route as `API_URL`.
+Edit `config/10-config.yaml` and set your GitHub OAuth Client ID and Api
+Service Route as `API_URL`.
 
-You can use `oc get routes api --template='https://{{ .spec.host }}'` to get the Api service route.
+You can use `oc get routes api --template='https://{{ .spec.host }}'` to get
+the Api service route.
 
 ```
 apiVersion: v1
