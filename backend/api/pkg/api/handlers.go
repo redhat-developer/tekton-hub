@@ -230,7 +230,7 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 
 	userID, userErr := api.service.User().VerifyJWT(token)
 	if userErr != nil {
-		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: "invalid-header", Detail: userErr.Error()})
+		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: "invalid-token", Detail: userErr.Error()})
 		return
 	}
 
@@ -248,17 +248,18 @@ func (api *Api) UpdateResourceRating(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if retErr := api.service.Rating().UpdateResourceRating(ratingRequestBody); retErr != nil {
+	avgRating, retErr := api.service.Rating().UpdateResourceRating(ratingRequestBody)
+	if retErr != nil {
 		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: "db-error", Detail: retErr.Error()})
 		return
 	}
 
 	type emptyList []interface{}
 	res := struct {
-		Data   emptyList       `json:"data"`
-		Errors []ResponseError `json:"errors"`
+		Data   service.ResourceAverageRating `json:"data"`
+		Errors []ResponseError               `json:"errors"`
 	}{
-		Data:   emptyList{},
+		Data:   avgRating,
 		Errors: []ResponseError{},
 	}
 

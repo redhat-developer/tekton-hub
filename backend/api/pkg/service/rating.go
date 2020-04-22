@@ -30,6 +30,10 @@ type RatingDetails struct {
 	ResourceRating uint `json:"rating"`
 }
 
+type ResourceAverageRating struct {
+	Rating float64 `json:"avg_rating"`
+}
+
 // GetResourceRating returns user's rating of a resource
 func (r *Rating) GetResourceRating(ur UserResource) (RatingDetails, error) {
 
@@ -46,7 +50,7 @@ func (r *Rating) GetResourceRating(ur UserResource) (RatingDetails, error) {
 }
 
 // UpdateResourceRating update user's rating of a resource and resource's average rating
-func (r *Rating) UpdateResourceRating(rd UpdateRatingDetails) error {
+func (r *Rating) UpdateResourceRating(rd UpdateRatingDetails) (ResourceAverageRating, error) {
 
 	if err := r.db.Where("user_id = ? AND resource_id = ?", rd.UserID, rd.ResourceID).
 		Assign(&model.UserResourceRating{Rating: rd.ResourceRating}).
@@ -55,19 +59,20 @@ func (r *Rating) UpdateResourceRating(rd UpdateRatingDetails) error {
 			ResourceID: rd.ResourceID,
 			Rating:     rd.ResourceRating,
 		}).Error; err != nil {
-		return errors.New("Failed to update user's rating")
+		return ResourceAverageRating{}, errors.New("Failed to update user's rating")
 	}
 
+	//TODO: Add goroutine to update resource's average rating
 	var avg float64
-	if err := r.db.Model(&model.UserResourceRating{}).Where("resource_id = ?", rd.ResourceID).
-		Select("avg(rating)").Row().Scan(&avg).Error; err != nil {
-		return errors.New("Failed to calculate resource's avg rating")
-	}
+	r.db.Model(&model.UserResourceRating{}).Where("resource_id = ?", rd.ResourceID).
+		Select("avg(rating)").Row().Scan(&avg)
+
+	avg = math.Round(avg*10) / 10
 
 	if err := r.db.Model(&model.Resource{}).Where("id = ?", rd.ResourceID).
-		Update("rating", math.Round(avg*10)/10).Error; err != nil {
-		return errors.New("Failed to update resource's avg rating")
+		Update("rating", avg).Error; err != nil {
+		return ResourceAverageRating{}, errors.New("Failed to update resource's avg rating")
 	}
 
-	return nil
+	return ResourceAverageRating{Rating: avg}, nil
 }
