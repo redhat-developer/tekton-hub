@@ -190,7 +190,7 @@ func (api *Api) GetResourceRating(w http.ResponseWriter, r *http.Request) {
 
 	userID, userErr := api.service.User().VerifyJWT(token)
 	if userErr != nil {
-		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: "invalid-header", Detail: userErr.Error()})
+		invalidRequest(w, http.StatusUnauthorized, &ResponseError{Code: "invalid-token", Detail: userErr.Error()})
 		return
 	}
 
