@@ -10,7 +10,8 @@ window.config = window.config || {
 };
 
 export const ENTER_KEY = 13;
-export const API_URL = window.config.API_URL;
+export const API_URL =
+  'https://api-tekton-hub.apps.cluster-blr-8fcf.blr-8fcf.example.opentlc.com';
 export const GH_CLIENT_ID = window.config.GH_CLIENT_ID;
 
 console.debug(`Using config: ${API_URL} | config:`, window.config);

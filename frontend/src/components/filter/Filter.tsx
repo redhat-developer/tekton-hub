@@ -8,6 +8,7 @@ import React,
 import {
   Checkbox,
   Tooltip,
+  Button,
 } from '@patternfly/react-core/dist/js/components';
 import {fetchTaskList} from '../redux/Actions/TaskDataListAction';
 import {fetchResourceList} from '../redux/Actions/ResourcesList';
@@ -26,23 +27,23 @@ const tempObj: any = {};
 const Filter: React.FC = (props: any) => {
   const [categoriesList, setCategoriesList] = useState();
   const [status, setStatus] = useState({checklist: []});
-  // const [clear, setClear] = useState(' ');
+  const [clear, setClear] = useState(' ');
   const filterItem: any = [{id: '1000', value: 'task', isChecked: false},
-    {id: '1001', value: 'pipeline', isChecked: false},
-    {id: '1002', value: 'official', isChecked: false},
-    {id: '1003', value: 'verified', isChecked: false},
-    {id: '1004', value: 'community', isChecked: false}];
+  {id: '1001', value: 'pipeline', isChecked: false},
+  {id: '1002', value: 'Official', isChecked: false},
+  {id: '1003', value: 'Verified', isChecked: false},
+  {id: '1004', value: 'Community', isChecked: false}];
   const [checkBoxStatus, setCheckBoxStatus] = useState(
-      {},
+    {},
   );
   //  function for adding categories to filteritem
   const addCategory = (categoryData: any) => {
     categoryData.map((categoryName: string, index: number) =>
       filterItem.push(
-          {
-            id: `${categoryName['id']}`,
-            value: categoryName['name'], isChecked: false,
-          },
+        {
+          id: `${categoryName['id']}`,
+          value: categoryName['name'], isChecked: false,
+        },
       ));
     setStatus({checklist: filterItem});
     return categoryData;
@@ -50,10 +51,10 @@ const Filter: React.FC = (props: any) => {
   useEffect(() => {
     fetchResourceList();
     fetchTaskList();
-    fetch(`https://api-tekton-hub.apps.cluster-blr-8fcf.blr-8fcf.example.opentlc.com/categories`)
-        .then((res) => res.json())
-        .then((categoryData) =>
-          setCategoriesList(addCategory(categoryData.data)));
+    fetch(`${API_URL}/categories`)
+      .then((res) => res.json())
+      .then((categoryData) =>
+        setCategoriesList(addCategory(categoryData.data)));
     if (categoriesList) {
       (Object.keys(categoriesList)).map((category) => {
         return tempObj.category = false;
@@ -63,30 +64,6 @@ const Filter: React.FC = (props: any) => {
 
     // eslint-disable-next-line
   }, []);
-  // console.log("categoriesList", categoriesList)
-  // console.log("checklist", status.checklist)
-
-  // fetch api function
-  const fetchApi = (typeurl: string, verifiedurl: string, categoryurl: any) => {
-    fetch(`${API_URL}/resources/${typeurl}/${verifiedurl}?tags=${categoryurl} `)
-        .then((resp) => resp.json())
-        .then((data) => {
-          const taskarr = data.sort((a: any, b: any) =>
-          a.name > b.name ? 1 : -1);
-          store.dispatch(
-              {
-                type: FETCH_TASK_SUCCESS,
-                payload: taskarr,
-              },
-          );
-          store.dispatch(
-              {
-                type: FETCH_TASK_LIST,
-                payload: taskarr,
-              },
-          );
-        });
-  };
   // / function for showing types
   let typeIcon: any;
   const addIcon = (it: any, idx: number) => {
@@ -114,17 +91,11 @@ const Filter: React.FC = (props: any) => {
 
   // formation of filter url  for calling filterAPi to
   //  fetching task and pipelines
-
   const filterApi = (event: any) => {
-    // console.log("filterstatus", event.target.checked)
-    // console.log("names", event.target.value)
-    // console.log(status.checklist)
-    // console.log("categoriesList", categoriesList)
-
     const tagsList: any = [];
     // const filterdataList: any = [];
     // const filterResourceList: any = [];
-
+    const filteredDataList = new Set();
     const resourcetypeList: any = [];
     const resourceVerificationList: any = [];
     const target = event.target;
@@ -136,7 +107,6 @@ const Filter: React.FC = (props: any) => {
       }
     },
     );
-
     status.checklist.slice(0, 2).forEach((item: any) => {
       if (item.isChecked === true) {
         resourcetypeList.push(item.value);
@@ -147,54 +117,100 @@ const Filter: React.FC = (props: any) => {
         resourceVerificationList.push(item.value);
       }
     });
-
-
     status.checklist.slice(5).forEach((item: any) => {
       if (item.isChecked === true) {
-        categoriesList.map((categorytagList: any) => {
+        var data = categoriesList.map((categorytagList: any) => {
           if (categorytagList.name === item.value) {
             categorytagList.tags.forEach((tags: any) =>
               tagsList.push(tags.name));
           }
+          return data
         });
       }
     });
-    // console.log("taglist", tagsList)
-    // console.log("props", props.ResourceList)
-    // console.log("type", resourcetypeList)
-    // console.log("verfied", resourceVerificationList)
+    tagsList.forEach((tagname: any) => {
+      props.ResourceList.forEach((resourceItem: any) => {
+        resourceItem.tags.forEach((item: any) => {
+          if (item.name === tagname) {
+            filteredDataList.add(resourceItem);
+            return;
+          }
+        });
+      });
+    });
+    let filterArray = Array.from(filteredDataList);
+    if (tagsList.length === 0) {
+      filterArray = props.ResourceList;
+    }
+    const tempv: any = [];
+    if (resourcetypeList.length > 0) {
+      resourcetypeList.forEach((resourceType: any) => {
+        filterArray.forEach((resourceItem: any) => {
+          if (resourceItem.type === resourceType) {
+            tempv.push(resourceItem);
+          }
+        },
 
-    // console.log("store-objects", store.getState())
-    //   return tempcategory;
-    // });
+        );
+      });
+      filterArray = tempv;
+    }
+    const tempx: any = [];
+    if (resourceVerificationList.length > 0) {
+      resourceVerificationList.forEach((resourceVerification: any) => {
+        filterArray.forEach((resourceItem: any) => {
+          if (resourceItem.catalog.type === resourceVerification) {
+            tempx.push(resourceItem);
+          }
+        });
+      });
+      filterArray = tempx;
+    }
+    store.dispatch(
+      {
+        type: FETCH_TASK_SUCCESS,
+        payload: filterArray,
+      });
+    store.dispatch(
+      {
+        type: FETCH_TASK_LIST,
+        payload: filterArray,
+      });
 
     // // for displaying clear filter options
-    // let flag: any = false;
-    // status.checklist.forEach((it: any) => {
-    //   if (it.isChecked === true) {
-    //     flag = true;
-    //   }
-    // });
-    // if (flag === true) {
-    //   setClear('Clear All');
-    // } else {
-    //   setClear(' ');
-    // }
-    // fetchApi(typeurl, verifiedurl, categoryurl);
+    let flag: any = false;
+    status.checklist.forEach((it: any) => {
+      if (it.isChecked === true) {
+        flag = true;
+      }
+    });
+    if (flag === true) {
+      setClear('Clear All');
+    } else {
+      setClear(' ');
+    }
   };
 
   //   function for clearing all checkbox
-  // const clearFilter = () => {
-  //   setCheckBoxStatus(
-  //     tempObj,
-  //   );
-  //   status.checklist.forEach((it: any) => {
-  //     it.isChecked = false;
-  //   });
-  //   // for bydefault fetchApi after clearAll checkbox
-  //   fetchApi('all', 'false', ' ');
-  //   setClear('');
-  // };
+  const clearFilter = () => {
+    setCheckBoxStatus(
+      tempObj,
+    );
+    status.checklist.forEach((it: any) => {
+      it.isChecked = false;
+    });
+    setClear('');
+    store.dispatch(
+      {
+        type: FETCH_TASK_SUCCESS,
+        payload: props.ResourceList,
+      });
+    store.dispatch(
+      {
+        type: FETCH_TASK_LIST,
+        payload: props.ResourceList,
+      });
+  };
 
   let resourceType: any;
   if (status !== undefined && checkBoxStatus !== undefined) {
@@ -228,7 +244,7 @@ const Filter: React.FC = (props: any) => {
           style={{width: '1.2em', height: '1.2em'}}
           label={it.value[0].toUpperCase() + it.value.slice(1)}
           value={it.value}
-          name="verified"
+          name="verification"
           id={it.id}
           aria-label="uncontrolled checkbox example"
 
@@ -252,7 +268,7 @@ const Filter: React.FC = (props: any) => {
             style={{width: '1.2em', height: '1.2em'}}
             label={it.value[0].toUpperCase() + it.value.slice(1)}
             value={it.value}
-            name="Tags"
+            name="tags"
             id={it.id}
             aria-label="uncontrolled checkbox example"
 
@@ -266,9 +282,9 @@ const Filter: React.FC = (props: any) => {
 
       <h2 style={{marginBottom: '1em'}}>
         {' '}
-        {/* <Button component='a' variant='link'
+        <Button component='a' variant='link'
           onClick={clearFilter}>
-          {clear} </Button> */}
+          {clear} </Button>
         {'  '}
 
       </h2>
@@ -295,8 +311,7 @@ const Filter: React.FC = (props: any) => {
 const mapStateToProps = (state: any) => ({
   ResourceList: state.ResourceList.ResourceList,
   TaskDataList: state.TaskDataList.TaskDataList,
-  TaskData: state.TaskData.TaskData,
 });
 export default
-connect(mapStateToProps, fetchResourceList, fetchTaskList)(Filter);
+  connect(mapStateToProps, fetchResourceList)(Filter);
 
