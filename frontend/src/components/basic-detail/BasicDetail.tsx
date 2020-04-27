@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   Card,
   Flex,
@@ -15,6 +15,9 @@ import {
   ClipboardCopyVariant,
   Modal,
   TextVariants,
+  DropdownItem,
+  DropdownToggle,
+  Dropdown,
 } from '@patternfly/react-core';
 import {
   GithubIcon,
@@ -22,34 +25,80 @@ import {
   DomainIcon,
 } from '@patternfly/react-icons';
 import '@patternfly/react-core/dist/styles/base.css';
-import Rating from '../rating/Rating';
-import {API_URL} from '../../constants';
-import {useParams} from 'react-router';
 import './basicdetail.css';
+import {fetchTaskDescription} from '../redux/Actions/TaskActionDescription';
+import {connect} from 'react-redux';
 export interface BasicDetailPropObject {
   id: any
   name: string;
   description: string;
   rating: number;
-  yaml: string;
-  github: string
+  latest_version: string,
   tags: []
   type: string
+  data: []
 }
 export interface BasicDetailProp {
   task: BasicDetailPropObject
 }
-const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
-  const {taskId} = useParams();
-  const taskArr: any = [];
-  const [resourcePath, setResourcePath] = useState();
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
+const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
+
+  React.useEffect(() => {
+    props.fetchTaskDescription(props.task.name, props.task.latest_version)
+    // eslint-disable-next-line
+  }, [])
+
+
+  const taskArr: any = [];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [descrption, setDescription] = useState(props.task.description);
+  const [versions, setVersion] = useState(props.task.latest_version + " (current) ");
+  const GITHUB_URL = 'https://raw.githubusercontent.com/Pipelines-Marketplace/catalog/master/official/tasks'
+  const [taskLink, setTaskLink] = useState(`kubectl apply -f ${GITHUB_URL}/${props.task.name}/v${props.task.latest_version}/${props.task.name}.yaml`)
+
+  var href = `https://github.com/Pipelines-Marketplace/catalog/tree/master/official/tasks/${props.task.name}`
+
+  // Dropdown menu to show versions
+  const [isOpen, set] = useState(false);
+  let dropdownItems: any = [];
+
+  if (props.task.data) {
+    dropdownItems = props.task.data.reverse().map((item: any, index: any) => {
+      return <DropdownItem key={`res-${item.version}`} id={item.version} onClick={version}>{item.version}</DropdownItem>
+    })
+  }
+
+  //Version for resource
+  function version(event: any) {
+    props.task.data.forEach((item: any) => {
+      if (event.target.text === props.task.latest_version) {
+        setVersion(props.task.latest_version + " (latest) ")
+      } else {
+        setVersion(event.target.text)
+      }
+
+      if (event.target.text === item.version) {
+        props.fetchTaskDescription(props.task.name, item.version)
+        setTaskLink(`kubectl apply -f ${GITHUB_URL}/${props.task.name}/v${item.version}/${props.task.name}.yaml`)
+        setDescription(item.description)
+      }
+    })
+  }
+
+  const ontoggle = (isOpen: React.SetStateAction<boolean>) => set(isOpen);
+  const onSelect = () => set(!isOpen);
+
+  //Get tags for resource
   if (props.task.tags != null) {
-    taskArr.push(props.task.tags);
+    props.task.tags.forEach((item: any) => {
+      taskArr.push(item.name)
+    })
+
   } else {
     taskArr.push([]);
   }
+
   // ading icon for details page
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
@@ -59,57 +108,22 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
     resourceIcon = <DomainIcon
       style={{height: '5em', width: '5em'}} color="#4848484" />;
   }
-  useEffect(() => {
-    fetch(`${API_URL}/resource/links/${taskId}`)
-        .then((resp) => resp.json())
-        .then((data) => setResourcePath(data));
-    // eslint-disable-next-line
-  }, []);
-  const ClipboardItem = (data: any) => {
-    return (
-      <React.Fragment>
-        <ClipboardCopy style={{marginBottom: '2em'}}
-          isReadOnly variant={ClipboardCopyVariant.expansion}>
-          {`kubectl apply -f ${data.taskitem}`}</ClipboardCopy>
-      </React.Fragment>
-    );
-  };
-  let taskLink: React.ReactNode;
-  let pipelineLink: React.ReactNode;
-  if (resourcePath !== undefined) {
-    // for  handling pipeline raw path
-    if (resourcePath['pipelines']) {
-      const pipelinePath = 'kubectl apply -f ' + resourcePath['pipelines'];
-      pipelineLink =
-        <React.Fragment>
-          <Text > <b>Pipeline</b> </Text>
-          <ClipboardCopy isReadOnly
-            variant={ClipboardCopyVariant.expansion}>
-            {`${pipelinePath}`}</ClipboardCopy>
-        </React.Fragment>;
-    }
-    //   for handling task raw path
-    if (resourcePath['tasks']) {
-      taskLink = <ul>
-        {
-          resourcePath['tasks'].map((item: any, idx: number) =>
-            <ClipboardItem taskitem={item} key={idx} />)
-        }
-      </ul>;
-    }
-  }
 
   return (
     <Flex>
+
       <Card style={{
         marginLeft: '-2em', marginRight: '-2em',
         marginTop: '-2em', width: '120%', paddingBottom: '2em',
       }}>
+
         <CardHead style={{paddingTop: '2em'}}>
           <div style={{height: '7em', paddingLeft: '10em', marginTop: '5em'}}>
             {resourceIcon}
           </div>
+
           <TextContent style={{paddingLeft: '4em', paddingTop: '2em'}}>
+
             <Text style={{fontSize: '2em'}}>
               {props.task.name.charAt(0).toUpperCase() +
                 props.task.name.slice(1)}
@@ -118,16 +132,19 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
             <Text style={{fontSize: '1em'}}>
               <GithubIcon size="md"
                 style={{marginRight: '0.5em', marginBottom: '-0.3em'}} />
-              <a href={props.task.github} target="_">Github</a>
+
+              <a href={href} target="_">Github</a>
             </Text>
 
             <Grid>
+
               <GridItem span={10} style={{paddingBottom: '1.5em'}}>
-                {props.task.description}
+                {descrption}
               </GridItem>
+
               <GridItem>
                 {
-                  taskArr[0].map((tag: any) => {
+                  taskArr.map((tag: any) => {
                     return (
                       <Badge
                         style={{
@@ -140,14 +157,29 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
                   })
                 }
               </GridItem>
+
             </Grid>
+
           </TextContent>
 
           <CardActions style={{marginRight: '3em', paddingTop: '2em'}}>
+
             <Flex breakpointMods={[{modifier: 'column', breakpoint: 'lg'}]}>
               <FlexItem>
-                <Rating />
+                {/* <Rating /> */}
               </FlexItem>
+
+              <FlexItem>
+
+                <Dropdown
+                  onSelect={onSelect}
+                  toggle={<DropdownToggle onToggle={ontoggle}>{versions}</DropdownToggle>}
+                  isOpen={isOpen}
+                  dropdownItems={dropdownItems}
+                />
+
+              </FlexItem>
+
               <FlexItem style={{marginLeft: '-3em'}}>
                 <React.Fragment>
                   {document.queryCommandSupported('copy')}
@@ -169,31 +201,48 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: BasicDetailProp) => {
                     <hr />
                     <div>
 
-
                       <TextContent>
                         <Text component={TextVariants.h2} className="modaltext">
                           Install on Kubernetes
                         </Text>
-                        {pipelineLink}
+                        {/* {pipelineLink} */}
                         <Text> Tasks </Text>
-                        {taskLink}
+
+                        <ClipboardCopy isReadOnly
+                          variant={ClipboardCopyVariant.expansion}>{taskLink}
+                        </ClipboardCopy>
+
                       </TextContent>
+
                       <br />
                     </div>
 
                   </Modal>
 
                 </React.Fragment>
+
               </FlexItem>
+
             </Flex>
+
           </CardActions>
+
         </CardHead>
+
       </Card>
-    </Flex>
+
+    </Flex >
   );
 };
 
+const mapStateToProps = (state: any) => {
+  return {
+    TaskDescription: state.TaskDescription.TaskDescription,
+  };
+};
 
-export default BasicDetail;
+export default
+  connect(mapStateToProps, {fetchTaskDescription})(BasicDetail);
+
 
 

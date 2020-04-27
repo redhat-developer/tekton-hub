@@ -16,7 +16,6 @@ import {
   CardFooter,
   CardBody,
   CardActions,
-  Label,
 } from '@patternfly/react-core';
 import {
   StarIcon,
@@ -65,7 +64,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
   return (
     <GalleryItem>
       <Link to={'/detail/' + props.task.id}>
-        <Card className="card" isHoverable style={{ marginBottom: '2em', borderRadius: '0.5em' }}>
+        <Card className="card" isHoverable style={{marginBottom: '2em', borderRadius: '0.5em'}}>
           {/* {verifiedStatus} */}
 
           <CardHead>
@@ -74,7 +73,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
             </div>
 
             <CardActions className="cardActions">
-              <StarIcon style={{ color: '#484848' }} />
+              <StarIcon style={{color: '#484848'}} />
               <TextContent className="text">{props.task.rating.toFixed(1)}</TextContent>
             </CardActions>
           </CardHead>

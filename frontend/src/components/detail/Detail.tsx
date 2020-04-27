@@ -14,22 +14,25 @@ const Detail: React.FC = (props: any) => {
   React.useEffect(() => {
     // this dispatch is to reset previous description in redux store
     store.dispatch({type: 'FETCH_TASK_DESCRIPTION', payload: ''});
-    props.fetchTaskDescription(taskId);
     props.fetchTaskName(taskId);
     // eslint-disable-next-line
   }, []);
+
+  let newLine = "\n"
   let taskDescription: string = '';
   let catalogTaskDescription: string = '';
   let yamlData: string = '';
-  if (props.TaskDescription && (props.TaskName.id).toString() === taskId) {
-    taskDescription = (props.TaskName['description']);
+
+  if (props.TaskDescription) {
+    taskDescription = (props.TaskName);
     catalogTaskDescription = props.TaskDescription;
-    yamlData = '```' + props.TaskYaml + '```';
+    yamlData = '```' + newLine + props.TaskYaml + '```';
+
     return (
       <div>
         <Flex breakpointMods={[{modifier: 'row', breakpoint: 'lg'},
-          {modifier: 'nowrap', breakpoint: 'lg'},
-          {modifier: 'column', breakpoint: 'sm'}]}>
+        {modifier: 'nowrap', breakpoint: 'lg'},
+        {modifier: 'column', breakpoint: 'sm'}]}>
           <FlexItem>
             <Description
               Description={catalogTaskDescription}
@@ -44,6 +47,7 @@ const Detail: React.FC = (props: any) => {
       <div />
     );
   }
+
 };
 
 const mapStateToProps = (state: any) => {
@@ -55,5 +59,5 @@ const mapStateToProps = (state: any) => {
 };
 
 export default
-connect(mapStateToProps, {fetchTaskDescription, fetchTaskName})(Detail);
+  connect(mapStateToProps, {fetchTaskDescription, fetchTaskName})(Detail);
 
