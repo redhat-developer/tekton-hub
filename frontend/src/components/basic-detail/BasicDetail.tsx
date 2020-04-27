@@ -28,6 +28,7 @@ import '@patternfly/react-core/dist/styles/base.css';
 import './basicdetail.css';
 import {fetchTaskDescription} from '../redux/Actions/TaskActionDescription';
 import {connect} from 'react-redux';
+import Rating from '../rating/Rating';
 export interface BasicDetailPropObject {
   id: any
   name: string;
@@ -166,18 +167,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
 
             <Flex breakpointMods={[{modifier: 'column', breakpoint: 'lg'}]}>
               <FlexItem>
-                {/* <Rating /> */}
-              </FlexItem>
-
-              <FlexItem>
-
-                <Dropdown
-                  onSelect={onSelect}
-                  toggle={<DropdownToggle onToggle={ontoggle}>{versions}</DropdownToggle>}
-                  isOpen={isOpen}
-                  dropdownItems={dropdownItems}
-                />
-
+                <Rating />
               </FlexItem>
 
               <FlexItem style={{marginLeft: '-3em'}}>
@@ -220,6 +210,17 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
                   </Modal>
 
                 </React.Fragment>
+
+              </FlexItem>
+
+              <FlexItem style={{marginLeft: '-2em', marginTop: "1"}}>
+
+                <Dropdown
+                  onSelect={onSelect}
+                  toggle={<DropdownToggle onToggle={ontoggle}>{versions}</DropdownToggle>}
+                  isOpen={isOpen}
+                  dropdownItems={dropdownItems}
+                />
 
               </FlexItem>
 
