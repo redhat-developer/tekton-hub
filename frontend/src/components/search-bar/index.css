@@ -1,20 +1,21 @@
-.filter{
+.filter {
     /* border-bottom: 0.2em solid blue; */
     background-color: white;
+
 }
 
-.filter-icon{
+.filter-icon {
     /* margin-top:"1em"; */
     margin-left: "0.4em";
     margin-right: 0.3em;
     border-bottom: 0.1em s black;
 }
 
-.search{
-    margin-left: 21em;
+.search {
     margin-top: 2em;
+    margin-left: 3em;
 }
 
-li:hover{
-    background-color:lightgray 
+li:hover {
+    background-color: lightgray
 }

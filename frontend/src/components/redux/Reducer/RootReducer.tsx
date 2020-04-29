@@ -5,6 +5,7 @@ import TaskReducerDescription from './TaskReducerDescription';
 import CheckAuthentication from './CheckAuthentication';
 import TaskDataListReducer from './TaskDataListReducer';
 import ResourceListReducer from './ResourceListReducer';
+import SearchTextReducer from './SearchTextReducer';
 
 export default combineReducers({
   TaskData: TaskReducer,
@@ -14,6 +15,7 @@ export default combineReducers({
   TaskDescription: TaskReducerDescription,
   TaskYaml: TaskReducerDescription,
   isAuthenticated: CheckAuthentication,
+  SearchedText: SearchTextReducer,
 });
 
 

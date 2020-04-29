@@ -16,17 +16,20 @@ import {
   CardFooter,
   CardBody,
   CardActions,
-  Label,
 } from '@patternfly/react-core';
 import {
   StarIcon,
   BuildIcon,
   DomainIcon,
+  CatIcon,
+  CertificateIcon,
+  UserIcon,
 } from '@patternfly/react-icons';
 export interface TaskPropObject {
   name: string;
   description: string;
   rating: number;
+  catalog: string;
   downloads: number;
   yaml: string;
   tags: [];
@@ -47,26 +50,42 @@ const Task: React.FC<TaskProp> = (props: any) => {
     tempArr.push([]);
   }
 
-  //  for verification status of resources
-  // let verifiedStatus: any;
-  // if (props.task.verified === true) {
-  //   verifiedStatus = <div className="vtask" >
-  //     <Label isCompact style={{ backgroundColor: '#B8AD8B', fontSize: '0.9em' }}>Verified</Label>
-  //   </div>;
+  // for verification status of resources
+  let verifiedStatus: any;
+  if (props.task) {
+    if (props.task.catalog.type === 'Official') {
+      verifiedStatus = <div className="vtask" >
+        <CatIcon size="md" color='#484848' />
+      </div>;
+    }
+    if (props.task.catalog.type === 'Verified') {
+      verifiedStatus = <div className="vtask" >
+        <CertificateIcon size="md" color='#484848' />
+      </div>;
+    }
+    if (props.task.catalog.type === 'Cummunity') {
+      verifiedStatus = <div className="vtask" >
+        <UserIcon size="md" color='#484848' />
+      </div>;
+    }
+  }
+
   // }
   // for adding icon to task and pipeline
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
-    resourceIcon = <BuildIcon size="xl" color="#484848" />;
+    resourceIcon = <BuildIcon
+      style={{ width: '2.5em', height: '2.5em' }} color="#484848" />;
   } else {
-    resourceIcon = <DomainIcon size="xl" color="#484848" />;
+    resourceIcon = <DomainIcon
+      style={{ width: '2.5em', height: '2.5em' }} color="#484848" />;
   };
 
   return (
     <GalleryItem>
       <Link to={'/detail/' + props.task.id}>
         <Card className="card" isHoverable style={{ marginBottom: '2em', borderRadius: '0.5em' }}>
-          {/* {verifiedStatus} */}
+          {verifiedStatus}
 
           <CardHead>
             <div>
@@ -74,7 +93,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
             </div>
 
             <CardActions className="cardActions">
-              <StarIcon style={{ color: '#484848' }} />
+              <StarIcon style={{ color: '#484848', width: '1.5em', height: '1.5em' }} />
               <TextContent className="text">{props.task.rating.toFixed(1)}</TextContent>
             </CardActions>
           </CardHead>
@@ -84,7 +103,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
           <CardBody className="catalog-tile-pf-body">
             <div className="catalog-tile-pf-description">
               <span>
-                {`${props.task.description.substring(0, 100)}   ...`}
+                {`${ props.task.description.substring(0, 100) }   ...`}
               </span>
             </div>
           </CardBody>
@@ -95,9 +114,9 @@ const Task: React.FC<TaskProp> = (props: any) => {
                   <Badge style={{
                     marginLeft: '0.2em',
                     marginBottom: '1em',
-                  }} key={`badge-${tag}`}
+                  }} key={`badge-${ tag }`}
                     className="badge">{tag}</Badge>
-                )
+                );
               })
             }
           </CardFooter>
