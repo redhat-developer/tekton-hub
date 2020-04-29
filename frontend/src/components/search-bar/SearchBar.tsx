@@ -1,12 +1,9 @@
 /* eslint-disable max-len */
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import { SearchIcon, FilterIcon } from '@patternfly/react-icons';
+import React, {useState} from 'react';
+import {connect} from 'react-redux';
 import '@patternfly/react-core/dist/styles/base.css';
 import './index.css';
 import {
-  Button,
-  ButtonVariant,
   InputGroup,
   Dropdown,
   DropdownToggle,
@@ -15,8 +12,8 @@ import {
   TextInput,
   Card,
 } from '@patternfly/react-core';
-import { fetchTaskSuccess } from '../redux/Actions/TaskAction';
-import { fetchTaskList } from '../redux/Actions/TaskDataListAction';
+import {fetchTaskSuccess} from '../redux/Actions/TaskAction';
+import {fetchTaskList} from '../redux/Actions/TaskDataListAction';
 import store from '../redux/store';
 export interface TaskPropData {
   id: number;
@@ -26,6 +23,8 @@ export interface TaskPropData {
   yaml: string,
   tags: [],
   verified: boolean,
+  last_updated_at: string;
+  latest_version;
   type: string,
 }
 
@@ -50,6 +49,8 @@ const SearchBar: React.FC = (props: any) => {
         tags: task.tags,
         verified: task.verified,
         type: task.type,
+        last_updated_at: task.last_updated_at,
+        latest_version: task.latest_version,
       };
       return taskData;
     });
@@ -74,7 +75,7 @@ const SearchBar: React.FC = (props: any) => {
         return -1;
       }
     });
-    store.dispatch({ type: 'FETCH_TASK_SUCCESS', payload: taskarr });
+    store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: taskarr});
   }
 
   // eslint-disable-next-line require-jsdoc
@@ -89,7 +90,7 @@ const SearchBar: React.FC = (props: any) => {
         return -1;
       }
     });
-    store.dispatch({ type: 'FETCH_TASK_SUCCESS', payload: taskarr });
+    store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: taskarr});
   }
 
   // Searching a task
@@ -112,7 +113,7 @@ const SearchBar: React.FC = (props: any) => {
     }
 
     if (tempTask.length > 0) {
-      store.dispatch({ type: 'FETCH_TASK_SUCCESS', payload: tempTask });
+      store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: tempTask});
     }
   };
   const taskNameArr: any = [];
@@ -156,18 +157,18 @@ const SearchBar: React.FC = (props: any) => {
   return (
 
     <div className="search">
-      <Flex breakpointMods={[{ modifier: 'flex-1', breakpoint: 'lg' }]}>
+      <Flex breakpointMods={[{modifier: 'flex-1', breakpoint: 'lg'}]}>
         <React.Fragment>
 
-          <InputGroup style={{ width: '70%', marginLeft: '1m' }}>
-            <div style={{ width: '100%', boxShadow: 'rgba' }}>
+          <InputGroup style={{width: '70%', marginLeft: '1m'}}>
+            <div style={{width: '100%', boxShadow: 'rgba'}}>
               <TextInput aria-label="search-box" value={textValue} type="search"
                 onChange={onTextChanged} placeholder="Search for task or pipeline"
-                style={{ outline: 'none', boxSizing: 'border-box', padding: '10px 5px' }} />
+                style={{outline: 'none', boxSizing: 'border-box', padding: '10px 5px'}} />
 
-              <div style={{ position: 'relative' }}>
+              <div style={{position: 'relative'}}>
                 <ul
-                  style={{ textAlign: 'left', backgroundColor: 'white', margin: 0, position: 'absolute', width: '100%' }}
+                  style={{textAlign: 'left', backgroundColor: 'white', margin: 0, position: 'absolute', width: '100%'}}
                 >
                   {suggestions.map((item: any, index: any) =>
 
@@ -186,16 +187,16 @@ const SearchBar: React.FC = (props: any) => {
 
             </div>
           </InputGroup>
-          <Card style={{ marginLeft: '-1em' }}>
-            <Button variant={ButtonVariant.control} aria-label="search button for search input" >
+          <Card style={{marginLeft: '-1em'}}>
+            {/* <Button variant={ButtonVariant.control} aria-label="search button for search input" >
               <SearchIcon />
-            </Button>
+            </Button> */}
           </Card>
 
           <div className="filter">
-            <Button variant={ButtonVariant.control} aria-label="search button for search input" >
+            {/* <Button variant={ButtonVariant.control} aria-label="search button for search input" >
               <FilterIcon />
-            </Button>
+            </Button> */}
             <Dropdown
               onSelect={onSelect}
               toggle={<DropdownToggle onToggle={ontoggle}>{sort}</DropdownToggle>}
@@ -214,6 +215,6 @@ const mapStateToProps = (state: any) => ({
   TaskDataList: state.TaskDataList.TaskDataList,
 });
 
-export default connect(mapStateToProps, { fetchTaskSuccess, fetchTaskList })(SearchBar);
+export default connect(mapStateToProps, {fetchTaskSuccess, fetchTaskList})(SearchBar);
 
 

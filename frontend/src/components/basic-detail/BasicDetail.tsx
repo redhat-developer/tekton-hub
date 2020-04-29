@@ -54,11 +54,12 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
   const taskArr: any = [];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [descrption, setDescription] = useState(props.task.description);
-  const [versions, setVersion] = useState(props.task.latest_version + " (current) ");
+  const [versions, setVersion] = useState(props.task.latest_version + " (latest) ");
   const GITHUB_URL = 'https://raw.githubusercontent.com/Pipelines-Marketplace/catalog/master/official/tasks'
   const [taskLink, setTaskLink] = useState(`kubectl apply -f ${GITHUB_URL}/${props.task.name}/v${props.task.latest_version}/${props.task.name}.yaml`)
+  const [href, setHref] = useState(`https://github.com/Pipelines-Marketplace/catalog/tree/master/official/tasks/${props.task.name}/v${props.task.latest_version}`)
 
-  var href = `https://github.com/Pipelines-Marketplace/catalog/tree/master/official/tasks/${props.task.name}`
+  // var href = `https://github.com/Pipelines-Marketplace/catalog/tree/master/official/tasks/${props.task.name}`
 
   // Dropdown menu to show versions
   const [isOpen, set] = useState(false);
@@ -78,9 +79,11 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
       } else {
         setVersion(event.target.text)
       }
-
+      console.log(props.task)
       if (event.target.text === item.version) {
         props.fetchTaskDescription(props.task.name, item.version)
+
+        setHref(`https://github.com/Pipelines-Marketplace/catalog/tree/master/official/tasks/${props.task.name}/${item.version}`)
         setTaskLink(`kubectl apply -f ${GITHUB_URL}/${props.task.name}/v${item.version}/${props.task.name}.yaml`)
         setDescription(item.description)
       }
@@ -90,7 +93,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
   const ontoggle = (isOpen: React.SetStateAction<boolean>) => set(isOpen);
   const onSelect = () => set(!isOpen);
 
-  //Get tags for resource
+  // Get tags for resource
   if (props.task.tags != null) {
     props.task.tags.forEach((item: any) => {
       taskArr.push(item.name)

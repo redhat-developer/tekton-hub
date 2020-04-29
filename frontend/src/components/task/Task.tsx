@@ -2,6 +2,8 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import '@patternfly/react-core/dist/styles/base.css';
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en'
 import {
   Link,
 } from 'react-router-dom';
@@ -29,6 +31,8 @@ export interface TaskPropObject {
   downloads: number;
   yaml: string;
   tags: [];
+  last_updated_at: string;
+  latest_version;
 }
 
 export interface TaskProp {
@@ -46,14 +50,16 @@ const Task: React.FC<TaskProp> = (props: any) => {
     tempArr.push([]);
   }
 
-  //  for verification status of resources
-  // let verifiedStatus: any;
-  // if (props.task.verified === true) {
-  //   verifiedStatus = <div className="vtask" >
-  //     <Label isCompact style={{ backgroundColor: '#B8AD8B', fontSize: '0.9em' }}>Verified</Label>
-  //   </div>;
-  // }
-  // for adding icon to task and pipeline
+  TimeAgo.addLocale(en)
+
+  // Create relative date/time formatter.
+  const timeAgo = new TimeAgo('en-US')
+
+  var catalogDate = new Date(props.task.last_updated_at);
+
+  var diffDays = timeAgo.format(catalogDate.getTime() - 60 * 1000)
+
+
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
     resourceIcon = <BuildIcon size="xl" color="#484848" />;
@@ -65,7 +71,6 @@ const Task: React.FC<TaskProp> = (props: any) => {
     <GalleryItem>
       <Link to={'/detail/' + props.task.id}>
         <Card className="card" isHoverable style={{marginBottom: '2em', borderRadius: '0.5em'}}>
-          {/* {verifiedStatus} */}
 
           <CardHead>
             <div>
@@ -73,8 +78,12 @@ const Task: React.FC<TaskProp> = (props: any) => {
             </div>
 
             <CardActions className="cardActions">
+
+              <TextContent className="text">v{props.task.latest_version}</TextContent>
+
               <StarIcon style={{color: '#484848'}} />
               <TextContent className="text">{props.task.rating.toFixed(1)}</TextContent>
+
             </CardActions>
           </CardHead>
           <CardHeader className="catalog-tile-pf-header">
@@ -86,8 +95,11 @@ const Task: React.FC<TaskProp> = (props: any) => {
                 {`${props.task.description.substring(0, 100)}   ...`}
               </span>
             </div>
+
           </CardBody>
           <CardFooter className="catalog-tile-pf-footer">
+
+            <TextContent className="text" style={{marginBottom: "1em", marginLeft: "0.2em"}}>Updated {diffDays} </TextContent>
             {
               tempArr.map((tag: any) => {
                 return (
