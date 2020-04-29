@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -31,7 +32,8 @@ type ResourceDetail struct {
 type ResourceVersionDetail struct {
 	Version     string `json:"version"`
 	Description string `json:"description"`
-	URL         string `json:"url"`
+	Web_URL     string `json:"web_url"`
+	Raw_URL     string `json:"raw_url"`
 }
 
 type Catalog struct {
@@ -97,7 +99,10 @@ func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 func (d *ResourceVersionDetail) Init(r *model.ResourceVersion) {
 	d.Version = r.Version
 	d.Description = r.Description
-	d.URL = r.URL
+	d.Web_URL = r.URL
+	replaceStrings := strings.NewReplacer("github.com", "raw.githubusercontent.com",
+		"/blob/", "/")
+	d.Raw_URL = replaceStrings.Replace(r.URL)
 }
 
 // AllVersions Get all versions of a Resource
