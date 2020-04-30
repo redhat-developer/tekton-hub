@@ -10,7 +10,7 @@ import {
   DropdownItem,
   Flex,
   TextInput,
-  Card,
+  FlexItem,
 } from '@patternfly/react-core';
 import {fetchTaskSuccess} from '../redux/Actions/TaskAction';
 import {fetchTaskList} from '../redux/Actions/TaskDataListAction';
@@ -20,18 +20,16 @@ export interface TaskPropData {
   name: string,
   description: string,
   rating: number,
-  yaml: string,
   tags: [],
-  verified: boolean,
   last_updated_at: string;
   latest_version;
+  catalog: [],
   type: string,
 }
 
 const SearchBar: React.FC = (props: any) => {
-  const [sort, setSort] = useState('Sort');
+  const [sort, setSort] = useState('Name');
   let tempArr: any = [];
-  const tempTask: any = [];
   React.useEffect(() => {
     props.fetchTaskSuccess();
     props.fetchTaskList();
@@ -42,12 +40,11 @@ const SearchBar: React.FC = (props: any) => {
     tempArr = props.TaskData.map((task: any) => {
       const taskData: TaskPropData = {
         id: task.id,
+        catalog: task.catalog,
         name: task.name,
         description: task.description,
         rating: task.rating,
-        yaml: task.yaml,
         tags: task.tags,
-        verified: task.verified,
         type: task.type,
         last_updated_at: task.last_updated_at,
         latest_version: task.latest_version,
@@ -79,8 +76,6 @@ const SearchBar: React.FC = (props: any) => {
   }
 
   // eslint-disable-next-line require-jsdoc
-
-  // eslint-disable-next-line require-jsdoc
   function sortByRatings(event: any) {
     setSort(event.target.text);
     const taskarr = tempArr.sort((first: any, second: any) => {
@@ -93,38 +88,7 @@ const SearchBar: React.FC = (props: any) => {
     store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: taskarr});
   }
 
-  // Searching a task
-  let [tasks, setTasks] = useState(''); // Get the user input
-
-  // Search a task
-  const searchTask = (text: string) => {
-    const task = {
-      text,
-    };
-    tasks = task.text; // user input
-    setTasks(tasks);
-    if (props.TaskData != null) {
-      for (let i = 0; i < tempArr.length; i++) {
-        if (tasks.toLocaleLowerCase() === tempArr[i].name.toLocaleLowerCase()) {
-          tempTask.push(tempArr[i]);
-          break;
-        }
-      }
-    }
-
-    if (tempTask.length > 0) {
-      store.dispatch({type: 'FETCH_TASK_SUCCESS', payload: tempTask});
-    }
-  };
-  const taskNameArr: any = [];
-  if (props.TaskDataList) {
-    for (let i = 0; i < tempArr.length; i++) {
-      taskNameArr.push(tempArr[i].name);
-    }
-  }
-
   // AutoComplete text while searching a task
-  const [suggestions, setState] = React.useState([]);
   const [text, setText] = React.useState('');
 
   const onTextChanged = (e: any) => {
@@ -146,64 +110,51 @@ const SearchBar: React.FC = (props: any) => {
     setText(value);
   };
 
-  // Suggesting a task name
-  const suggestionSelected = (value: any) => {
-    setText(value);
-    setState([]);
-    searchTask(value);
-  };
-
   const textValue = text;
+  store.dispatch({
+    type: 'SEARCH_TEXT',
+    payload: textValue,
+  });
+
   return (
 
     <div className="search">
       <Flex breakpointMods={[{modifier: 'flex-1', breakpoint: 'lg'}]}>
+
+        <Flex breakpointMods={[{modifier: 'column', breakpoint: 'lg'}]}>
+
+          <FlexItem>
+            <h2 >
+              {' '}
+              <b>Sort</b>{'  '}
+            </h2>
+          </FlexItem>
+
+          <FlexItem>
+            <div className="filter">
+              <Dropdown
+                onSelect={onSelect}
+                toggle={<DropdownToggle onToggle={ontoggle}>{sort}</DropdownToggle>}
+                isOpen={isOpen}
+                dropdownItems={dropdownItems}
+              />
+            </div>
+          </FlexItem>
+        </Flex>
         <React.Fragment>
 
-          <InputGroup style={{width: '70%', marginLeft: '1m'}}>
+
+
+          <InputGroup style={{width: '70%', marginLeft: '11em'}}>
             <div style={{width: '100%', boxShadow: 'rgba'}}>
-              <TextInput aria-label="search-box" value={textValue} type="search"
+              <TextInput aria-label="text input example" value={textValue} type="search"
                 onChange={onTextChanged} placeholder="Search for task or pipeline"
-                style={{outline: 'none', boxSizing: 'border-box', padding: '10px 5px'}} />
-
-              <div style={{position: 'relative'}}>
-                <ul
-                  style={{textAlign: 'left', backgroundColor: 'white', margin: 0, position: 'absolute', width: '100%'}}
-                >
-                  {suggestions.map((item: any, index: any) =>
-
-                    <li
-                      style={{
-                        listStyle: 'none', textAlign: 'left', cursor: 'pointer', padding: '10px 7px',
-                        border: '0.01em solid rgb(224,224,224)', borderTop: '0',
-                      }}
-                      onClick={() => suggestionSelected(item)} key={index}>
-                      {item}
-                    </li>,
-
-                  )}
-                </ul>
-              </div>
+                style={{padding: '10px 5px'}} />
 
             </div>
           </InputGroup>
-          <Card style={{marginLeft: '-1em'}}>
-            {/* <Button variant={ButtonVariant.control} aria-label="search button for search input" >
-              <SearchIcon />
-            </Button> */}
-          </Card>
 
-          <div className="filter">
-            {/* <Button variant={ButtonVariant.control} aria-label="search button for search input" >
-              <FilterIcon />
-            </Button> */}
-            <Dropdown
-              onSelect={onSelect}
-              toggle={<DropdownToggle onToggle={ontoggle}>{sort}</DropdownToggle>}
-              isOpen={isOpen}
-              dropdownItems={dropdownItems}
-            />
-          </div>
+
         </React.Fragment>
       </Flex>
     </div>
@@ -213,6 +164,8 @@ const SearchBar: React.FC = (props: any) => {
 const mapStateToProps = (state: any) => ({
   TaskData: state.TaskData.TaskData,
   TaskDataList: state.TaskDataList.TaskDataList,
+  ResourceList: state.ResourceList.ResourceList,
+
 });
 
 export default connect(mapStateToProps, {fetchTaskSuccess, fetchTaskList})(SearchBar);

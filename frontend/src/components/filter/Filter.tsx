@@ -13,7 +13,14 @@ import {
 import {fetchTaskList} from '../redux/Actions/TaskDataListAction';
 import {fetchResourceList} from '../redux/Actions/ResourcesList';
 import {API_URL} from '../../constants';
-import {InfoCircleIcon, DomainIcon, BuildIcon} from '@patternfly/react-icons';
+import {
+  InfoCircleIcon,
+  DomainIcon,
+  BuildIcon,
+  CatIcon,
+  CertificateIcon,
+  UserIcon,
+} from '@patternfly/react-icons';
 import store from '../redux/store';
 import {
   FETCH_TASK_SUCCESS,
@@ -65,22 +72,34 @@ const Filter: React.FC = (props: any) => {
     // eslint-disable-next-line
   }, []);
   // / function for showing types
-  let typeIcon: any;
-  const addIcon = (it: any, idx: number) => {
-    typeIcon = idx === 0 ? <BuildIcon
-      size="sm" color="black"
-      style={{marginLeft: '-0.5em'}} /> :
-      <DomainIcon size="sm"
-        color="black"
-        style={{marginLeft: '-0.5em'}} />;
+  const addIcon = (idx: number) => {
+    switch (idx) {
+      case 0:
+        return <BuildIcon size="sm" color="black"
+          style={{marginLeft: '-0.5em'}} />;
+      case 1:
+        return <DomainIcon size="sm" color="black"
+          style={{marginLeft: '-0.5em'}} />;
+      case 2:
+        return <CatIcon size="sm" color="#484848"
+          style={{marginLeft: '-0.5em'}} />;
+      case 3:
+        return <CertificateIcon size="sm" color="#484848"
+          style={{marginLeft: '-0.5em'}} />;
+      case 4:
+        return <UserIcon size="sm" color="#484848"
+          style={{marginLeft: '-0.5em'}} />;
+      default:
+        return;
+    }
   };
 
 
   // custom label for type filter
-  const customLabel = (typeName: string) => {
+  const customLabel = (typeName: string, index: any) => {
     return <Flex>
       <FlexItem breakpointMods={[{modifier: FlexModifiers['spacer-xs']}]}>
-        {typeIcon}
+        {addIcon(index)}
       </FlexItem>
       <FlexItem>
         {typeName}
@@ -88,13 +107,14 @@ const Filter: React.FC = (props: any) => {
     </Flex>;
   };
 
+  // get typed text in search
+
 
   // formation of filter url  for calling filterAPi to
   //  fetching task and pipelines
   const filterApi = (event: any) => {
     const tagsList: any = [];
-    // const filterdataList: any = [];
-    // const filterResourceList: any = [];
+    const searchedtext = Object.values(store.getState().SearchedText);
     const filteredDataList = new Set();
     const resourcetypeList: any = [];
     const resourceVerificationList: any = [];
@@ -119,12 +139,11 @@ const Filter: React.FC = (props: any) => {
     });
     status.checklist.slice(5).forEach((item: any) => {
       if (item.isChecked === true) {
-        var data = categoriesList.map((categorytagList: any) => {
+        categoriesList.forEach((categorytagList: any) => {
           if (categorytagList.name === item.value) {
             categorytagList.tags.forEach((tags: any) =>
               tagsList.push(tags.name));
           }
-          return data
         });
       }
     });
@@ -166,19 +185,36 @@ const Filter: React.FC = (props: any) => {
       });
       filterArray = tempx;
     }
-    store.dispatch(
-      {
-        type: FETCH_TASK_SUCCESS,
-        payload: filterArray,
-      });
-    store.dispatch(
-      {
-        type: FETCH_TASK_LIST,
-        payload: filterArray,
-      });
+    if (searchedtext[0] !== '') {
+      let suggestions: any = [];
+      const regex = new RegExp(`${searchedtext[0]}`, 'i');
+      suggestions = filterArray.sort().filter((v: any) => regex.test(v.name));
+      store.dispatch(
+        {
+          type: FETCH_TASK_SUCCESS,
+          payload: suggestions,
+        });
+      store.dispatch(
+        {
+          type: FETCH_TASK_LIST,
+          payload: filterArray,
+        });
+    } else {
+      store.dispatch(
+        {
+          type: FETCH_TASK_SUCCESS,
+          payload: filterArray,
+        });
+      store.dispatch(
+        {
+          type: FETCH_TASK_LIST,
+          payload: filterArray,
+        });
+    }
 
     // // for displaying clear filter options
     let flag: any = false;
+
     status.checklist.forEach((it: any) => {
       if (it.isChecked === true) {
         flag = true;
@@ -193,6 +229,7 @@ const Filter: React.FC = (props: any) => {
 
   //   function for clearing all checkbox
   const clearFilter = () => {
+    const searchedtext = Object.values(store.getState().SearchedText);
     setCheckBoxStatus(
       tempObj,
     );
@@ -200,16 +237,32 @@ const Filter: React.FC = (props: any) => {
       it.isChecked = false;
     });
     setClear('');
-    store.dispatch(
-      {
-        type: FETCH_TASK_SUCCESS,
-        payload: props.ResourceList,
-      });
-    store.dispatch(
-      {
+    if (searchedtext[0] !== '') {
+      let suggestions: any = [];
+      const regex = new RegExp(`${searchedtext[0]}`, 'i');
+      suggestions = props.ResourceList.sort().filter(
+        (v: any) => regex.test(v.name));
+      store.dispatch(
+        {
+          type: FETCH_TASK_SUCCESS,
+          payload: suggestions,
+        });
+      store.dispatch({
         type: FETCH_TASK_LIST,
         payload: props.ResourceList,
       });
+    } else {
+      store.dispatch(
+        {
+          type: FETCH_TASK_SUCCESS,
+          payload: props.ResourceList,
+        });
+      store.dispatch(
+        {
+          type: FETCH_TASK_LIST,
+          payload: props.ResourceList,
+        });
+    }
   };
 
   let resourceType: any;
@@ -217,12 +270,11 @@ const Filter: React.FC = (props: any) => {
     const resource = status.checklist.slice(0, 2);
     resourceType = resource.map((it: any, idx: number) => (
       <div key={`res-${idx}`} style={{marginBottom: '0.5em'}}>
-        {addIcon(it, idx)}
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
           style={{width: '1.2em', height: '1.2em', marginRight: '.3em'}}
-          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1))}
+          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1), idx)}
           value={it.value}
           name="type"
           id={it.id}
@@ -241,8 +293,8 @@ const Filter: React.FC = (props: any) => {
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
-          style={{width: '1.2em', height: '1.2em'}}
-          label={it.value[0].toUpperCase() + it.value.slice(1)}
+          style={{width: '1.2em', height: '1.2em', marginRight: '.3em'}}
+          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1), idx + 2)}
           value={it.value}
           name="verification"
           id={it.id}
@@ -280,14 +332,15 @@ const Filter: React.FC = (props: any) => {
   return (
     <div className="filter-size">
 
-      <h2 style={{marginBottom: '1em'}}>
+      <h2>
         {' '}
         <Button component='a' variant='link'
-          onClick={clearFilter}>
+          onClick={clearFilter} style={{marginBottom: "0.8em"}}>
           {clear} </Button>
         {'  '}
 
       </h2>
+
       <h2 style={{marginBottom: '1em'}}>
         {' '}
         <b>Types</b>{'  '}
@@ -311,6 +364,7 @@ const Filter: React.FC = (props: any) => {
 const mapStateToProps = (state: any) => ({
   ResourceList: state.ResourceList.ResourceList,
   TaskDataList: state.TaskDataList.TaskDataList,
+
 });
 export default
   connect(mapStateToProps, fetchResourceList)(Filter);
