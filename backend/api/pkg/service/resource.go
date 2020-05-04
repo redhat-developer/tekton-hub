@@ -109,7 +109,7 @@ func (d *ResourceVersionDetail) Init(r *model.ResourceVersion) {
 func (r *Resource) AllVersions(resourceID uint) ([]ResourceVersionDetail, error) {
 
 	var all []*model.ResourceVersion
-	if err := r.db.Where("resource_id = ?", resourceID).Find(&all).Error; err != nil {
+	if err := r.db.Order("id").Where("resource_id = ?", resourceID).Find(&all).Error; err != nil {
 		return []ResourceVersionDetail{}, errors.New("Failed to fetch Resources")
 	}
 
