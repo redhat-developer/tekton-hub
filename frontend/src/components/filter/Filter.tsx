@@ -7,14 +7,12 @@ import React,
   from 'react';
 import {
   Checkbox,
-  Tooltip,
   Button,
 } from '@patternfly/react-core/dist/js/components';
 import {fetchTaskList} from '../redux/Actions/TaskDataListAction';
 import {fetchResourceList} from '../redux/Actions/ResourcesList';
 import {API_URL} from '../../constants';
 import {
-  InfoCircleIcon,
   DomainIcon,
   BuildIcon,
   CatIcon,
@@ -348,11 +346,8 @@ const Filter: React.FC = (props: any) => {
       {resourceType}
       <h2 style={{marginBottom: '1em', marginTop: '1em'}}>
         {' '}
-        <b>Verification </b>{'  '}
-        <Tooltip content={<div>
-          Verification Status Task and Pipelines</div>}>
-          <InfoCircleIcon />
-        </Tooltip>
+        <b>Support Tier </b>{'  '}
+
       </h2>
       {showverifiedtask}
       <h2 style={{marginBottom: '1em', marginTop: '1em'}}><b>Categories</b></h2>

@@ -15,15 +15,26 @@ const Detail: React.FC = (props: any) => {
     // eslint-disable-next-line
   }, []);
 
+
   if (props.TaskData) {
+    let temp: any = []
     for (let i = 0; i < props.TaskData.length; i++) {
       if (props.TaskData[i].id === Number(taskId)) {
         if (props.TaskName) {
-          (props.TaskData[i]).data = props.TaskName.data
+          (props.TaskData[i]).data = props.TaskName.data;
+          temp = props.TaskName.data[props.TaskName.data.length - 1]
         }
-        return (
-          <BasicDetail task={props.TaskData[i]} />
-        )
+        if (temp.length === 0) {
+          return (
+            <div></div>
+          )
+        } else {
+          return (
+            <BasicDetail task={props.TaskData[i]}
+              version={temp}
+            />
+          )
+        }
       }
     }
   }

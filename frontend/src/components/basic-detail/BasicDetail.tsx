@@ -39,33 +39,41 @@ export interface BasicDetailPropObject {
   type: string
   data: []
 }
+
+export interface Version {
+  version: string,
+  description: string,
+  raw_url: string
+  web_url: string
+}
+
 export interface BasicDetailProp {
   task: BasicDetailPropObject
+  version: Version
 }
+
 
 const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
 
   React.useEffect(() => {
-    props.fetchTaskDescription(props.task.name, props.task.latest_version)
+    props.fetchTaskDescription(props.version.raw_url)
     // eslint-disable-next-line
   }, [])
-
 
   const taskArr: any = [];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [descrption, setDescription] = useState(props.task.description);
   const [versions, setVersion] = useState(props.task.latest_version + " (latest) ");
-  const GITHUB_URL = 'https://raw.githubusercontent.com/Pipelines-Marketplace/catalog/master/official/tasks'
-  const [taskLink, setTaskLink] = useState(`kubectl apply -f ${GITHUB_URL}/${props.task.name}/v${props.task.latest_version}/${props.task.name}.yaml`)
-  const [href, setHref] = useState(`https://github.com/Pipelines-Marketplace/catalog/tree/master/official/tasks/${props.task.name}/v${props.task.latest_version}`)
 
-  // var href = `https://github.com/Pipelines-Marketplace/catalog/tree/master/official/tasks/${props.task.name}`
+  const [taskLink, setTaskLink] = useState(`kubectl apply -f ${props.version.web_url}`)
+  const [href, setHref] = useState(`${props.version.web_url.substring(0, props.version.web_url.lastIndexOf("/") + 1)}`)
 
   // Dropdown menu to show versions
   const [isOpen, set] = useState(false);
   let dropdownItems: any = [];
 
   if (props.task.data) {
+    fetchTaskDescription(props.version.raw_url)
     dropdownItems = props.task.data.reverse().map((item: any, index: any) => {
       return <DropdownItem key={`res-${item.version}`} id={item.version} onClick={version}>{item.version}</DropdownItem>
     })
@@ -79,12 +87,11 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
       } else {
         setVersion(event.target.text)
       }
-      console.log(props.task)
       if (event.target.text === item.version) {
-        props.fetchTaskDescription(props.task.name, item.version)
+        props.fetchTaskDescription(item.raw_url)
 
-        setHref(`https://github.com/Pipelines-Marketplace/catalog/tree/master/official/tasks/${props.task.name}/${item.version}`)
-        setTaskLink(`kubectl apply -f ${GITHUB_URL}/${props.task.name}/v${item.version}/${props.task.name}.yaml`)
+        setHref(`${item.web_url.substring(0, item.web_url.lastIndexOf("/") + 1)}`)
+        setTaskLink(`kubectl apply -f ${item.web_url}`)
         setDescription(item.description)
       }
     })

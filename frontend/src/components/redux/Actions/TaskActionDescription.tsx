@@ -2,18 +2,21 @@ import {FETCH_TASK_DESCRIPTION} from '../Actions/TaskActionType';
 import {FETCH_TASK_YAML} from '../Actions/TaskActionType';
 
 // eslint-disable-next-line require-jsdoc
-export function fetchTaskDescription(name: any, version: any) {
+export function fetchTaskDescription(rawUrl: string) {
 
+  if (rawUrl) {
+    var readmeUrl = rawUrl.substring(0, rawUrl.lastIndexOf("/") + 1)
+  }
   return function (dispatch: any) {
 
-    fetch(`https://raw.githubusercontent.com/Pipelines-Marketplace/catalog/master/official/tasks/${name}/v${version}/README.md`)
+    fetch(`${readmeUrl}/README.md`)
       .then((response) => response.text())
       .then((TaskDescription) => dispatch({
         type: FETCH_TASK_DESCRIPTION,
         payload: TaskDescription
       }))
 
-    fetch(`https://raw.githubusercontent.com/Pipelines-Marketplace/catalog/master/official/tasks/${name}/v${version}/${name}.yaml`)
+    fetch(`${rawUrl}`)
       .then((response) => response.text())
       .then((TaskYaml) => dispatch({
         type: FETCH_TASK_YAML,

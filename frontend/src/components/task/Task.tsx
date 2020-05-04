@@ -72,7 +72,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
   if (props.task) {
     if (props.task.catalog.type === 'Official') {
       verifiedStatus = <div className="vtask" >
-        <CatIcon size="md" color='#484848' />
+        <CatIcon size="md" color='#484848' style={{width: '2em', height: '2em'}} />
       </div>;
     }
     if (props.task.catalog.type === 'Verified') {
@@ -102,7 +102,6 @@ const Task: React.FC<TaskProp> = (props: any) => {
     <GalleryItem>
       <Link to={'/detail/' + props.task.id}>
         <Card className="card" isHoverable style={{marginBottom: '2em', borderRadius: '0.5em'}}>
-          {/* {verifiedStatus} */}
 
           <CardHead>
 
@@ -112,15 +111,11 @@ const Task: React.FC<TaskProp> = (props: any) => {
                 {resourceIcon}
               </FlexItem>
 
-              {/* <FlexItem>
+              <FlexItem>
                 {verifiedStatus}
-              </FlexItem> */}
+              </FlexItem>
 
             </Flex>
-
-            {/* <div>
-                {verifiedStatus}
-            </div> */}
 
             <CardActions className="cardActions">
 
@@ -135,16 +130,15 @@ const Task: React.FC<TaskProp> = (props: any) => {
               <FlexItem>
                 <span className="task-heading">{props.task.name[0].toUpperCase() + props.task.name.slice(1)}</span>
               </FlexItem>
-              <FlexItem breakpointMods={[{modifier: FlexModifiers['align-right']}]} style={{marginRight: "0.7em", marginBottom: "1em"}}>
+              <FlexItem breakpointMods={[{modifier: FlexModifiers['align-right']}]} style={{marginBottom: "0.5em"}}>
                 <span>v{props.task.latest_version}</span>
               </FlexItem>
             </Flex>
-
           </CardHeader>
           <CardBody className="catalog-tile-pf-body">
             <div className="catalog-tile-pf-description">
               <span>
-                {`${props.task.description.substring(0, 100)}   ...`}
+                {`${props.task.description.substring(0, props.task.description.lastIndexOf('\n'))}`}
               </span>
             </div>
 
@@ -154,24 +148,19 @@ const Task: React.FC<TaskProp> = (props: any) => {
 
             <TextContent className="text" style={{marginBottom: "1em", marginLeft: "0.2em"}}>Updated {diffDays} </TextContent>
 
-            <Flex>
-              <FlexItem >
-                {
-                  tempArr.map((tag: any) => {
-                    return (
-                      <Badge style={{
-                        marginLeft: '0.2em',
-                        marginBottom: '1em',
-                      }} key={`badge-${tag}`}
-                        className="badge">{tag}</Badge>
-                    );
-                  })
-                }
-              </FlexItem>
-              <FlexItem breakpointMods={[{modifier: FlexModifiers['align-right']}]}>
-                {verifiedStatus}
-              </FlexItem>
-            </Flex>
+            <div style={{height: "2em"}}>
+              {
+                tempArr.map((tag: any) => {
+                  return (
+                    <Badge style={{
+                      marginLeft: '0.2em',
+                      marginBottom: '1em',
+                    }} key={`badge-${tag}`}
+                      className="badge">{tag}</Badge>
+                  );
+                })
+              }
+            </div>
 
           </CardFooter>
         </Card>
