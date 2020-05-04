@@ -12,13 +12,6 @@ func Migrate(db *gorm.DB, log *zap.SugaredLogger) error {
 	// NOTE: If writing a migration for a new table then add the same in InitSchema
 	migration := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		// NOTE: Add Migration Here
-		{
-			ID: "202004061300",
-			Migrate: func(db *gorm.DB) error {
-				initData(db)
-				return nil
-			},
-		},
 	})
 
 	migration.InitSchema(func(db *gorm.DB) error {
