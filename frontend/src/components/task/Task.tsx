@@ -72,7 +72,8 @@ const Task: React.FC<TaskProp> = (props: any) => {
   if (props.task) {
     if (props.task.catalog.type === 'Official') {
       verifiedStatus = <div className="vtask" >
-        <CatIcon size="md" color='#484848' style={{width: '2em', height: '2em'}} />
+        <CatIcon size="md" color='#484848'
+          style={{width: '2em', height: '2em'}} />
       </div>;
     }
     if (props.task.catalog.type === 'Verified') {
@@ -92,16 +93,26 @@ const Task: React.FC<TaskProp> = (props: any) => {
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
     resourceIcon = <BuildIcon
-      style={{width: '2em', height: '2em'}} color="#484848" />;
+      style=
+      {{
+        width: '2em', height: '2em',
+        verticalAlign: '-0.2em'
+      }} color="#484848" />;
   } else {
     resourceIcon = <DomainIcon
-      style={{width: '2em', height: '2em'}} color="#484848" />;
+      style={{
+        width: '2em',
+        height: '2em', verticalAlign: '-0.2em'
+      }}
+      color="#484848"
+    />;
   };
 
   return (
     <GalleryItem>
       <Link to={'/detail/' + props.task.id}>
-        <Card className="card" isHoverable style={{marginBottom: '2em', borderRadius: '0.5em'}}>
+        <Card className="card" isHoverable
+          style={{marginBottom: '2em', borderRadius: '0.5em'}}>
 
           <CardHead>
 
@@ -120,7 +131,9 @@ const Task: React.FC<TaskProp> = (props: any) => {
             <CardActions className="cardActions">
 
               <StarIcon style={{color: '#484848', height: "1.7em", width: "1.7em"}} />
-              <TextContent className="text">{props.task.rating.toFixed(1)}</TextContent>
+              <TextContent className="text">
+                {props.task.rating.toFixed(1)}
+              </TextContent>
 
             </CardActions>
           </CardHead>
@@ -128,10 +141,15 @@ const Task: React.FC<TaskProp> = (props: any) => {
 
             <Flex>
               <FlexItem>
-                <span className="task-heading">{props.task.name[0].toUpperCase() + props.task.name.slice(1)}</span>
+                <span className="task-heading">
+                  {props.task.name[0].toUpperCase() + props.task.name.slice(1)}</span>
               </FlexItem>
-              <FlexItem breakpointMods={[{modifier: FlexModifiers['align-right']}]} style={{marginBottom: "0.5em"}}>
-                <span>v{props.task.latest_version}</span>
+              <FlexItem
+                breakpointMods={[{modifier: FlexModifiers['align-right']}]}
+                style={{marginBottom: "0.5em"}}>
+                <span>
+                  v{props.task.latest_version}
+                </span>
               </FlexItem>
             </Flex>
           </CardHeader>
@@ -146,7 +164,10 @@ const Task: React.FC<TaskProp> = (props: any) => {
           <CardFooter className="catalog-tile-pf-footer">
 
 
-            <TextContent className="text" style={{marginBottom: "1em", marginLeft: "0.2em"}}>Updated {diffDays} </TextContent>
+            <TextContent className="text"
+              style={{marginBottom: "1em", marginLeft: "0.2em"}}>
+              Updated {diffDays}
+            </TextContent>
 
             <div style={{height: "2em"}}>
               {

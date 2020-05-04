@@ -65,7 +65,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
   const [descrption, setDescription] = useState(props.task.description);
   const [versions, setVersion] = useState(props.task.latest_version + " (latest) ");
 
-  const [taskLink, setTaskLink] = useState(`kubectl apply -f ${props.version.web_url}`)
+  const [taskLink, setTaskLink] = useState(`kubectl apply -f ${props.version.raw_url}`)
   const [href, setHref] = useState(`${props.version.web_url.substring(0, props.version.web_url.lastIndexOf("/") + 1)}`)
 
   // Dropdown menu to show versions
@@ -91,7 +91,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
         props.fetchTaskDescription(item.raw_url)
 
         setHref(`${item.web_url.substring(0, item.web_url.lastIndexOf("/") + 1)}`)
-        setTaskLink(`kubectl apply -f ${item.web_url}`)
+        setTaskLink(`kubectl apply -f ${item.raw_url}`)
         setDescription(item.description)
       }
     })
