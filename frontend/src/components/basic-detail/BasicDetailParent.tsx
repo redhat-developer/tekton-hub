@@ -6,23 +6,28 @@ import {fetchTaskName} from '../redux/Actions/TaskActionName';
 import {fetchTaskSuccess} from '../redux/Actions/TaskAction'
 import Loader from '../loader/loader';
 import './basicdetail.css';
+import {API_URL} from '../../constants';
+
 
 const Detail: React.FC = (props: any) => {
-  const {taskId} = useParams();
+  const [newversion, setNewversion] = React.useState();
+  const {taskId} = useParams()
   React.useEffect(() => {
     props.fetchTaskSuccess();
-    props.fetchTaskName(taskId);
+    fetch(`${API_URL}/resource/${taskId}/versions`)
+      .then((response) => response.json())
+      .then((TaskName) => setNewversion(TaskName));
     // eslint-disable-next-line
   }, []);
 
 
-  if (props.TaskData) {
-    let temp: any = []
+  if (props.TaskData && newversion !== undefined) {
+    let temp: any = [];
     for (let i = 0; i < props.TaskData.length; i++) {
       if (props.TaskData[i].id === Number(taskId)) {
         if (props.TaskName) {
-          (props.TaskData[i]).data = props.TaskName.data;
-          temp = props.TaskName.data[props.TaskName.data.length - 1]
+          (props.TaskData[i]).data = newversion.data;
+          temp = newversion.data[newversion.data.length - 1];
         }
         if (temp.length === 0) {
           return (
@@ -30,7 +35,7 @@ const Detail: React.FC = (props: any) => {
           )
         } else {
           return (
-            <BasicDetail task={props.TaskData[i]}
+            < BasicDetail task={props.TaskData[i]}
               version={temp}
             />
           )

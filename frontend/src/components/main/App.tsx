@@ -109,7 +109,7 @@ const App: React.FC<mainProps> = () => {
 
           </ToolbarItem>
           <ToolbarItem>
-            <Link to="/"> {userimage}  </Link>
+            {userimage}
           </ToolbarItem>
         </ToolbarGroup>
       </Toolbar>
