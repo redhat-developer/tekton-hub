@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -21,7 +22,7 @@ type ResourceDetail struct {
 	Catalog       Catalog   `json:"catalog"`
 	Type          string    `json:"type"`
 	Description   string    `json:"description"`
-	Versions      []Version `json:"versions"`
+	LatestVersion string    `json:"latest_version"`
 	Tags          []Tag     `json:"tags"`
 	Rating        float64   `json:"rating"`
 	LastUpdatedAt time.Time `json:"last_updated_at"`
@@ -31,7 +32,8 @@ type ResourceDetail struct {
 type ResourceVersionDetail struct {
 	Version     string `json:"version"`
 	Description string `json:"description"`
-	URL         string `json:"url"`
+	Web_URL     string `json:"web_url"`
+	Raw_URL     string `json:"raw_url"`
 }
 
 type Catalog struct {
@@ -60,11 +62,6 @@ func (d *ResourceDetail) Init(r *model.Resource) {
 	d.Type = r.Type
 	d.Rating = r.Rating
 
-	d.Versions = make([]Version, len(r.Versions))
-	for i, v := range r.Versions {
-		d.Versions[i].ID = v.ID
-		d.Versions[i].Version = v.Version
-	}
 	d.Tags = make([]Tag, len(r.Tags))
 	for i, t := range r.Tags {
 		d.Tags[i].ID = t.ID
@@ -74,7 +71,9 @@ func (d *ResourceDetail) Init(r *model.Resource) {
 	d.Catalog.ID = r.Catalog.ID
 	d.Catalog.Type = r.Catalog.Type
 
+	// TODO: Sort the Version's array on basis of Version or Updated_At
 	latestVersion := r.Versions[len(r.Versions)-1]
+	d.LatestVersion = latestVersion.Version
 	d.Description = latestVersion.Description
 	d.LastUpdatedAt = latestVersion.UpdatedAt
 }
@@ -100,14 +99,17 @@ func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 func (d *ResourceVersionDetail) Init(r *model.ResourceVersion) {
 	d.Version = r.Version
 	d.Description = r.Description
-	d.URL = r.URL
+	d.Web_URL = r.URL
+	replaceStrings := strings.NewReplacer("github.com", "raw.githubusercontent.com",
+		"/blob/", "/")
+	d.Raw_URL = replaceStrings.Replace(r.URL)
 }
 
 // AllVersions Get all versions of a Resource
 func (r *Resource) AllVersions(resourceID uint) ([]ResourceVersionDetail, error) {
 
 	var all []*model.ResourceVersion
-	if err := r.db.Where("resource_id = ?", resourceID).Find(&all).Error; err != nil {
+	if err := r.db.Order("id").Where("resource_id = ?", resourceID).Find(&all).Error; err != nil {
 		return []ResourceVersionDetail{}, errors.New("Failed to fetch Resources")
 	}
 

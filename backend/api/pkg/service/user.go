@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
@@ -90,7 +91,7 @@ func (u *User) GetOAuthURL(token string) string {
 func (u *User) GetGitHubAccessToken(authToken OAuthAuthorizeToken) (string, error) {
 
 	reqURL := u.GetOAuthURL(authToken.Token)
-	u.log.Info("User's Request for GH Token - ",reqURL)
+	u.log.Info("User's Request for GH Token - ", reqURL)
 
 	req, err := http.NewRequest(http.MethodPost, reqURL, nil)
 	if err != nil {
@@ -174,8 +175,10 @@ func (u *User) GenerateJWT(user *model.User) (string, error) {
 func (u *User) VerifyJWT(token string) (int, error) {
 
 	jwtSecretKey := []byte(u.gh.JWTSigningKey)
+	splitToken := strings.Split(token, "Bearer ")
+	reqToken := splitToken[1]
 	var c Claims
-	parsedToken, _ := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+	parsedToken, _ := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Failed to Decode JWT")
 		}
