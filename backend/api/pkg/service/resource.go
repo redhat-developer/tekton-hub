@@ -83,10 +83,14 @@ func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 
 	var all []*model.Resource
 	if err := r.db.Order("rating desc, name").Limit(filter.Limit).
-		Preload("Catalog").Preload("Versions").Preload("Tags").
+		Preload("Catalog").
+		Preload("Versions", func(db *gorm.DB) *gorm.DB {
+			return db.Order("resource_versions.id ASC")
+		}).
+		Preload("Tags").
 		Find(&all).Error; err != nil {
 		return []ResourceDetail{}, errors.New("Failed to fetch Resources")
-	}
+	}	
 
 	ret := make([]ResourceDetail, len(all))
 	for i, r := range all {
