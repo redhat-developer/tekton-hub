@@ -1,10 +1,11 @@
-import { FETCH_TASK_LIST } from '../Actions/TaskActionType';
+import {SEARCH_TEXT} from '../Actions/TaskActionType';
+
 const reducer = (state = [], action: any) => {
   switch (action.type) {
-    case FETCH_TASK_LIST:
+    case SEARCH_TEXT:
       return {
         ...state,
-        TaskDataList: action.payload,
+        SearchedText: action.payload,
       };
     default: return state;
   }

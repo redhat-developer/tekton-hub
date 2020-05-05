@@ -12,44 +12,43 @@ import GitHubLogin from 'react-github-login';
 import {API_URL} from '../../constants';
 import {GH_CLIENT_ID} from '../../constants';
 
-const Login:React.FC=()=>{
+const Login: React.FC = () => {
   const history = useHistory();
-  const onSuccess=(response)=>{
-    console.log(response);
-    const code={
-      token: response.code.toString(),
-    };
+  const onSuccess = (response) => {
+    const authorizeToken = response.code.toString();
     fetch(`${API_URL}/oauth/redirect`, {
       method: 'POST',
-      body: JSON.stringify(code),
+      headers: new Headers({
+        'Authorization': authorizeToken,
+      }),
     })
-        .then((res)=>res.json())
-        .then((data)=>{
-          console.log(data);
-          localStorage.setItem('token', data['token']);
-          localStorage.setItem('usetrID', data['user_id']);
-          checkAuthentication();
-          history.push('/');
-          window.location.reload();
-        },
-        );
+      .then((res) => res.json())
+      .then((response) => {
+        localStorage.setItem('token', response.data.token);
+        checkAuthentication();
+        history.push('/');
+        window.location.reload();
+      },
+      );
   };
-  const onFailure=(error)=>{
+  const onFailure = (error) => {
     console.log(error);
   };
   useEffect(() => {
     // console.log(document.getElementsByTagName('button'));
-    document.getElementsByTagName('button')[1].style.backgroundColor='#1e66cc';
-    document.getElementsByTagName('button')[1].style.padding='0.3em';
-    document.getElementsByTagName('button')[1].style.width='50%';
-    document.getElementsByTagName('button')[1].style.color='white';
+    document.getElementsByTagName('button')[1].style.backgroundColor = '#1e66cc';
+    document.getElementsByTagName('button')[1].style.padding = '0.3em';
+    document.getElementsByTagName('button')[1].style.width = '50%';
+    document.getElementsByTagName('button')[1].style.color = 'white';
   }, []);
   return (
     <div>
       <Card style={{maxWidth: '30em', margin: 'auto'}}>
-        <CardHeader style={{fontSize: '2em', marginBottom: 0,
-          textAlign: 'center'}}>
-          <GithubIcon size="lg"/>
+        <CardHeader style={{
+          fontSize: '2em', marginBottom: 0,
+          textAlign: 'center'
+        }}>
+          <GithubIcon size="lg" />
         </CardHeader>
         <CardBody style={{textAlign: 'center'}}>
           <GitHubLogin clientId={GH_CLIENT_ID}

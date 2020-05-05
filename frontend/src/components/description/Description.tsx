@@ -29,7 +29,8 @@ const Description: React.FC<DescriptionProp> = (props: any) => {
     setActiveTabKey(tabIndex);
   };
 
-  let markDown : string = '';
+
+  let markDown: string = '';
   if (props.Description != null) {
     if (props.Description.match('noreadme')) {
       markDown = props.userTaskDescription;
@@ -38,7 +39,7 @@ const Description: React.FC<DescriptionProp> = (props: any) => {
     }
   }
 
-  let markDownYaml : string = '';
+  let markDownYaml: string = '';
   if (props.Yaml != null) {
     if (props.Yaml.match('noyaml')) {
       markDownYaml = 'YAML file not found';
@@ -60,12 +61,12 @@ const Description: React.FC<DescriptionProp> = (props: any) => {
         <Grid style={{width: '100%'}}>
           <GridItem span={12}>
             <Tabs activeKey={activeTabKey} isSecondary
-              onSelect={handleTabClick} style = {{boxShadow: 'none'}}>
+              onSelect={handleTabClick} style={{boxShadow: 'none'}}>
 
               <Tab eventKey={0} title="Description"
-                style = {{backgroundColor: 'white'}}>
+                style={{backgroundColor: 'white'}}>
                 <hr
-                  style = {{backgroundColor: '#EDEDED', marginBottom: '1em'}}>
+                  style={{backgroundColor: '#EDEDED', marginBottom: '1em'}}>
                 </hr>
                 <ReactMarkDown source={markDown}
                   escapeHtml={true}
@@ -75,14 +76,14 @@ const Description: React.FC<DescriptionProp> = (props: any) => {
               </Tab>
 
               <Tab eventKey={1} title="YAML"
-                style = {{backgroundColor: 'white'}}>
+                style={{backgroundColor: 'white'}}>
                 <hr
-                  style = {{backgroundColor: '#EDEDED', marginBottom: '1em'}}>
+                  style={{backgroundColor: '#EDEDED', marginBottom: '1em'}}>
                 </hr>
                 <ReactMarkDown source={markDownYaml}
                   escapeHtml={true}
                   renderers={{code: CodeBlock}}
-                  className = "yaml"
+                  className="yaml"
                 />
               </Tab>
 

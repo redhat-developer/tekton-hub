@@ -7,41 +7,61 @@ import React,
   from 'react';
 import {
   Checkbox,
-  Tooltip,
   Button,
 } from '@patternfly/react-core/dist/js/components';
+import {fetchTaskList} from '../redux/Actions/TaskDataListAction';
+import {fetchResourceList} from '../redux/Actions/ResourcesList';
 import {API_URL} from '../../constants';
-import {InfoCircleIcon, DomainIcon, BuildIcon} from '@patternfly/react-icons';
+import {
+  DomainIcon,
+  BuildIcon,
+  CatIcon,
+  CertificateIcon,
+  UserIcon,
+} from '@patternfly/react-icons';
 import store from '../redux/store';
-import {FETCH_TASK_SUCCESS} from '../redux/Actions/TaskActionType';
+import {
+  FETCH_TASK_SUCCESS,
+  FETCH_TASK_LIST,
+}
+  from '../redux/Actions/TaskActionType';
 import './filter.css';
 import {FlexModifiers, Flex, FlexItem} from '@patternfly/react-core';
+import {connect} from 'react-redux';
 const tempObj: any = {};
 const Filter: React.FC = (props: any) => {
-  const [categoryData, setCategoryData] = useState();
+  const [categoriesList, setCategoriesList] = useState();
   const [status, setStatus] = useState({checklist: []});
   const [clear, setClear] = useState(' ');
   const filterItem: any = [{id: '1000', value: 'task', isChecked: false},
-    {id: '1001', value: 'pipeline', isChecked: false},
-    {id: '1002', value: 'verified', isChecked: false}];
+  {id: '1001', value: 'pipeline', isChecked: false},
+  {id: '1002', value: 'Official', isChecked: false},
+  {id: '1003', value: 'Verified', isChecked: false},
+  {id: '1004', value: 'Community', isChecked: false}];
   const [checkBoxStatus, setCheckBoxStatus] = useState(
-      {},
+    {},
   );
   //  function for adding categories to filteritem
   const addCategory = (categoryData: any) => {
-    Object.keys(categoryData).map((categoryName: string, index: number) =>
+    categoryData.map((categoryName: string, index: number) =>
       filterItem.push(
-          {id: index.toString(), value: categoryName, isChecked: false},
+        {
+          id: `${categoryName['id']}`,
+          value: categoryName['name'], isChecked: false,
+        },
       ));
     setStatus({checklist: filterItem});
     return categoryData;
   };
   useEffect(() => {
+    fetchResourceList();
+    fetchTaskList();
     fetch(`${API_URL}/categories`)
-        .then((res) => res.json())
-        .then((categoryData) => setCategoryData(addCategory(categoryData)));
-    if (categoryData) {
-      (Object.keys(categoryData)).map((category) => {
+      .then((res) => res.json())
+      .then((categoryData) =>
+        setCategoriesList(addCategory(categoryData.data)));
+    if (categoriesList) {
+      (Object.keys(categoriesList)).map((category) => {
         return tempObj.category = false;
       });
     }
@@ -49,44 +69,35 @@ const Filter: React.FC = (props: any) => {
 
     // eslint-disable-next-line
   }, []);
-
-  // fetch api function
-  const fetchApi = (typeurl: string, verifiedurl: string, categoryurl: any) => {
-    fetch(`${API_URL}/resources/${typeurl}/${verifiedurl}?tags=${categoryurl} `)
-        .then((resp) => resp.json())
-        .then((data) => {
-          const taskarr = data.sort((first: any, second: any) => {
-            if (first.name > second.name) {
-              return 1;
-            } else {
-              return -1;
-            }
-          });
-          store.dispatch(
-              {
-                type: FETCH_TASK_SUCCESS,
-                payload: taskarr,
-              },
-          );
-        });
-  };
   // / function for showing types
-  let typeIcon: any;
-  const addIcon = (it: any, idx: number) => {
-    typeIcon = idx === 0 ? <BuildIcon
-      size="sm" color="black"
-      style={{marginLeft: '-0.5em'}} /> :
-      <DomainIcon size="sm"
-        color="black"
-        style={{marginLeft: '-0.5em'}} />;
+  const addIcon = (idx: number) => {
+    switch (idx) {
+      case 0:
+        return <BuildIcon size="sm" color="black"
+          style={{marginLeft: '-0.5em'}} />;
+      case 1:
+        return <DomainIcon size="sm" color="black"
+          style={{marginLeft: '-0.5em'}} />;
+      case 2:
+        return <CatIcon size="sm" color="#484848"
+          style={{marginLeft: '-0.5em'}} />;
+      case 3:
+        return <CertificateIcon size="sm" color="#484848"
+          style={{marginLeft: '-0.5em'}} />;
+      case 4:
+        return <UserIcon size="sm" color="#484848"
+          style={{marginLeft: '-0.5em'}} />;
+      default:
+        return;
+    }
   };
 
 
   // custom label for type filter
-  const customLabel = (typeName: string) => {
+  const customLabel = (typeName: string, index: any) => {
     return <Flex>
       <FlexItem breakpointMods={[{modifier: FlexModifiers['spacer-xs']}]}>
-        {typeIcon}
+        {addIcon(index)}
       </FlexItem>
       <FlexItem>
         {typeName}
@@ -94,88 +105,174 @@ const Filter: React.FC = (props: any) => {
     </Flex>;
   };
 
+  // get typed text in search
+
 
   // formation of filter url  for calling filterAPi to
   //  fetching task and pipelines
   const filterApi = (event: any) => {
-    let typeurl = 'all';
-    let verifiedurl = 'all';
-    let categoryurl = '';
+    const tagsList: any = [];
+    const searchedtext = Object.values(store.getState().SearchedText);
+    const filteredDataList = new Set();
+    const resourcetypeList: any = [];
+    const resourceVerificationList: any = [];
     const target = event.target;
     // for handling isChecked parameter of checkbox
     setCheckBoxStatus({...checkBoxStatus, [target.value]: target.checked});
     status.checklist.forEach((it: any) => {
       if (it.id === event.target.id) {
-        it.isChecked = event.target.checked;
+        return it.isChecked = event.target.checked;
       }
     },
     );
-
-    const temptype = status.checklist.slice(0, 2);
-    const tempverified = status.checklist.slice(2, 3);
-    const tempcategory = status.checklist.slice(3);
-    if (tempverified[0]['isChecked'] === true) {
-      verifiedurl = 'true';
-    }
-    if (temptype[0]['isChecked'] === true) {
-      typeurl = 'task';
-    }
-    if (temptype[1]['isChecked'] === true) {
-      typeurl = 'pipeline';
-    }
-    if ((temptype[0]['isChecked'] === true) &&
-      (temptype[1]['isChecked'] === true)) {
-      typeurl = 'all';
-    }
-    tempcategory.map((item: any) => {
+    status.checklist.slice(0, 2).forEach((item: any) => {
       if (item.isChecked === true) {
-        categoryData[item.value].map((categoryitem: any) => {
-          categoryurl = categoryurl + categoryitem + '|';
-          return categoryurl;
+        resourcetypeList.push(item.value);
+      }
+    });
+    status.checklist.slice(2, 5).forEach((item: any) => {
+      if (item.isChecked === true) {
+        resourceVerificationList.push(item.value);
+      }
+    });
+    status.checklist.slice(5).forEach((item: any) => {
+      if (item.isChecked === true) {
+        categoriesList.forEach((categorytagList: any) => {
+          if (categorytagList.name === item.value) {
+            categorytagList.tags.forEach((tags: any) =>
+              tagsList.push(tags.name));
+          }
         });
       }
-      return tempcategory;
     });
+    tagsList.forEach((tagname: any) => {
+      props.ResourceList.forEach((resourceItem: any) => {
+        resourceItem.tags.forEach((item: any) => {
+          if (item.name === tagname) {
+            filteredDataList.add(resourceItem);
+            return;
+          }
+        });
+      });
+    });
+    let filterArray = Array.from(filteredDataList);
+    if (tagsList.length === 0) {
+      filterArray = props.ResourceList;
+    }
+    const tempv: any = [];
+    if (resourcetypeList.length > 0) {
+      resourcetypeList.forEach((resourceType: any) => {
+        filterArray.forEach((resourceItem: any) => {
+          if (resourceItem.type === resourceType) {
+            tempv.push(resourceItem);
+          }
+        },
 
-    // for displaying clear filter options
+        );
+      });
+      filterArray = tempv;
+    }
+    const tempx: any = [];
+    if (resourceVerificationList.length > 0) {
+      resourceVerificationList.forEach((resourceVerification: any) => {
+        filterArray.forEach((resourceItem: any) => {
+          if (resourceItem.catalog.type === resourceVerification) {
+            tempx.push(resourceItem);
+          }
+        });
+      });
+      filterArray = tempx;
+    }
+    if (searchedtext[0] !== '') {
+      let suggestions: any = [];
+      const regex = new RegExp(`${searchedtext[0]}`, 'i');
+      suggestions = filterArray.sort().filter((v: any) => regex.test(v.name));
+      store.dispatch(
+        {
+          type: FETCH_TASK_SUCCESS,
+          payload: suggestions,
+        });
+      store.dispatch(
+        {
+          type: FETCH_TASK_LIST,
+          payload: filterArray,
+        });
+    } else {
+      store.dispatch(
+        {
+          type: FETCH_TASK_SUCCESS,
+          payload: filterArray,
+        });
+      store.dispatch(
+        {
+          type: FETCH_TASK_LIST,
+          payload: filterArray,
+        });
+    }
+
+    // // for displaying clear filter options
     let flag: any = false;
+
     status.checklist.forEach((it: any) => {
       if (it.isChecked === true) {
         flag = true;
       }
     });
     if (flag === true) {
-      setClear('ClearAll');
+      setClear('Clear All');
     } else {
       setClear(' ');
     }
-    fetchApi(typeurl, verifiedurl, categoryurl);
   };
 
   //   function for clearing all checkbox
   const clearFilter = () => {
+    const searchedtext = Object.values(store.getState().SearchedText);
     setCheckBoxStatus(
-        tempObj,
+      tempObj,
     );
-    status.checklist.map((it: any) => {
+    status.checklist.forEach((it: any) => {
       it.isChecked = false;
-      return status;
     });
-    // for bydefault fetchApi after clearAll checkbox
-    fetchApi('all', 'false', ' ');
     setClear('');
+    if (searchedtext[0] !== '') {
+      let suggestions: any = [];
+      const regex = new RegExp(`${searchedtext[0]}`, 'i');
+      suggestions = props.ResourceList.sort().filter(
+        (v: any) => regex.test(v.name));
+      store.dispatch(
+        {
+          type: FETCH_TASK_SUCCESS,
+          payload: suggestions,
+        });
+      store.dispatch({
+        type: FETCH_TASK_LIST,
+        payload: props.ResourceList,
+      });
+    } else {
+      store.dispatch(
+        {
+          type: FETCH_TASK_SUCCESS,
+          payload: props.ResourceList,
+        });
+      store.dispatch(
+        {
+          type: FETCH_TASK_LIST,
+          payload: props.ResourceList,
+        });
+    }
   };
+
   let resourceType: any;
   if (status !== undefined && checkBoxStatus !== undefined) {
     const resource = status.checklist.slice(0, 2);
     resourceType = resource.map((it: any, idx: number) => (
       <div key={`res-${idx}`} style={{marginBottom: '0.5em'}}>
-        {addIcon(it, idx)}
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
           style={{width: '1.2em', height: '1.2em', marginRight: '.3em'}}
-          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1))}
+          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1), idx)}
           value={it.value}
           name="type"
           id={it.id}
@@ -188,16 +285,16 @@ const Filter: React.FC = (props: any) => {
   let showverifiedtask: any;
   // jsx element for show verifiedtask
   if (status !== undefined && checkBoxStatus !== undefined) {
-    const verifiedtask = status.checklist.slice(2, 3);
+    const verifiedtask = status.checklist.slice(2, 5);
     showverifiedtask = verifiedtask.map((it: any, idx: number) => (
       <div key={`task-${idx}`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
-          style={{width: '1.2em', height: '1.2em'}}
-          label={it.value[0].toUpperCase() + it.value.slice(1)}
+          style={{width: '1.2em', height: '1.2em', marginRight: '.3em'}}
+          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1), idx + 2)}
           value={it.value}
-          name="verified"
+          name="verification"
           id={it.id}
           aria-label="uncontrolled checkbox example"
 
@@ -208,7 +305,7 @@ const Filter: React.FC = (props: any) => {
   // jsx element for showing all categories
   let categoryList: any = '';
   if (status !== undefined && checkBoxStatus !== undefined) {
-    const tempstatus = status.checklist.slice(3);
+    const tempstatus = status.checklist.slice(5);
     tempstatus.sort((a: any, b: any) =>
       (a.value > b.value) ? 1 :
         ((b.value > a.value) ? -1 : 0));
@@ -221,7 +318,7 @@ const Filter: React.FC = (props: any) => {
             style={{width: '1.2em', height: '1.2em'}}
             label={it.value[0].toUpperCase() + it.value.slice(1)}
             value={it.value}
-            name="Tags"
+            name="tags"
             id={it.id}
             aria-label="uncontrolled checkbox example"
 
@@ -231,14 +328,17 @@ const Filter: React.FC = (props: any) => {
   }
 
   return (
-    <div className="filter-size" key="">
-      <h2 style={{marginBottom: '1em'}}>
+    <div className="filter-size">
+
+      <h2>
         {' '}
         <Button component='a' variant='link'
-          onClick={clearFilter}> {clear} </Button>
+          onClick={clearFilter} style={{marginBottom: "0.8em"}}>
+          {clear} </Button>
         {'  '}
 
       </h2>
+
       <h2 style={{marginBottom: '1em'}}>
         {' '}
         <b>Types</b>{'  '}
@@ -246,11 +346,8 @@ const Filter: React.FC = (props: any) => {
       {resourceType}
       <h2 style={{marginBottom: '1em', marginTop: '1em'}}>
         {' '}
-        <b>Verified </b>{'  '}
-        <Tooltip content={<div>
-          Verified Task and Pipelines by Tekton Catalog</div>}>
-          <InfoCircleIcon />
-        </Tooltip>
+        <b>Support Tier </b>{'  '}
+
       </h2>
       {showverifiedtask}
       <h2 style={{marginBottom: '1em', marginTop: '1em'}}><b>Categories</b></h2>
@@ -258,4 +355,12 @@ const Filter: React.FC = (props: any) => {
     </div>
   );
 };
-export default Filter;
+
+const mapStateToProps = (state: any) => ({
+  ResourceList: state.ResourceList.ResourceList,
+  TaskDataList: state.TaskDataList.TaskDataList,
+
+});
+export default
+  connect(mapStateToProps, fetchResourceList)(Filter);
+

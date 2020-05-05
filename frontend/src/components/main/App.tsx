@@ -12,7 +12,6 @@ import TaskContainer from '../task-container/TaskContainer';
 import UploadTask from '../upload-task/UploadTask';
 import '@patternfly/react-core/dist/styles/base.css';
 import logo from '../assets/logo/main.png';
-import Community from '../community/Community';
 import Filter from '../filter/Filter';
 import UserProfile from '../user-profile/UserProfile';
 import {
@@ -33,8 +32,8 @@ import Detail from '../detail/Detail';
 import BasicDetailParent from '../basic-detail/BasicDetailParent';
 import BackgroundImageHeader from '../background-image/BackgroundImage';
 import Login from '../Authentication/Login';
-import SignupForm from '../Authentication/Signup';
 import Footer from '../footer/Footer';
+import {PlusIcon} from '@patternfly/react-icons';
 interface mainProps {
 
 }
@@ -49,34 +48,43 @@ const App: React.FC<mainProps> = () => {
     onClick: () => console.log('clicked logo'),
     target: '',
   };
-  const logoutUser=()=>{
+  const logoutUser = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('usetrID');
     window.location.assign('/');
   };
-  let userimage:any;
-  let displayUpload:any ='';
+  let userimage: any;
+  let displayUpload: any = '';
   let authenticationButton;
-  if (localStorage.getItem('token')===null) {
-    authenticationButton= <Link to="/login">
-      <span style={{marginRight: '1em', color: 'white'}}> Login </span>
+  if (localStorage.getItem('token') === null) {
+    authenticationButton = <Link to="/login">
+      <span
+        style={{
+          marginRight: '1em',
+          color: 'white',
+          fontSize: '1em',
+        }}>
+        Login</span>
     </Link>;
-    displayUpload='';
+    displayUpload = '';
   } else {
-    authenticationButton= <Link to="/">
-      <span style={{marginRight: '1em', color: 'white'}}
+    authenticationButton = <Link to="/">
+      <span style={{marginRight: '1em', color: 'white', fontSize: '1em'}}
         onClick={logoutUser}> Logout </span>
     </Link>;
-    displayUpload= <Link to="/upload">
-      <span style={{marginLeft:
-        '1.3em', marginRight:
-         '-0.6em', color: 'white'}}>
-    Add
+    displayUpload = <Link to="/upload">
+      <span >
+        <PlusIcon size="sm" color='white' />
       </span>
       {' '}
     </Link>;
-    userimage = <Link to = "/user-profile">
-      <Avatar src={imgAvatar} alt="" />
+    userimage = <Link to="/user-profile">
+      <Avatar
+        style={{
+          width: '1.5em',
+          height: '1.5em',
+        }}
+        src={imgAvatar} alt="" />
     </Link>;
   }
 
@@ -87,19 +95,6 @@ const App: React.FC<mainProps> = () => {
       <Toolbar>
         <ToolbarGroup>
           <ToolbarItem style={{color: 'white'}}>
-            <Link to="/">
-              <span style={{marginRight: '2em', color: 'white'}}>Home</span>
-            </Link>
-
-            <Link to="/">
-              <span style={{marginRight: '2em', color: 'white'}}>Search</span>
-            </Link>
-
-            <Link to="/">
-              <span style={{marginRight: '0.2em', color: 'white'}}>
-                Community
-              </span>
-            </Link>
             {displayUpload}
             <Button id="default-example-uid-01"
               aria-label="Notifications actions"
@@ -114,7 +109,7 @@ const App: React.FC<mainProps> = () => {
 
           </ToolbarItem>
           <ToolbarItem>
-            <Link to="/"> {userimage}  </Link>
+            {userimage}
           </ToolbarItem>
         </ToolbarGroup>
       </Toolbar>
@@ -133,9 +128,6 @@ const App: React.FC<mainProps> = () => {
     <Router>
       <Page header={Header}>
         <Route exact path="/" component={BackgroundImageHeader} />
-        <Route exact path="/search" component={BackgroundImageHeader} />
-
-        {/* </PageSection> */}
         <PageSection>
           <GridItem span={1}>
 
@@ -143,7 +135,6 @@ const App: React.FC<mainProps> = () => {
           <GridItem span={9}>
             <Route exact path="/" component={SearchBar} />
             <Route exact path="/detail/:taskId" component={BasicDetailParent} />
-            <Route exact path="/search" component={SearchBar} />
           </GridItem>
         </PageSection>
         <PageSection>
@@ -151,20 +142,17 @@ const App: React.FC<mainProps> = () => {
             <GridItem span={1} >
               <Route exact path="/" component={Filter} />
             </GridItem>
-            <GridItem span={9} style = {{marginLeft: '2em'}} >
-              <Route exact path="/user-profile" component={UserProfile}/>
+            <GridItem span={9} style={{marginLeft: '2em'}} >
+              <Route exact path="/user-profile" component={UserProfile} />
               <Route exact path="/upload" component={UploadTask} />
               <Route exact path="/" component={TaskContainer} />
-              <Route path="/search" component={TaskContainer} />
             </GridItem>
           </Grid>
           <Route exact path="/detail/:taskId" component={Detail} />
-          <Route path="/community" component={Community} />
         </PageSection>
         <PageSection>
-          <Route path='/login' component={Login}/>
-          <Route path='/logout' component={Login}/>
-          <Route path='/signup' component={SignupForm}/>
+          <Route path='/login' component={Login} />
+          <Route path='/logout' component={Login} />
         </PageSection>
 
         <Footer />
