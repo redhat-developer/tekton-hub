@@ -23,6 +23,9 @@ import {
   GithubIcon,
   BuildIcon,
   DomainIcon,
+  CatIcon,
+  CertificateIcon,
+  UserIcon,
 } from '@patternfly/react-icons';
 import '@patternfly/react-core/dist/styles/base.css';
 import './basicdetail.css';
@@ -61,7 +64,15 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
 
   const taskArr: any = [];
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [descrption, setDescription] = useState(props.task.description);
+
+  const [summary, setSummary] = useState(props.task.description.substring(0,
+    props.task.description.lastIndexOf('\n')));
+
+  const [descrption, setDescription] =
+    useState(
+      props.task.description.substring(props.task.description.indexOf('\n') +
+        1).trim());
+
   const [versions, setVersion] =
     useState(props.task.latestVersion + ' (latest) ');
 
@@ -80,7 +91,8 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
     dropdownItems = props.task.data.reverse().map((item: any, index: any) => {
       return <DropdownItem
         key={`res-${item.version}`} id={item.version}
-        onClick={version}>{item.version}
+        onClick={version} >
+        {item.version}
       </DropdownItem>;
     });
   }
@@ -100,7 +112,13 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
           item.webUrl.lastIndexOf('/') + 1)}`);
 
         setTaskLink(`kubectl apply -f ${item.rawUrl}`);
-        setDescription(item.description);
+
+        setSummary(item.description.substring(0,
+          item.description.lastIndexOf('\n')));
+
+        setDescription(
+          item.description.substring(item.description.indexOf('\n') + 1).trim(),
+        );
       }
     });
   }
@@ -116,6 +134,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
   } else {
     taskArr.push([]);
   }
+
   // ading icon for details page
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
@@ -124,6 +143,29 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
   } else {
     resourceIcon = <DomainIcon
       style={{height: '5em', width: '5em'}} color="#4848484" />;
+  }
+
+  // for verification status of resources
+  let verifiedStatus: any;
+  if (props.task) {
+    if (props.task.catalog.type === 'Official') {
+      verifiedStatus = <div className="vtask" >
+        <CatIcon size="md" color='#484848'
+          style={{width: '2em', height: '1.7em'}} />
+      </div>;
+    }
+    if (props.task.catalog.type === 'Verified') {
+      verifiedStatus = <div className="vtask" >
+        <CertificateIcon size="md" color='#484848'
+          style={{width: '2em', height: '1.7em'}} />
+      </div>;
+    }
+    if (props.task.catalog.type === 'Cummunity') {
+      verifiedStatus = <div className="vtask" >
+        <UserIcon size="md" color='#484848'
+          style={{width: '2em', height: '1.7em'}} />
+      </div>;
+    }
   }
 
   return (
@@ -140,10 +182,20 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
 
           <TextContent style={{paddingLeft: '4em', paddingTop: '2em'}}>
 
-            <Text style={{fontSize: '2em'}}>
-              {props.task.name.charAt(0).toUpperCase() +
-                props.task.name.slice(1)}
-            </Text>
+            <Flex breakpointMods={[{modifier: 'row', breakpoint: 'lg'}]}>
+
+              <FlexItem>
+                <Text style={{fontSize: '2em'}}>
+                  {props.task.name.charAt(0).toUpperCase() +
+                    props.task.name.slice(1)}
+                </Text>
+              </FlexItem>
+
+              <FlexItem>
+                {verifiedStatus}
+              </FlexItem>
+
+            </Flex>
 
             <Text style={{fontSize: '1em'}}>
               <GithubIcon size="md"
@@ -154,9 +206,16 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
 
             <Grid>
 
-              <GridItem span={10} style={{paddingBottom: '1.5em'}}>
+              <GridItem span={10}
+                style={{paddingBottom: '1.5em', textAlign: 'justify'}}>
+
+                {summary}
+                <br />
+                <br />
                 {descrption}
+
               </GridItem>
+
 
               <GridItem>
                 {
@@ -191,6 +250,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
                   <Button variant="primary"
                     className="button"
                     onClick={() => setIsModalOpen(!isModalOpen)}
+                    style={{width: '8.5em'}}
                   >
                     Install
                   </Button>
@@ -228,13 +288,16 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
 
               </FlexItem>
 
-              <FlexItem style={{marginLeft: '-2em', marginTop: '1'}}>
+              <FlexItem style={{marginLeft: '-2em', marginTop: '0.7em'}}>
 
-                <Dropdown
+                <Dropdown style={{marginLeft: '-1em'}}
                   onSelect={onSelect}
-                  toggle={<DropdownToggle
-                    onToggle={ontoggle}>{versions}
-                  </DropdownToggle>}
+                  toggle={
+                    <DropdownToggle
+                      onToggle={ontoggle}
+                      style={{width: '8.5em'}}>
+                      {versions}
+                    </DropdownToggle>}
                   isOpen={isOpen}
                   dropdownItems={dropdownItems}
                 />
