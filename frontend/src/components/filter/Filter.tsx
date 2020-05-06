@@ -33,11 +33,26 @@ const Filter: React.FC = (props: any) => {
   const [categoriesList, setCategoriesList] = useState();
   const [status, setStatus] = useState({checklist: []});
   const [clear, setClear] = useState(' ');
-  const filterItem: any = [{id: '1000', value: 'task', isChecked: false},
-  {id: '1001', value: 'pipeline', isChecked: false},
-  {id: '1002', value: 'Official', isChecked: false},
-  {id: '1003', value: 'Verified', isChecked: false},
-  {id: '1004', value: 'Community', isChecked: false}];
+  const filterItem: any = [{
+    id: '1000', value: 'task',
+    isChecked: false,
+  },
+  {
+    id: '1001', value: 'pipeline',
+    isChecked: false,
+  },
+  {
+    id: '1002', value: 'Official',
+    isChecked: false,
+  },
+  {
+    id: '1003', value: 'Verified',
+    isChecked: false,
+  },
+  {
+    id: '1004', value: 'Community',
+    isChecked: false,
+  }];
   const [checkBoxStatus, setCheckBoxStatus] = useState(
     {},
   );
@@ -272,7 +287,8 @@ const Filter: React.FC = (props: any) => {
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
           style={{width: '1.2em', height: '1.2em', marginRight: '.3em'}}
-          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1), idx)}
+          label={customLabel(it.value[0].toUpperCase() +
+            it.value.slice(1), idx)}
           value={it.value}
           name="type"
           id={it.id}
@@ -292,7 +308,8 @@ const Filter: React.FC = (props: any) => {
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
           style={{width: '1.2em', height: '1.2em', marginRight: '.3em'}}
-          label={customLabel(it.value[0].toUpperCase() + it.value.slice(1), idx + 2)}
+          label={customLabel(it.value[0].toUpperCase() +
+            it.value.slice(1), idx + 2)}
           value={it.value}
           name="verification"
           id={it.id}
@@ -333,7 +350,7 @@ const Filter: React.FC = (props: any) => {
       <h2>
         {' '}
         <Button component='a' variant='link'
-          onClick={clearFilter} style={{marginBottom: "0.8em"}}>
+          onClick={clearFilter} style={{marginBottom: '0.8em'}}>
           {clear} </Button>
         {'  '}
 
@@ -361,6 +378,6 @@ const mapStateToProps = (state: any) => ({
   TaskDataList: state.TaskDataList.TaskDataList,
 
 });
-export default
-  connect(mapStateToProps, fetchResourceList)(Filter);
+export default connect(mapStateToProps,
+  fetchResourceList)(Filter);
 

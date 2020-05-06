@@ -21,8 +21,8 @@ export interface TaskPropData {
   description: string,
   rating: number,
   tags: [],
-  last_updated_at: string;
-  latest_version;
+  lastUpdatedAt: string;
+  latestVersion;
   catalog: [],
   type: string,
 }
@@ -46,8 +46,8 @@ const SearchBar: React.FC = (props: any) => {
         rating: task.rating,
         tags: task.tags,
         type: task.type,
-        last_updated_at: task.last_updated_at,
-        latest_version: task.latest_version,
+        lastUpdatedAt: task.lastUpdatedAt,
+        latestVersion: task.latestVersion,
       };
       return taskData;
     });
@@ -142,7 +142,6 @@ const SearchBar: React.FC = (props: any) => {
           </FlexItem>
         </Flex>
         <React.Fragment>
-
 
 
           <InputGroup style={{width: '70%', marginLeft: '11em'}}>

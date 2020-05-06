@@ -1,18 +1,18 @@
 import {FETCH_TASK_NAME} from '../Actions/TaskActionType';
 
-export interface ResData{
-    Name : string,
-    Description : string,
-    Rating : number,
-    Downloads : number,
-    YAML : string
-  }
+export interface ResData {
+  Name: string,
+  Description: string,
+  Rating: number,
+  Downloads: number,
+  YAML: string
+}
 // type obj = ResData[]
 const initialState = {
   data: [],
 };
 
-const reducer = (state = initialState, action : any) => {
+const reducer = (state = initialState, action: any) => {
   switch (action.type) {
     case FETCH_TASK_NAME:
 

@@ -64,9 +64,9 @@ const UploadTask: React.FC = () => {
         'Content-Type': 'application/json',
       },
     }).then((resp) => resp.json())
-        .then((data)=>
-          setUploadMessage(alertMessage(data)))
-        .then((error:any) => console.log(error));
+      .then((data)=>
+        setUploadMessage(alertMessage(data)))
+      .then((error:any) => console.log(error));
   };
   const addTags = (event: any) => {
     event.preventDefault();

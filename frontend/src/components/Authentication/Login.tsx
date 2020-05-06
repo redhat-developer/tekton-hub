@@ -36,7 +36,8 @@ const Login: React.FC = () => {
   };
   useEffect(() => {
     // console.log(document.getElementsByTagName('button'));
-    document.getElementsByTagName('button')[1].style.backgroundColor = '#1e66cc';
+    document.getElementsByTagName('button')[1].style.backgroundColor =
+      '#1e66cc';
     document.getElementsByTagName('button')[1].style.padding = '0.3em';
     document.getElementsByTagName('button')[1].style.width = '50%';
     document.getElementsByTagName('button')[1].style.color = 'white';
@@ -46,7 +47,7 @@ const Login: React.FC = () => {
       <Card style={{maxWidth: '30em', margin: 'auto'}}>
         <CardHeader style={{
           fontSize: '2em', marginBottom: 0,
-          textAlign: 'center'
+          textAlign: 'center',
         }}>
           <GithubIcon size="lg" />
         </CardHeader>

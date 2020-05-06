@@ -3,7 +3,7 @@ import {useParams} from 'react-router';
 import {connect} from 'react-redux';
 import BasicDetail from './BasicDetail';
 import {fetchTaskName} from '../redux/Actions/TaskActionName';
-import {fetchTaskSuccess} from '../redux/Actions/TaskAction'
+import {fetchTaskSuccess} from '../redux/Actions/TaskAction';
 import Loader from '../loader/loader';
 import './basicdetail.css';
 import {API_URL} from '../../constants';
@@ -11,7 +11,7 @@ import {API_URL} from '../../constants';
 
 const Detail: React.FC = (props: any) => {
   const [newversion, setNewversion] = React.useState();
-  const {taskId} = useParams()
+  const {taskId} = useParams();
   React.useEffect(() => {
     props.fetchTaskSuccess();
     fetch(`${API_URL}/resource/${taskId}/versions`)
@@ -32,13 +32,13 @@ const Detail: React.FC = (props: any) => {
         if (temp.length === 0) {
           return (
             <div></div>
-          )
+          );
         } else {
           return (
             < BasicDetail task={props.TaskData[i]}
               version={temp}
             />
-          )
+          );
         }
       }
     }
@@ -52,5 +52,6 @@ const mapStateToProps = (state: any) => ({
   TaskName: state.TaskName.TaskName,
   TaskData: state.TaskData.TaskData,
 });
-export default connect(mapStateToProps, {fetchTaskName, fetchTaskSuccess})(Detail);
+export default connect(mapStateToProps,
+  {fetchTaskName, fetchTaskSuccess})(Detail);
 

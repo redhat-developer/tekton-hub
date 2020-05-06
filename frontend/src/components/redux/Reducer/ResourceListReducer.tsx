@@ -1,4 +1,6 @@
-import { FETCH_RESOURCE_LIST } from '../Actions/TaskActionType';
+/* eslint indent: [2, 4, {"SwitchCase": 1}]*/
+// (TODO) update eslint
+import {FETCH_RESOURCE_LIST} from '../Actions/TaskActionType';
 const reducer = (state = [], action: any) => {
     switch (action.type) {
         case FETCH_RESOURCE_LIST:

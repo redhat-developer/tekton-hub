@@ -2,8 +2,8 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import '@patternfly/react-core/dist/styles/base.css';
-import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en'
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 import {
   Link,
 } from 'react-router-dom';
@@ -38,8 +38,8 @@ export interface TaskPropObject {
   downloads: number;
   yaml: string;
   tags: [];
-  last_updated_at: string;
-  latest_version;
+  lastUpdatedAt: string;
+  latestVersion: string;
 }
 
 export interface TaskProp {
@@ -51,20 +51,20 @@ const Task: React.FC<TaskProp> = (props: any) => {
   const tempArr: any = [];
   if (props.task.tags != null) {
     props.task.tags.forEach((item: any) => {
-      tempArr.push(item.name)
-    })
+      tempArr.push(item.name);
+    });
   } else {
     tempArr.push([]);
   }
 
-  TimeAgo.addLocale(en)
+  TimeAgo.addLocale(en);
 
   // Create relative date/time formatter.
-  const timeAgo = new TimeAgo('en-US')
+  const timeAgo = new TimeAgo('en-US');
 
-  var catalogDate = new Date(props.task.last_updated_at);
+  const catalogDate = new Date(props.task.lastUpdatedAt);
 
-  var diffDays = timeAgo.format(catalogDate.getTime() - 60 * 1000)
+  const diffDays = timeAgo.format(catalogDate.getTime() - 60 * 1000);
 
 
   // for verification status of resources
@@ -93,16 +93,15 @@ const Task: React.FC<TaskProp> = (props: any) => {
   let resourceIcon: React.ReactNode;
   if (props.task.type === 'task') {
     resourceIcon = <BuildIcon
-      style=
-      {{
+      style={{
         width: '2em', height: '2em',
-        verticalAlign: '-0.2em'
+        verticalAlign: '-0.2em',
       }} color="#484848" />;
   } else {
     resourceIcon = <DomainIcon
       style={{
         width: '2em',
-        height: '2em', verticalAlign: '-0.2em'
+        height: '2em', verticalAlign: '-0.2em',
       }}
       color="#484848"
     />;
@@ -116,9 +115,9 @@ const Task: React.FC<TaskProp> = (props: any) => {
 
           <CardHead>
 
-            <Flex breakpointMods={[{modifier: "row", breakpoint: "lg"}]}>
+            <Flex breakpointMods={[{modifier: 'row', breakpoint: 'lg'}]}>
 
-              <FlexItem style={{marginRight: "1em"}}>
+              <FlexItem style={{marginRight: '1em'}}>
                 {resourceIcon}
               </FlexItem>
 
@@ -130,7 +129,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
 
             <CardActions className="cardActions">
 
-              <StarIcon style={{color: '#484848', height: "1.7em", width: "1.7em"}} />
+              <StarIcon style={{color: '#484848', height: '1.7em', width: '1.7em'}} />
               <TextContent className="text">
                 {props.task.rating.toFixed(1)}
               </TextContent>
@@ -146,9 +145,9 @@ const Task: React.FC<TaskProp> = (props: any) => {
               </FlexItem>
               <FlexItem
                 breakpointMods={[{modifier: FlexModifiers['align-right']}]}
-                style={{marginBottom: "0.5em"}}>
+                style={{marginBottom: '0.5em'}}>
                 <span>
-                  v{props.task.latest_version}
+                  v{props.task.latestVersion}
                 </span>
               </FlexItem>
             </Flex>
@@ -165,19 +164,18 @@ const Task: React.FC<TaskProp> = (props: any) => {
 
 
             <TextContent className="text"
-              style={{marginBottom: "1em", marginLeft: "0.2em"}}>
+              style={{marginBottom: '1em', marginLeft: '0.2em'}}>
               Updated {diffDays}
             </TextContent>
 
-            <div style={{height: "2em"}}>
+            <div style={{height: '2em'}}>
               {
                 tempArr.map((tag: any) => {
                   return (
                     <Badge style={{
                       marginLeft: '0.2em',
                       marginBottom: '1em',
-                    }} key={`badge-${tag}`}
-                      className="badge">{tag}</Badge>
+                    }} key={`badge-${tag}`} className="badge">{tag}</Badge>
                   );
                 })
               }

@@ -18,7 +18,7 @@ const Detail: React.FC = (props: any) => {
     // eslint-disable-next-line
   }, []);
 
-  let newLine = "\n"
+  const newLine = '\n';
   let taskDescription: string = '';
   let catalogTaskDescription: string = '';
   let yamlData: string = '';
@@ -30,9 +30,10 @@ const Detail: React.FC = (props: any) => {
 
     return (
       <div>
-        <Flex breakpointMods={[{modifier: 'row', breakpoint: 'lg'},
-        {modifier: 'nowrap', breakpoint: 'lg'},
-        {modifier: 'column', breakpoint: 'sm'}]}>
+        <Flex breakpointMods={[{modifier: 'row', breakpoint: 'lg'}, {
+          modifier:
+            'column', breakpoint: 'sm',
+        }]}>
           <FlexItem>
             <Description
               Description={catalogTaskDescription}
@@ -47,7 +48,6 @@ const Detail: React.FC = (props: any) => {
       <div />
     );
   }
-
 };
 
 const mapStateToProps = (state: any) => {
@@ -58,6 +58,6 @@ const mapStateToProps = (state: any) => {
   };
 };
 
-export default
-  connect(mapStateToProps, {fetchTaskDescription, fetchTaskName})(Detail);
+export default connect(mapStateToProps,
+  {fetchTaskDescription, fetchTaskName})(Detail);
 

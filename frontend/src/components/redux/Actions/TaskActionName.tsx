@@ -3,7 +3,7 @@ import {API_URL} from '../../../constants';
 
 // eslint-disable-next-line require-jsdoc
 export function fetchTaskName(id: number) {
-  return function (dispatch: any) {
+  return (dispatch: any) => {
     fetch(`${API_URL}/resource/${id}/versions`)
       .then((response) => response.json())
       .then((TaskName) => dispatch({

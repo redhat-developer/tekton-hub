@@ -15,7 +15,7 @@ import {fetchTaskName} from
   '../redux/Actions/TaskActionName';
 import {API_URL} from '../../constants';
 import {StarIcon} from '@patternfly/react-icons';
-import {fetchTaskSuccess} from '../redux/Actions/TaskAction'
+import {fetchTaskSuccess} from '../redux/Actions/TaskAction';
 
 let updatedRating: number = 0;
 const Rating: React.FC = (props: any) => {
@@ -85,7 +85,7 @@ const Rating: React.FC = (props: any) => {
     }).then((res) => res.json())
       .then((response) => {
         console.log(response);
-        setAvgRating(response.data.avg_rating);
+        setAvgRating(response.data.avgRating);
       });
   };
 
@@ -224,7 +224,7 @@ const mapStateToProps = (state: any) => {
   return {
     isAuthenticated: state.isAuthenticated.isAuthenticated,
     TaskName: state.TaskName.TaskName,
-    TaskData: state.TaskData.TaskData
+    TaskData: state.TaskData.TaskData,
   };
 };
 export default connect(mapStateToProps,

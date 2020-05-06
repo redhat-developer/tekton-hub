@@ -3,29 +3,23 @@ import {FETCH_TASK_YAML} from '../Actions/TaskActionType';
 
 // eslint-disable-next-line require-jsdoc
 export function fetchTaskDescription(rawUrl: string) {
+  const readmeUrl = rawUrl.substring(0, rawUrl.lastIndexOf('/') + 1);
 
-  if (rawUrl) {
-    var readmeUrl = rawUrl.substring(0, rawUrl.lastIndexOf("/") + 1)
-  }
-  return function (dispatch: any) {
-
+  return (dispatch: any) => {
     fetch(`${readmeUrl}/README.md`)
       .then((response) => response.text())
       .then((TaskDescription) => dispatch({
         type: FETCH_TASK_DESCRIPTION,
-        payload: TaskDescription
-      }))
+        payload: TaskDescription,
+      }));
 
     fetch(`${rawUrl}`)
       .then((response) => response.text())
       .then((TaskYaml) => dispatch({
         type: FETCH_TASK_YAML,
-        payload: TaskYaml
-      }))
-
+        payload: TaskYaml,
+      }));
   };
-
-
 }
 
 export default fetchTaskDescription;

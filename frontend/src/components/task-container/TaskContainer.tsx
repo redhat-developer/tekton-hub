@@ -43,7 +43,7 @@ const TaskContainer: React.FC = (props: any) => {
     return (
 
       <div style={{
-        margin: "auto"
+        margin: 'auto',
       }}>
         <EmptyState variant={EmptyStateVariant.full}>
           <EmptyStateIcon icon={CubesIcon} />
@@ -72,5 +72,5 @@ const TaskContainer: React.FC = (props: any) => {
 const mapStateToProps = (state: any) => ({
   TaskData: state.TaskData.TaskData,
 });
-export default
-  connect(mapStateToProps, {fetchTaskSuccess})(TaskContainer);
+export default connect(mapStateToProps,
+  {fetchTaskSuccess})(TaskContainer);

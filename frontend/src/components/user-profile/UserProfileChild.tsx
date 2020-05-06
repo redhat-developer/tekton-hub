@@ -31,8 +31,8 @@ const UserProfileChild: React.FC<TaskProp> = (props: any) => {
     return fetch(`${API_URL}/resource/${taskId}`, {
       method: 'DELETE',
     })
-        .then((response) => response.json())
-        .then((data: any) => window.location.reload());
+      .then((response) => response.json())
+      .then((data: any) => window.location.reload());
   };
   return (
     <div>

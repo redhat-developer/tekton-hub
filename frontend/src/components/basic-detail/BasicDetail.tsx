@@ -34,7 +34,7 @@ export interface BasicDetailPropObject {
   name: string;
   description: string;
   rating: number;
-  latest_version: string,
+  latestVersion: string,
   tags: []
   type: string
   data: []
@@ -43,8 +43,8 @@ export interface BasicDetailPropObject {
 export interface Version {
   version: string,
   description: string,
-  raw_url: string
-  web_url: string
+  rawUrl: string
+  webUrl: string
 }
 
 export interface BasicDetailProp {
@@ -54,47 +54,55 @@ export interface BasicDetailProp {
 
 
 const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
-
   React.useEffect(() => {
-    props.fetchTaskDescription(props.version.raw_url)
+    props.fetchTaskDescription(props.version.rawUrl);
     // eslint-disable-next-line
   }, [])
 
   const taskArr: any = [];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [descrption, setDescription] = useState(props.task.description);
-  const [versions, setVersion] = useState(props.task.latest_version + " (latest) ");
+  const [versions, setVersion] =
+    useState(props.task.latestVersion + ' (latest) ');
 
-  const [taskLink, setTaskLink] = useState(`kubectl apply -f ${props.version.raw_url}`)
-  const [href, setHref] = useState(`${props.version.web_url.substring(0, props.version.web_url.lastIndexOf("/") + 1)}`)
+  const [taskLink, setTaskLink] =
+    useState(`kubectl apply -f ${props.version.rawUrl}`);
+
+  const [href, setHref] = useState(`${props.version.webUrl.substring(0,
+    props.version.webUrl.lastIndexOf('/') + 1)}`);
 
   // Dropdown menu to show versions
   const [isOpen, set] = useState(false);
   let dropdownItems: any = [];
 
   if (props.task.data) {
-    fetchTaskDescription(props.version.raw_url)
+    fetchTaskDescription(props.version.rawUrl);
     dropdownItems = props.task.data.reverse().map((item: any, index: any) => {
-      return <DropdownItem key={`res-${item.version}`} id={item.version} onClick={version}>{item.version}</DropdownItem>
-    })
+      return <DropdownItem
+        key={`res-${item.version}`} id={item.version}
+        onClick={version}>{item.version}
+      </DropdownItem>;
+    });
   }
 
-  //Version for resource
+  // Version for resource
   function version(event: any) {
     props.task.data.forEach((item: any) => {
-      if (event.target.text === props.task.latest_version) {
-        setVersion(props.task.latest_version + " (latest) ")
+      if (event.target.text === props.task.latestVersion) {
+        setVersion(props.task.latestVersion + ' (latest) ');
       } else {
-        setVersion(event.target.text)
+        setVersion(event.target.text);
       }
       if (event.target.text === item.version) {
-        props.fetchTaskDescription(item.raw_url)
+        props.fetchTaskDescription(item.rawUrl);
 
-        setHref(`${item.web_url.substring(0, item.web_url.lastIndexOf("/") + 1)}`)
-        setTaskLink(`kubectl apply -f ${item.raw_url}`)
-        setDescription(item.description)
+        setHref(`${item.webUrl.substring(0,
+          item.webUrl.lastIndexOf('/') + 1)}`);
+
+        setTaskLink(`kubectl apply -f ${item.rawUrl}`);
+        setDescription(item.description);
       }
-    })
+    });
   }
 
   const ontoggle = (isOpen: React.SetStateAction<boolean>) => set(isOpen);
@@ -103,9 +111,8 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
   // Get tags for resource
   if (props.task.tags != null) {
     props.task.tags.forEach((item: any) => {
-      taskArr.push(item.name)
-    })
-
+      taskArr.push(item.name);
+    });
   } else {
     taskArr.push([]);
   }
@@ -221,11 +228,13 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
 
               </FlexItem>
 
-              <FlexItem style={{marginLeft: '-2em', marginTop: "1"}}>
+              <FlexItem style={{marginLeft: '-2em', marginTop: '1'}}>
 
                 <Dropdown
                   onSelect={onSelect}
-                  toggle={<DropdownToggle onToggle={ontoggle}>{versions}</DropdownToggle>}
+                  toggle={<DropdownToggle
+                    onToggle={ontoggle}>{versions}
+                  </DropdownToggle>}
                   isOpen={isOpen}
                   dropdownItems={dropdownItems}
                 />
@@ -250,8 +259,7 @@ const mapStateToProps = (state: any) => {
   };
 };
 
-export default
-  connect(mapStateToProps, {fetchTaskDescription})(BasicDetail);
-
+export default connect(mapStateToProps,
+  {fetchTaskDescription})(BasicDetail);
 
 
