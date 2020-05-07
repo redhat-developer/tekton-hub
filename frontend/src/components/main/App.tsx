@@ -13,7 +13,7 @@ import UploadTask from '../upload-task/UploadTask';
 import '@patternfly/react-core/dist/styles/base.css';
 import logo from '../assets/logo/main.png';
 import Filter from '../filter/Filter';
-import UserProfile from '../user-profile/UserProfile';
+// import UserProfile from '../user-profile/UserProfile';
 import {
   Button,
   ButtonVariant,
@@ -31,7 +31,7 @@ import {
 import Detail from '../detail/Detail';
 import BasicDetailParent from '../basic-detail/BasicDetailParent';
 import BackgroundImageHeader from '../background-image/BackgroundImage';
-import Login from '../Authentication/Login';
+// import Login from '../Authentication/Login';
 import Footer from '../footer/Footer';
 import {PlusIcon} from '@patternfly/react-icons';
 interface mainProps {
@@ -128,6 +128,33 @@ const App: React.FC<mainProps> = () => {
     <Router>
       <Page header={Header}>
         <Route exact path="/" component={BackgroundImageHeader} />
+        <PageSection >
+          <Grid gutter='sm' sm={6} md={4} lg={4} xl2={1}>
+            <GridItem span={12}>
+              <Route exact path="/detail/:taskId"
+                component={BasicDetailParent} />
+              <Route exact path="/detail/:taskId" component={Detail} />
+              <Route exact path="/upload" component={UploadTask} />
+            </GridItem>
+            <GridItem span={2} rowSpan={12}>
+
+              <Route exact path="/" component={Filter} />
+            </GridItem>
+            <GridItem span={8} rowSpan={12}>
+              <Route exact path="/" component={SearchBar} />
+
+              <Route exact path="/" component={TaskContainer} />
+
+            </GridItem>
+            <GridItem span={2} rowSpan={12}>
+
+            </GridItem>
+
+
+          </Grid>
+
+        </PageSection>
+        {/* <Route exact path="/" component={BackgroundImageHeader} />
         <PageSection>
           <GridItem span={1}>
 
@@ -153,7 +180,7 @@ const App: React.FC<mainProps> = () => {
         <PageSection>
           <Route path='/login' component={Login} />
           <Route path='/logout' component={Login} />
-        </PageSection>
+        </PageSection> */}
 
         <Footer />
 

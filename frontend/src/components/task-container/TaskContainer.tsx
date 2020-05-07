@@ -56,9 +56,9 @@ const TaskContainer: React.FC = (props: any) => {
   }
 
   return (
-    <div className="block">
+    <div>
 
-      <Gallery gutter="lg" style={{marginRight: '-2.85em'}}>
+      <Gallery gutter="lg">
 
         {
           tempArr.map((task: any) => <Task key={task.id} task={task} />)

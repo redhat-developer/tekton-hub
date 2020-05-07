@@ -1,5 +1,6 @@
 import React from 'react';
-import {Card,
+import {
+  Card,
   CardHead,
   CardActions,
   CardFooter,
@@ -17,10 +18,10 @@ const Footer: React.FC = () => {
   return (
 
     <div>
-      <Card style = {{height: '20em', backgroundColor: '#EDEDED'}}></Card>
-      <Card style = {{backgroundColor: '#151515'}}>
+      <Card style={{height: '20em', backgroundColor: '#EDEDED'}}></Card>
+      <Card style={{backgroundColor: '#151515'}}>
         <CardHead>
-          <img src ={tekton} alt="Task"
+          <img src={tekton} alt="Task"
             style={{height: '7em', marginLeft: '5em'}}
           />
           <TextContent style={{marginLeft: '2em', color: 'white'}}>
@@ -29,18 +30,18 @@ const Footer: React.FC = () => {
             </Text>
             <Grid>
               <GridItem span={6}>
-                <Text style = {{color: 'white'}}>
-              The Tekton Pipelines project
-              provides k8s-style resources for declaring
-              CI/CD-style pipelines.Click here to learn more about
+                <Text style={{color: 'white'}}>
+                  The Tekton Pipelines project
+                  provides k8s-style resources for declaring
+                  CI/CD-style pipelines.Click here to learn more about
                   <a href="https://github.com/tektoncd/pipeline" target="_">Tekton</a>
                 </Text>
               </GridItem>
             </Grid>
           </TextContent>
 
-          <CardActions style = {{marginTop: '1.5em'}}>
-            <Flex breakpointMods = {[{modifier: 'nowrap', breakpoint: 'lg'}]}>
+          <CardActions style={{marginTop: '1.5em'}}>
+            <Flex breakpointMods={[{modifier: 'nowrap', breakpoint: 'lg'}]}>
 
               <FlexItem style={{marginRight: '5em'}}>
                 <Flex breakpointMods
@@ -48,29 +49,29 @@ const Footer: React.FC = () => {
 
                   <FlexItem >
                     <TextContent>
-                      <Text style = {{color: 'white', marginTop: '1.5em'}}
+                      <Text style={{color: 'white', marginTop: '1.5em'}}
                         component={TextVariants.h1}>
-                      Links
+                        Links
                       </Text>
 
                       <Text>
-                        <a href = "/"
-                          style = {{color: 'white', marginTop: '1.5em'}} >
-                      About
+                        <a href="/"
+                          style={{color: 'white', marginTop: '1.5em'}} >
+                          About
                         </a>
                       </Text>
 
                       <Text>
-                        <a href = "/"
-                          style = {{color: 'white', marginTop: '1.5em'}}>
-                      Contribute
+                        <a href="/"
+                          style={{color: 'white', marginTop: '1.5em'}}>
+                          Contribute
                         </a>
                       </Text>
 
                       <Text>
-                        <a href = "/"
-                          style = {{color: 'white', marginTop: '1.5em'}}>
-                      Tekton
+                        <a href="/"
+                          style={{color: 'white', marginTop: '1.5em'}}>
+                          Tekton
                         </a>
                       </Text>
 
@@ -81,27 +82,27 @@ const Footer: React.FC = () => {
 
               <FlexItem style={{marginRight: '10em'}}>
                 <TextContent>
-                  <Text style = {{color: 'white', marginTop: '1.5em'}}
+                  <Text style={{color: 'white', marginTop: '1.5em'}}
                     component={TextVariants.h1}>
-                      Contribute
+                    Contribute
                   </Text>
                   <Text>
-                    <a href = "/"
-                      style = {{color: 'white', marginTop: '1.5em'}}>
+                    <a href="/"
+                      style={{color: 'white', marginTop: '1.5em'}}>
                       About
                     </a>
                   </Text>
 
                   <Text>
-                    <a href = "/"
-                      style = {{color: 'white', marginTop: '1.5em'}}>
+                    <a href="/"
+                      style={{color: 'white', marginTop: '1.5em'}}>
                       Contribute
                     </a>
                   </Text>
 
                   <Text>
-                    <a href = "/"
-                      style = {{color: 'white', marginTop: '1.5em'}}>
+                    <a href="/"
+                      style={{color: 'white', marginTop: '1.5em'}}>
                       Tekton
                     </a>
                   </Text>
@@ -113,9 +114,9 @@ const Footer: React.FC = () => {
           </CardActions>
         </CardHead>
 
-        <CardFooter style = {{marginLeft: '45%'}}>
-          <Text style = {{color: 'white'}}>
-        Copyright © 2019 Red Hat, Inc.
+        <CardFooter style={{marginLeft: '45%'}}>
+          <Text style={{color: 'white'}}>
+            Copyright © 2019 Red Hat, Inc.
           </Text>
         </CardFooter>
 

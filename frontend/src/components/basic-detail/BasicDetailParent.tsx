@@ -14,7 +14,7 @@ const Detail: React.FC = (props: any) => {
   const {taskId} = useParams();
   React.useEffect(() => {
     props.fetchTaskSuccess();
-    fetch(`${API_URL}/resource/${taskId}/versions`)
+    fetch(`${ API_URL }/resource/${ taskId }/versions`)
       .then((response) => response.json())
       .then((TaskName) => setNewversion(TaskName));
     // eslint-disable-next-line

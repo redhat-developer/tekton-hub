@@ -111,7 +111,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
     <GalleryItem>
       <Link to={'/detail/' + props.task.id}>
         <Card className="card" isHoverable
-          style={{marginBottom: '2em', borderRadius: '0.5em'}}>
+          style={{marginBottom: '1em', borderRadius: '0.5em'}}>
 
           <CardHead>
 
@@ -155,7 +155,8 @@ const Task: React.FC<TaskProp> = (props: any) => {
           <CardBody className="catalog-tile-pf-body">
             <div className="catalog-tile-pf-description">
               <span>
-                {`${props.task.description.substring(0, props.task.description.lastIndexOf('\n'))}`}
+                {`${ props.task.description.substring(0,
+                  props.task.description.lastIndexOf('\n')) }`}
               </span>
             </div>
 
@@ -175,7 +176,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
                     <Badge style={{
                       marginLeft: '0.2em',
                       marginBottom: '1em',
-                    }} key={`badge-${tag}`} className="badge">{tag}</Badge>
+                    }} key={`badge-${ tag }`} className="badge">{tag}</Badge>
                   );
                 })
               }

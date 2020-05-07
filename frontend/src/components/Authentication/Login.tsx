@@ -16,7 +16,7 @@ const Login: React.FC = () => {
   const history = useHistory();
   const onSuccess = (response) => {
     const authorizeToken = response.code.toString();
-    fetch(`${API_URL}/oauth/redirect`, {
+    fetch(`${ API_URL }/oauth/redirect`, {
       method: 'POST',
       headers: new Headers({
         'Authorization': authorizeToken,
@@ -36,8 +36,8 @@ const Login: React.FC = () => {
   };
   useEffect(() => {
     // console.log(document.getElementsByTagName('button'));
-    document.getElementsByTagName('button')[1].style.backgroundColor =
-      '#1e66cc';
+    document.getElementsByTagName('button')[1].
+      style.backgroundColor = '#1e66cc';
     document.getElementsByTagName('button')[1].style.padding = '0.3em';
     document.getElementsByTagName('button')[1].style.width = '50%';
     document.getElementsByTagName('button')[1].style.color = 'white';

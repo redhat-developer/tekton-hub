@@ -29,7 +29,7 @@ const Detail: React.FC = (props: any) => {
     yamlData = '```' + newLine + props.TaskYaml + '```';
 
     return (
-      <div>
+      <div style={{marginTop: '3em'}}>
         <Flex breakpointMods={[{modifier: 'row', breakpoint: 'lg'}, {
           modifier:
             'column', breakpoint: 'sm',

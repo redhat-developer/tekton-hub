@@ -1,5 +1,9 @@
-.filter-size{
+.filter-size {
     margin-left: 3em;
-    margin-top:-2em;
-    width: 10em;
+}
+
+.filter {
+    /* border-bottom: 0.2em solid blue; */
+    background-color: white;
+
 }

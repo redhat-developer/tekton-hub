@@ -9,15 +9,16 @@ import {
   Checkbox,
   Button,
 } from '@patternfly/react-core/dist/js/components';
-import {fetchTaskList} from '../redux/Actions/TaskDataListAction';
 import {fetchResourceList} from '../redux/Actions/ResourcesList';
 import {API_URL} from '../../constants';
+import Sort from './Sort';
 import {
   DomainIcon,
   BuildIcon,
   CatIcon,
   CertificateIcon,
   UserIcon,
+  TimesIcon,
 } from '@patternfly/react-icons';
 import store from '../redux/store';
 import {
@@ -32,36 +33,26 @@ const tempObj: any = {};
 const Filter: React.FC = (props: any) => {
   const [categoriesList, setCategoriesList] = useState();
   const [status, setStatus] = useState({checklist: []});
-  const [clear, setClear] = useState(' ');
-  const filterItem: any = [{
-    id: '1000', value: 'task',
-    isChecked: false,
-  },
-  {
-    id: '1001', value: 'pipeline',
-    isChecked: false,
-  },
-  {
-    id: '1002', value: 'Official',
-    isChecked: false,
-  },
-  {
-    id: '1003', value: 'Verified',
-    isChecked: false,
-  },
-  {
-    id: '1004', value: 'Community',
-    isChecked: false,
-  }];
+  const filterItem: any = [{id: '1000', value: 'task', isChecked: false},
+    {id: '1001', value: 'pipeline', isChecked: false},
+    {id: '1002', value: 'Official', isChecked: false},
+    {id: '1003', value: 'Verified', isChecked: false},
+    {id: '1004', value: 'Community', isChecked: false}];
   const [checkBoxStatus, setCheckBoxStatus] = useState(
     {},
   );
+
+  // hooks for handling clear button for each filter type
+  const [clear, setClear] = useState(true);
+  // ////////
+
+
   //  function for adding categories to filteritem
   const addCategory = (categoryData: any) => {
     categoryData.map((categoryName: string, index: number) =>
       filterItem.push(
         {
-          id: `${categoryName['id']}`,
+          id: `${ categoryName['id'] }`,
           value: categoryName['name'], isChecked: false,
         },
       ));
@@ -69,9 +60,9 @@ const Filter: React.FC = (props: any) => {
     return categoryData;
   };
   useEffect(() => {
-    fetchResourceList();
-    fetchTaskList();
-    fetch(`${API_URL}/categories`)
+    // fetchResourceList();
+    // fetchTaskList();
+    fetch(`${ API_URL }/categories`)
       .then((res) => res.json())
       .then((categoryData) =>
         setCategoriesList(addCategory(categoryData.data)));
@@ -84,6 +75,8 @@ const Filter: React.FC = (props: any) => {
 
     // eslint-disable-next-line
   }, []);
+
+
   // / function for showing types
   const addIcon = (idx: number) => {
     switch (idx) {
@@ -200,7 +193,7 @@ const Filter: React.FC = (props: any) => {
     }
     if (searchedtext[0] !== '') {
       let suggestions: any = [];
-      const regex = new RegExp(`${searchedtext[0]}`, 'i');
+      const regex = new RegExp(`${ searchedtext[0] }`, 'i');
       suggestions = filterArray.sort().filter((v: any) => regex.test(v.name));
       store.dispatch(
         {
@@ -234,9 +227,9 @@ const Filter: React.FC = (props: any) => {
       }
     });
     if (flag === true) {
-      setClear('Clear All');
+      setClear(false);
     } else {
-      setClear(' ');
+      setClear(true);
     }
   };
 
@@ -249,10 +242,11 @@ const Filter: React.FC = (props: any) => {
     status.checklist.forEach((it: any) => {
       it.isChecked = false;
     });
-    setClear('');
+
+    setClear(true);
     if (searchedtext[0] !== '') {
       let suggestions: any = [];
-      const regex = new RegExp(`${searchedtext[0]}`, 'i');
+      const regex = new RegExp(`${ searchedtext[0] }`, 'i');
       suggestions = props.ResourceList.sort().filter(
         (v: any) => regex.test(v.name));
       store.dispatch(
@@ -278,11 +272,14 @@ const Filter: React.FC = (props: any) => {
     }
   };
 
+
+  // ///////////
+
   let resourceType: any;
   if (status !== undefined && checkBoxStatus !== undefined) {
     const resource = status.checklist.slice(0, 2);
     resourceType = resource.map((it: any, idx: number) => (
-      <div key={`res-${idx}`} style={{marginBottom: '0.5em'}}>
+      <div key={`res-${ idx }`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
@@ -303,7 +300,7 @@ const Filter: React.FC = (props: any) => {
   if (status !== undefined && checkBoxStatus !== undefined) {
     const verifiedtask = status.checklist.slice(2, 5);
     showverifiedtask = verifiedtask.map((it: any, idx: number) => (
-      <div key={`task-${idx}`} style={{marginBottom: '0.5em'}}>
+      <div key={`task-${ idx }`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
@@ -328,7 +325,7 @@ const Filter: React.FC = (props: any) => {
         ((b.value > a.value) ? -1 : 0));
     categoryList =
       tempstatus.map((it: any, idx: number) => (
-        <div key={`cat-${idx}`} style={{marginBottom: '0.5em'}}>
+        <div key={`cat-${ idx }`} style={{marginBottom: '0.5em'}}>
           <Checkbox
             onClick={filterApi}
             isChecked={checkBoxStatus[it.value]}
@@ -346,30 +343,52 @@ const Filter: React.FC = (props: any) => {
 
   return (
     <div className="filter-size">
+      <Flex style={{marginBottom: '1em'}}>
+        <FlexItem >
+          <b>
+            Sort
+          </b>
+        </FlexItem>
 
-      <h2>
-        {' '}
-        <Button component='a' variant='link'
-          onClick={clearFilter} style={{marginBottom: '0.8em'}}>
-          {clear} </Button>
-        {'  '}
+        <FlexItem>
+          <Sort />
+        </FlexItem>
+      </Flex>
+      <Flex>
+        <FlexItem>
+          <b>Refine By :</b>
+        </FlexItem>
+        <FlexItem >
+          <Button variant='plain'
+            isBlock={true}
+            isDisabled={clear}
+            onClick={clearFilter}>
+            <TimesIcon />
+          </Button>
 
-      </h2>
-
-      <h2 style={{marginBottom: '1em'}}>
-        {' '}
-        <b>Types</b>{'  '}
-      </h2>
+        </FlexItem>
+      </Flex >
+      <Flex style={{marginBottom: '1em'}}>
+        <FlexItem>
+          <b>Types</b>
+        </FlexItem>
+      </Flex>
       {resourceType}
-      <h2 style={{marginBottom: '1em', marginTop: '1em'}}>
-        {' '}
-        <b>Support Tier </b>{'  '}
-
-      </h2>
+      <Flex style={{marginBottom: '1em', marginTop: '1em'}}>
+        <FlexItem>
+          <b>Support Tier </b>
+        </FlexItem>
+      </Flex>
       {showverifiedtask}
-      <h2 style={{marginBottom: '1em', marginTop: '1em'}}><b>Categories</b></h2>
+      <Flex style={{marginBottom: '1em', marginTop: '1em'}}>
+        <FlexItem>
+          <b>
+            Categories
+          </b>
+        </FlexItem>
+      </Flex>
       {categoryList}
-    </div>
+    </div >
   );
 };
 
