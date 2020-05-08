@@ -22,18 +22,18 @@ type ResourceDetail struct {
 	Catalog       Catalog   `json:"catalog"`
 	Type          string    `json:"type"`
 	Description   string    `json:"description"`
-	LatestVersion string    `json:"latest_version"`
+	LatestVersion string    `json:"latestVersion"`
 	Tags          []Tag     `json:"tags"`
 	Rating        float64   `json:"rating"`
-	LastUpdatedAt time.Time `json:"last_updated_at"`
+	LastUpdatedAt time.Time `json:"lastUpdatedAt"`
 }
 
 // ResourceVersionDetail abstracts necessary fields for UI
 type ResourceVersionDetail struct {
 	Version     string `json:"version"`
 	Description string `json:"description"`
-	Web_URL     string `json:"web_url"`
-	Raw_URL     string `json:"raw_url"`
+	WebURL      string `json:"webUrl"`
+	RawURL      string `json:"rawUrl"`
 }
 
 type Catalog struct {
@@ -90,7 +90,7 @@ func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 		Preload("Tags").
 		Find(&all).Error; err != nil {
 		return []ResourceDetail{}, errors.New("Failed to fetch Resources")
-	}	
+	}
 
 	ret := make([]ResourceDetail, len(all))
 	for i, r := range all {
@@ -103,10 +103,10 @@ func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 func (d *ResourceVersionDetail) Init(r *model.ResourceVersion) {
 	d.Version = r.Version
 	d.Description = r.Description
-	d.Web_URL = r.URL
+	d.WebURL = r.URL
 	replaceStrings := strings.NewReplacer("github.com", "raw.githubusercontent.com",
 		"/blob/", "/")
-	d.Raw_URL = replaceStrings.Replace(r.URL)
+	d.RawURL = replaceStrings.Replace(r.URL)
 }
 
 // AllVersions Get all versions of a Resource

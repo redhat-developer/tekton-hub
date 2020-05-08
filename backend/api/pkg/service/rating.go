@@ -21,8 +21,8 @@ type UserResource struct {
 }
 
 type UpdateRatingDetails struct {
-	UserID         uint `json:"user_id"`
-	ResourceID     uint `json:"resource_id"`
+	UserID         uint `json:"userId"`
+	ResourceID     uint `json:"resourceId"`
 	ResourceRating uint `json:"rating"`
 }
 
@@ -31,7 +31,7 @@ type RatingDetails struct {
 }
 
 type ResourceAverageRating struct {
-	Rating float64 `json:"avg_rating"`
+	Rating float64 `json:"avgRating"`
 }
 
 // GetResourceRating returns user's rating of a resource

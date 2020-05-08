@@ -39,7 +39,7 @@ type OAuthAuthorizeToken struct {
 
 // OAuthAccessToken represents Access token
 type OAuthAccessToken struct {
-	AccessToken string `json:"access_token"`
+	AccessToken string `json:"accessToken"`
 }
 
 // OAuthResponse Api reponse
@@ -162,7 +162,7 @@ func (u *User) GenerateJWT(user *model.User) (string, error) {
 	claims["authorized"] = true
 	claims["id"] = user.ID
 	claims["name"] = user.Name
-	claims["user_name"] = user.UserName
+	claims["userName"] = user.UserName
 
 	tokenString, err := token.SignedString(jwtSigningKey)
 	if err != nil {
