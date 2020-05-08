@@ -1,13 +1,16 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/db/model"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/service"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/sync"
 	"go.uber.org/zap"
 )
 
@@ -314,4 +317,24 @@ func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
+}
+
+// SyncResources will sync the database with catalog
+func (api *Api) SyncResources(w http.ResponseWriter, r *http.Request) {
+	s := sync.New(api.app, "/tmp/catalog")
+	s.Init()
+
+	catalog := model.Catalog{}
+	if err := api.app.DB().Model(&model.Catalog{}).First(&catalog).Error; err != nil {
+		invalidRequest(w, http.StatusInternalServerError, &ResponseError{Code: "internal-error", Detail: "Failed to get catalog"})
+		return
+	}
+
+	job := model.SyncJob{Catalog: catalog, Status: "queued"}
+	if err := api.app.DB().Create(&job).Error; err != nil {
+		invalidRequest(w, http.StatusInternalServerError, &ResponseError{Code: "internal-error", Detail: "Failed to create a job"})
+		return
+	}
+
+	s.Sync(context.Background())
 }

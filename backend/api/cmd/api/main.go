@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -9,9 +8,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
-	"github.com/redhat-developer/tekton-hub/backend/api/pkg/db/model"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/routes"
-	"github.com/redhat-developer/tekton-hub/backend/api/pkg/sync"
 )
 
 func main() {
@@ -24,16 +21,6 @@ func main() {
 
 	db := app.DB()
 	db.LogMode(true)
-
-	s := sync.New(app, "/tmp/catalog")
-	s.Init()
-
-	catalog := model.Catalog{}
-	db.Model(&model.Catalog{}).First(&catalog)
-
-	job := model.SyncJob{Catalog: catalog, Status: "queued"}
-	db.Create(&job)
-	s.Sync(context.Background())
 
 	//HTTP
 	router := mux.NewRouter()
