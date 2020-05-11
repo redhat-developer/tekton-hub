@@ -18,9 +18,10 @@ const Login: React.FC = () => {
     const authorizeToken = response.code.toString();
     fetch(`${API_URL}/oauth/redirect`, {
       method: 'POST',
-      headers: new Headers({
+      headers: {
+        'Content-Type': 'application/json',
         'Authorization': authorizeToken,
-      }),
+      },
     })
       .then((res) => res.json())
       .then((response) => {

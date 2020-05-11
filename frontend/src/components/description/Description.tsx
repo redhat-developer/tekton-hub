@@ -5,9 +5,9 @@ import {
   Tabs,
   Tab,
   Card,
-  CardBody,
   Grid,
   GridItem,
+  CardHead,
 } from '@patternfly/react-core';
 import './index.css';
 import ReactMarkDown from 'react-markdown';
@@ -55,43 +55,49 @@ const Description: React.FC<DescriptionProp> = (props: any) => {
   }
 
   return (
-    <Card style={{marginLeft: '9em', marginRight: '3em', width: '90em'}}>
-
-      <CardBody>
-        <Grid style={{width: '100%'}}>
-          <GridItem span={12}>
-            <Tabs activeKey={activeTabKey} isSecondary
-              onSelect={handleTabClick} style={{boxShadow: 'none'}}>
-
-              <Tab eventKey={0} title="Description"
-                style={{backgroundColor: 'white'}}>
-                <hr
-                  style={{backgroundColor: '#EDEDED', marginBottom: '1em'}}>
-                </hr>
-                <ReactMarkDown source={markDown}
-                  escapeHtml={true}
-                  renderers={{code: CodeBlockReadme}}
-                  className="readme"
-                />
-              </Tab>
-
-              <Tab eventKey={1} title="YAML"
-                style={{backgroundColor: 'white'}}>
-                <hr
-                  style={{backgroundColor: '#EDEDED', marginBottom: '1em'}}>
-                </hr>
-                <ReactMarkDown source={markDownYaml}
-                  escapeHtml={true}
-                  renderers={{code: CodeBlock}}
-                  className="yaml"
-                />
-              </Tab>
-
-            </Tabs>
-          </GridItem>
-        </Grid>
-      </CardBody>
-    </Card>
+    <Grid>
+      <GridItem span={11} className="pf-u-ml-sm-on-lg">
+        <Card style={{marginLeft: '9em', marginRight: '2em'}}>
+          <CardHead style={{paddingTop: '2em'}}>
+            <Grid style={{width: '90em'}}>
+              <GridItem span={12}>
+                <Tabs activeKey={activeTabKey} isSecondary
+                  onSelect={handleTabClick} style={{boxShadow: 'none'}}>
+                  <Tab eventKey={0} title="Description"
+                    style={{backgroundColor: 'white'}}>
+                    <hr
+                      style={{
+                        backgroundColor: '#EDEDED',
+                        marginBottom: '1em',
+                      }}>
+                    </hr>
+                    <ReactMarkDown source={markDown}
+                      escapeHtml={true}
+                      renderers={{code: CodeBlockReadme}}
+                      className="readme"
+                    />
+                  </Tab>
+                  <Tab eventKey={1} title="YAML"
+                    style={{backgroundColor: 'white'}}>
+                    <hr
+                      style={{
+                        backgroundColor: '#EDEDED',
+                        marginBottom: '1em',
+                      }}>
+                    </hr>
+                    <ReactMarkDown source={markDownYaml}
+                      escapeHtml={true}
+                      renderers={{code: CodeBlock}}
+                      className="yaml"
+                    />
+                  </Tab>
+                </Tabs>
+              </GridItem>
+            </Grid>
+          </CardHead>
+        </Card>
+      </GridItem>
+    </Grid>
   );
 };
 
