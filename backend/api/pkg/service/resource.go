@@ -105,7 +105,7 @@ func (d *ResourceVersionDetail) Init(r *model.ResourceVersion) {
 	d.Description = r.Description
 	d.WebURL = r.URL
 	replaceStrings := strings.NewReplacer("github.com", "raw.githubusercontent.com",
-		"/blob/", "/")
+		"/tree/", "/")
 	d.RawURL = replaceStrings.Replace(r.URL)
 }
 
