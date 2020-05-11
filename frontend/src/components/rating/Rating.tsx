@@ -42,11 +42,11 @@ const Rating: React.FC = (props: any) => {
 
   // Display rating for particular user
   if (count === 0) {
-    fetch(`${ API_URL }/resource/${ Number(taskId) }/rating`, {
+    fetch(`${API_URL}/resource/${Number(taskId)}/rating`, {
       method: 'GET',
       headers: new Headers({
         'Accept': 'application/json',
-        'Authorization': `Bearer ${ localStorage.getItem('token') }`,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
       }),
     }).then((res) => res.json()).then((response) => {
       setStars(Number(response.data.rating));
@@ -74,12 +74,12 @@ const Rating: React.FC = (props: any) => {
   }
   let login: any = '';
   const putData = (ratingData: any) => {
-    fetch(`${ API_URL }/resource/${ taskId }/rating`, {
+    fetch(`${API_URL}/resource/${taskId}/rating`, {
       method: 'PUT',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${ localStorage.getItem('token') }`,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
       body: JSON.stringify(ratingData),
     }).then((res) => res.json())
@@ -143,23 +143,23 @@ const Rating: React.FC = (props: any) => {
     login = <form onClick={updateRating}>
       <ul className="rate-area" >
         <input type="radio" id="5-star"
-          name="rating" value="5" defaultChecked={fivechecked} />
+          name="rating" value="5" checked={fivechecked} />
         <label htmlFor="5-star" title="Amazing">
           5 stars</label>
         <input type="radio" id="4-star"
-          name="rating" value="4" defaultChecked={fourchecked} />
+          name="rating" value="4" checked={fourchecked} />
         <label htmlFor="4-star" title="Good">
           4 stars</label>
         <input type="radio" id="3-star"
-          name="rating" value="3" defaultChecked={threechecked} />
+          name="rating" value="3" checked={threechecked} />
         <label htmlFor="3-star" title="Average">
           3 stars</label>
         <input type="radio" id="2-star" name="rating"
-          value="2" defaultChecked={twochecked} />
+          value="2" checked={twochecked} />
         <label htmlFor="2-star" title="Not Good">
           2 stars</label>
         <input type="radio" id="1-star" name="rating"
-          value="1" defaultChecked={onechecked} />
+          value="1" checked={onechecked} />
         <label htmlFor="1-star" title="Bad">
           1 star</label>
       </ul>

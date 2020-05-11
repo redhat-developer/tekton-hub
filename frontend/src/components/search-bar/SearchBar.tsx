@@ -36,7 +36,7 @@ const SearchBar: React.FC = (props: any) => {
   const onTextChanged = (e: any) => {
     const value = e;
     let suggestions: any = [];
-    const regex = new RegExp(`${ value }`, 'i');
+    const regex = new RegExp(`${value}`, 'i');
     suggestions = props.TaskDataList.sort().filter((v: any) => regex.test(v.name));
     if (value.length === 0) {
       store.dispatch({
@@ -72,7 +72,7 @@ const SearchBar: React.FC = (props: any) => {
             <div style={{width: '100%', boxShadow: 'rgba'}}>
               <TextInput aria-label="text input example" value={textValue} type="search"
                 onChange={onTextChanged} placeholder="Search for task or pipeline"
-                style={{padding: '10px 5px', height: '2.6em'}} />
+                style={{padding: '10px 5px', height: '2.7em'}} />
 
             </div>
           </InputGroup>
@@ -92,5 +92,4 @@ const mapStateToProps = (state: any) => ({
 });
 
 export default connect(mapStateToProps, {fetchTaskSuccess, fetchTaskList})(SearchBar);
-
 

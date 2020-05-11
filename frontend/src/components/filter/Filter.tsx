@@ -33,11 +33,22 @@ const tempObj: any = {};
 const Filter: React.FC = (props: any) => {
   const [categoriesList, setCategoriesList] = useState();
   const [status, setStatus] = useState({checklist: []});
-  const filterItem: any = [{id: '1000', value: 'task', isChecked: false},
-    {id: '1001', value: 'pipeline', isChecked: false},
-    {id: '1002', value: 'Official', isChecked: false},
-    {id: '1003', value: 'Verified', isChecked: false},
-    {id: '1004', value: 'Community', isChecked: false}];
+  const filterItem: any = [
+    {
+      id: '1000', value: 'task', isChecked: false,
+    },
+    {
+      id: '1001', value: 'pipeline', isChecked: false,
+    },
+    {
+      id: '1002', value: 'Official', isChecked: false,
+    },
+    {
+      id: '1003', value: 'Verified', isChecked: false,
+    },
+    {
+      id: '1004', value: 'Community', isChecked: false,
+    }];
   const [checkBoxStatus, setCheckBoxStatus] = useState(
     {},
   );
@@ -52,7 +63,7 @@ const Filter: React.FC = (props: any) => {
     categoryData.map((categoryName: string, index: number) =>
       filterItem.push(
         {
-          id: `${ categoryName['id'] }`,
+          id: `${categoryName['id']}`,
           value: categoryName['name'], isChecked: false,
         },
       ));
@@ -62,7 +73,7 @@ const Filter: React.FC = (props: any) => {
   useEffect(() => {
     // fetchResourceList();
     // fetchTaskList();
-    fetch(`${ API_URL }/categories`)
+    fetch(`${API_URL}/categories`)
       .then((res) => res.json())
       .then((categoryData) =>
         setCategoriesList(addCategory(categoryData.data)));
@@ -171,7 +182,7 @@ const Filter: React.FC = (props: any) => {
     if (resourcetypeList.length > 0) {
       resourcetypeList.forEach((resourceType: any) => {
         filterArray.forEach((resourceItem: any) => {
-          if (resourceItem.type === resourceType) {
+          if (resourceItem.type.toLowerCase() === resourceType) {
             tempv.push(resourceItem);
           }
         },
@@ -184,7 +195,8 @@ const Filter: React.FC = (props: any) => {
     if (resourceVerificationList.length > 0) {
       resourceVerificationList.forEach((resourceVerification: any) => {
         filterArray.forEach((resourceItem: any) => {
-          if (resourceItem.catalog.type === resourceVerification) {
+          if (resourceItem.catalog.type ===
+            resourceVerification.toLowerCase()) {
             tempx.push(resourceItem);
           }
         });
@@ -193,7 +205,7 @@ const Filter: React.FC = (props: any) => {
     }
     if (searchedtext[0] !== '') {
       let suggestions: any = [];
-      const regex = new RegExp(`${ searchedtext[0] }`, 'i');
+      const regex = new RegExp(`${searchedtext[0]}`, 'i');
       suggestions = filterArray.sort().filter((v: any) => regex.test(v.name));
       store.dispatch(
         {
@@ -246,7 +258,7 @@ const Filter: React.FC = (props: any) => {
     setClear(true);
     if (searchedtext[0] !== '') {
       let suggestions: any = [];
-      const regex = new RegExp(`${ searchedtext[0] }`, 'i');
+      const regex = new RegExp(`${searchedtext[0]}`, 'i');
       suggestions = props.ResourceList.sort().filter(
         (v: any) => regex.test(v.name));
       store.dispatch(
@@ -279,7 +291,7 @@ const Filter: React.FC = (props: any) => {
   if (status !== undefined && checkBoxStatus !== undefined) {
     const resource = status.checklist.slice(0, 2);
     resourceType = resource.map((it: any, idx: number) => (
-      <div key={`res-${ idx }`} style={{marginBottom: '0.5em'}}>
+      <div key={`res-${idx}`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
@@ -300,7 +312,7 @@ const Filter: React.FC = (props: any) => {
   if (status !== undefined && checkBoxStatus !== undefined) {
     const verifiedtask = status.checklist.slice(2, 5);
     showverifiedtask = verifiedtask.map((it: any, idx: number) => (
-      <div key={`task-${ idx }`} style={{marginBottom: '0.5em'}}>
+      <div key={`task-${idx}`} style={{marginBottom: '0.5em'}}>
         <Checkbox
           onClick={filterApi}
           isChecked={checkBoxStatus[it.value]}
@@ -325,7 +337,7 @@ const Filter: React.FC = (props: any) => {
         ((b.value > a.value) ? -1 : 0));
     categoryList =
       tempstatus.map((it: any, idx: number) => (
-        <div key={`cat-${ idx }`} style={{marginBottom: '0.5em'}}>
+        <div key={`cat-${idx}`} style={{marginBottom: '0.5em'}}>
           <Checkbox
             onClick={filterApi}
             isChecked={checkBoxStatus[it.value]}
@@ -343,9 +355,9 @@ const Filter: React.FC = (props: any) => {
 
   return (
     <div className="filter-size">
-      <Flex style={{marginBottom: '1em'}}>
+      <Flex style={{marginBottom: '4em'}}>
         <FlexItem >
-          <b>
+          <b style={{fontSize: '1.3em', verticalAlign: '-0.2em'}}>
             Sort
           </b>
         </FlexItem>
@@ -356,7 +368,7 @@ const Filter: React.FC = (props: any) => {
       </Flex>
       <Flex>
         <FlexItem>
-          <b>Refine By :</b>
+          <b style={{fontSize: '1.3em', color: '#484848'}}>Refine By :</b>
         </FlexItem>
         <FlexItem >
           <Button variant='plain'
@@ -368,20 +380,20 @@ const Filter: React.FC = (props: any) => {
 
         </FlexItem>
       </Flex >
-      <Flex style={{marginBottom: '1em'}}>
-        <FlexItem>
-          <b>Types</b>
+      <Flex>
+        <FlexItem style={{marginBottom: '0.3em'}}>
+          <b>Kind</b>
         </FlexItem>
       </Flex>
       {resourceType}
-      <Flex style={{marginBottom: '1em', marginTop: '1em'}}>
-        <FlexItem>
+      <Flex style={{marginTop: '1.5em'}}>
+        <FlexItem style={{marginBottom: '0.3em'}}>
           <b>Support Tier </b>
         </FlexItem>
       </Flex>
       {showverifiedtask}
-      <Flex style={{marginBottom: '1em', marginTop: '1em'}}>
-        <FlexItem>
+      <Flex style={{marginTop: '1.5em'}}>
+        <FlexItem style={{marginBottom: '0.3em'}}>
           <b>
             Categories
           </b>
@@ -399,4 +411,3 @@ const mapStateToProps = (state: any) => ({
 });
 export default connect(mapStateToProps,
   fetchResourceList)(Filter);
-

@@ -70,18 +70,18 @@ const Task: React.FC<TaskProp> = (props: any) => {
   // for verification status of resources
   let verifiedStatus: any;
   if (props.task) {
-    if (props.task.catalog.type === 'Official') {
+    if (props.task.catalog.type.toLowerCase() === 'official') {
       verifiedStatus = <div className="vtask" >
         <CatIcon size="md" color='#484848'
           style={{width: '2em', height: '2em'}} />
       </div>;
     }
-    if (props.task.catalog.type === 'Verified') {
+    if (props.task.catalog.type.toLowerCase() === 'verified') {
       verifiedStatus = <div className="vtask" >
         <CertificateIcon size="md" color='#484848' />
       </div>;
     }
-    if (props.task.catalog.type === 'Cummunity') {
+    if (props.task.catalog.type.toLowerCase() === 'community') {
       verifiedStatus = <div className="vtask" >
         <UserIcon size="md" color='#484848' />
       </div>;
@@ -91,7 +91,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
   // }
   // for adding icon to task and pipeline
   let resourceIcon: React.ReactNode;
-  if (props.task.type === 'task') {
+  if (props.task.type.toLowerCase() === 'task') {
     resourceIcon = <BuildIcon
       style={{
         width: '2em', height: '2em',
@@ -155,8 +155,8 @@ const Task: React.FC<TaskProp> = (props: any) => {
           <CardBody className="catalog-tile-pf-body">
             <div className="catalog-tile-pf-description">
               <span>
-                {`${ props.task.description.substring(0,
-                  props.task.description.lastIndexOf('\n')) }`}
+                {`${props.task.description.substring(0,
+                  props.task.description.indexOf('\n'))}`}
               </span>
             </div>
 
@@ -176,7 +176,7 @@ const Task: React.FC<TaskProp> = (props: any) => {
                     <Badge style={{
                       marginLeft: '0.2em',
                       marginBottom: '1em',
-                    }} key={`badge-${ tag }`} className="badge">{tag}</Badge>
+                    }} key={`badge-${tag}`} className="badge">{tag}</Badge>
                   );
                 })
               }

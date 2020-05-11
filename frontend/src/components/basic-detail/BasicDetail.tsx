@@ -66,7 +66,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [summary, setSummary] = useState(props.task.description.substring(0,
-    props.task.description.lastIndexOf('\n')));
+    props.task.description.indexOf('\n')));
 
   const [descrption, setDescription] =
     useState(
@@ -77,44 +77,52 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
     useState(props.task.latestVersion + ' (latest) ');
 
   const [taskLink, setTaskLink] =
-    useState(`kubectl apply -f ${ props.version.rawUrl }`);
+    useState(`kubectl apply -f ${props.version.rawUrl}`);
 
-  const [href, setHref] = useState(`${ props.version.webUrl.substring(0,
-    props.version.webUrl.lastIndexOf('/') + 1) }`);
+  const [href, setHref] = useState(`${props.version.webUrl.substring(0,
+    props.version.webUrl.lastIndexOf('/') + 1)}`);
 
   // Dropdown menu to show versions
   const [isOpen, set] = useState(false);
-  let dropdownItems: any = [];
+  const dropdownItems: any = [];
 
   if (props.task.data) {
     fetchTaskDescription(props.version.rawUrl);
-    dropdownItems = props.task.data.reverse().map((item: any, index: any) => {
-      return <DropdownItem
-        key={`res-${item.version}`} id={item.version}
-        onClick={version} >
-        {item.version}
-      </DropdownItem>;
+    const tempTaskData = props.task.data.reverse();
+    tempTaskData.forEach((item: any, index: any) => {
+      if (props.task.latestVersion === item.version) {
+        dropdownItems.push(<DropdownItem
+          key={`res-${item.version}`} name={item.version}
+          onClick={version} >
+          {item.version + ' (latest) '}
+        </DropdownItem>);
+      } else {
+        dropdownItems.push(<DropdownItem
+          key={`res-${item.version}`} name={item.version}
+          onClick={version} >
+          {item.version}
+        </DropdownItem>);
+      }
     });
   }
 
   // Version for resource
   function version(event: any) {
     props.task.data.forEach((item: any) => {
-      if (event.target.text === props.task.latestVersion) {
-        setVersion(props.task.latestVersion + ' (latest) ');
-      } else {
-        setVersion(event.target.text);
-      }
-      if (event.target.text === item.version) {
+      // if (event.target.id === props.task.latestVersion) {
+      //   setVersion(props.task.latestVersion + ' (latest) ');
+      // } else {
+      setVersion(event.target.text);
+      if (event.target.name === item.version) {
         props.fetchTaskDescription(item.rawUrl);
 
-        setHref(`${ item.webUrl.substring(0,
-          item.webUrl.lastIndexOf('/') + 1) }`);
+        setHref(`${item.webUrl.substring(0,
+          item.webUrl.lastIndexOf('/') + 1)}`);
 
         setTaskLink(`kubectl apply -f ${item.rawUrl}`);
 
         setSummary(item.description.substring(0,
-          item.description.lastIndexOf('\n')));
+          item.description.indexOf('\n')));
 
         setDescription(
           item.description.substring(item.description.indexOf('\n') + 1).trim(),
@@ -137,7 +145,7 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
 
   // ading icon for details page
   let resourceIcon: React.ReactNode;
-  if (props.task.type === 'task') {
+  if (props.task.type.toLowerCase() === 'task') {
     resourceIcon = <BuildIcon
       style={{height: '5em', width: '5em'}} color="#484848" />;
   } else {
@@ -148,19 +156,19 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
   // for verification status of resources
   let verifiedStatus: any;
   if (props.task) {
-    if (props.task.catalog.type === 'Official') {
+    if (props.task.catalog.type.toLowerCase() === 'official') {
       verifiedStatus = <div className="vtask" >
         <CatIcon size="md" color='#484848'
           style={{width: '2em', height: '1.7em'}} />
       </div>;
     }
-    if (props.task.catalog.type === 'Verified') {
+    if (props.task.catalog.type.toLowerCase() === 'verified') {
       verifiedStatus = <div className="vtask" >
         <CertificateIcon size="md" color='#484848'
           style={{width: '2em', height: '1.7em'}} />
       </div>;
     }
-    if (props.task.catalog.type === 'Cummunity') {
+    if (props.task.catalog.type.toLowerCase() === 'community') {
       verifiedStatus = <div className="vtask" >
         <UserIcon size="md" color='#484848'
           style={{width: '2em', height: '1.7em'}} />
@@ -324,5 +332,4 @@ const mapStateToProps = (state: any) => {
 
 export default connect(mapStateToProps,
   {fetchTaskDescription})(BasicDetail);
-
 
