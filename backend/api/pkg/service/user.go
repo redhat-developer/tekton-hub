@@ -39,7 +39,7 @@ type OAuthAuthorizeToken struct {
 
 // OAuthAccessToken represents Access token
 type OAuthAccessToken struct {
-	AccessToken string `json:"accessToken"`
+	AccessToken string `json:"access_token"`
 }
 
 // OAuthResponse Api reponse
@@ -111,6 +111,7 @@ func (u *User) GetGitHubAccessToken(authToken OAuthAuthorizeToken) (string, erro
 		fmt.Fprintf(os.Stdout, "could not parse JSON response: %v", err)
 	}
 	if oat.AccessToken == "" {
+		u.log.Info("Failed to get user's access token.")
 		return "", errors.New("Failed to get Access Token")
 	}
 	u.log.Info("User's Access Token - ", oat.AccessToken)
