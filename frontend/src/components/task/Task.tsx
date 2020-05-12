@@ -40,6 +40,7 @@ export interface TaskPropObject {
   tags: [];
   lastUpdatedAt: string;
   latestVersion: string;
+  displayName: string
 }
 
 export interface TaskProp {
@@ -107,6 +108,17 @@ const Task: React.FC<TaskProp> = (props: any) => {
     />;
   };
 
+
+  // Display name
+  let displayName = '';
+  if (props.task.displayName === '') {
+    displayName = props.task.name;
+  } else {
+    displayName = props.task.displayName.replace(/(^\w|\s+\w){1}/g, ((str) => {
+      return str.toUpperCase();
+    }));
+  }
+
   return (
     <GalleryItem>
       <Link to={'/detail/' + props.task.id}>
@@ -141,7 +153,9 @@ const Task: React.FC<TaskProp> = (props: any) => {
             <Flex>
               <FlexItem>
                 <span className="task-heading">
-                  {props.task.name[0].toUpperCase() + props.task.name.slice(1)}</span>
+                  {displayName}
+                  {/* {props.task.name[0].toUpperCase() + props.task.name.slice(1)} */}
+                </span>
               </FlexItem>
               <FlexItem
                 breakpointMods={[{modifier: FlexModifiers['align-right']}]}

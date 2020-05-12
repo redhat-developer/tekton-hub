@@ -81,14 +81,12 @@ const App: React.FC<mainProps> = () => {
     //   {' '}
     // </Link>;
 
-    userimage = <Link to="/user-profile">
-      <Avatar
-        style={{
-          width: '1.5em',
-          height: '1.5em',
-        }}
-        src={imgAvatar} alt="" />
-    </Link>;
+    userimage = <Avatar
+      style={{
+        width: '1.5em',
+        height: '1.5em',
+      }}
+      src={imgAvatar} alt="" />;
   }
 
   // code for header contents
@@ -153,37 +151,9 @@ const App: React.FC<mainProps> = () => {
 
             </GridItem>
 
-
           </Grid>
 
         </PageSection>
-        {/* <Route exact path="/" component={BackgroundImageHeader} />
-        <PageSection>
-          <GridItem span={1}>
-
-          </GridItem>
-          <GridItem span={9}>
-            <Route exact path="/" component={SearchBar} />
-            <Route exact path="/detail/:taskId" component={BasicDetailParent} />
-          </GridItem>
-        </PageSection>
-        <PageSection>
-          <Grid sm={6} md={4} lg={4} xl2={1} >
-            <GridItem span={1} >
-              <Route exact path="/" component={Filter} />
-            </GridItem>
-            <GridItem span={9} style={{marginLeft: '2em'}} >
-              <Route exact path="/user-profile" component={UserProfile} />
-              <Route exact path="/upload" component={UploadTask} />
-              <Route exact path="/" component={TaskContainer} />
-            </GridItem>
-          </Grid>
-          <Route exact path="/detail/:taskId" component={Detail} />
-        </PageSection>
-        <PageSection>
-          <Route path='/login' component={Login} />
-          <Route path='/logout' component={Login} />
-        </PageSection> */}
 
         <PageSection>
           <Route path='/login' component={Login} />

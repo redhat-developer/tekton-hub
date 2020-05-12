@@ -357,7 +357,10 @@ const Filter: React.FC = (props: any) => {
     <div className="filter-size">
       <Flex style={{marginBottom: '4em'}}>
         <FlexItem >
-          <b style={{fontSize: '1.3em', verticalAlign: '-0.2em'}}>
+          <b style={{
+            fontSize: '1.1em', verticalAlign: '-0.2em',
+            color: '#484848',
+          }}>
             Sort
           </b>
         </FlexItem>
@@ -368,7 +371,7 @@ const Filter: React.FC = (props: any) => {
       </Flex>
       <Flex>
         <FlexItem>
-          <b style={{fontSize: '1.3em', color: '#484848'}}>Refine By :</b>
+          <b style={{fontSize: '1.1em', color: '#484848'}}>Refine By :</b>
         </FlexItem>
         <FlexItem >
           <Button variant='plain'

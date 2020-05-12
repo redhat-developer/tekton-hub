@@ -14,6 +14,7 @@ export interface TaskPropData {
   latestVersion;
   catalog: [],
   type: string,
+  displayName: string
 }
 const Sort: React.FC = (props: any) => {
   const [sort, setSort] = useState('Name');
@@ -30,6 +31,7 @@ const Sort: React.FC = (props: any) => {
         type: task.type,
         lastUpdatedAt: task.lastUpdatedAt,
         latestVersion: task.latestVersion,
+        displayName: task.displayName,
       };
       return taskData;
     });
@@ -37,7 +39,7 @@ const Sort: React.FC = (props: any) => {
   function sortByName(event: any) {
     setSort(event.target.text);
     const taskarr = tempArr.sort((first: any, second: any) => {
-      if (first.name > second.name) {
+      if (first.name.toLowerCase() > second.name.toLowerCase()) {
         return 1;
       } else {
         return -1;

@@ -38,16 +38,18 @@ export interface BasicDetailPropObject {
   description: string;
   rating: number;
   latestVersion: string,
-  tags: []
-  type: string
-  data: []
+  tags: [],
+  type: string,
+  data: [],
+  displayName: string
 }
 
 export interface Version {
   version: string,
   description: string,
-  rawUrl: string
-  webUrl: string
+  rawUrl: string,
+  webUrl: string,
+  displayName: string
 }
 
 export interface BasicDetailProp {
@@ -82,6 +84,16 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
   const [href, setHref] = useState(`${props.version.webUrl.substring(0,
     props.version.webUrl.lastIndexOf('/') + 1)}`);
 
+  // Display Name
+  let displayName = '';
+  if (props.task.displayName === '') {
+    displayName = props.task.name;
+  } else {
+    displayName = props.task.displayName.replace(/(^\w|\s+\w){1}/g, ((str) => {
+      return str.toUpperCase();
+    })) + ' (' + (props.task.name) + ')';
+  }
+
   // Dropdown menu to show versions
   const [isOpen, set] = useState(false);
   const dropdownItems: any = [];
@@ -115,6 +127,14 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
       setVersion(event.target.text);
       if (event.target.name === item.version) {
         props.fetchTaskDescription(item.rawUrl);
+
+        if (props.task.displayName === '') {
+          displayName = item.name;
+        } else {
+          displayName = item.displayName.replace(/(^\w|\s+\w){1}/g, ((str) => {
+            return str.toUpperCase();
+          }));
+        }
 
         setHref(`${item.webUrl.substring(0,
           item.webUrl.lastIndexOf('/') + 1)}`);
@@ -194,8 +214,9 @@ const BasicDetail: React.FC<BasicDetailProp> = (props: any) => {
 
               <FlexItem>
                 <Text style={{fontSize: '2em'}}>
-                  {props.task.name.charAt(0).toUpperCase() +
-                    props.task.name.slice(1)}
+                  {/* {props.task.name.charAt(0).toUpperCase() +
+                    props.task.name.slice(1)} */}
+                  {displayName}
                 </Text>
               </FlexItem>
 
