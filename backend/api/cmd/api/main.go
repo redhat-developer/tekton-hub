@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/routes"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/sync"
 )
 
 func main() {
@@ -22,9 +23,22 @@ func main() {
 	db := app.DB()
 	db.LogMode(true)
 
+	s := sync.New(app)
+	s.Init()
+
+	// TODO(sthaha): start syncing all catalogs on startup
+	//go func() {
+	//catalog := model.Catalog{}
+	//db.Model(&model.Catalog{}).First(&catalog)
+
+	//job := model.SyncJob{Catalog: catalog, Status: "queued"}
+	//db.Create(&job)
+	//s.Sync(context.Background())
+	//}()
+
 	//HTTP
 	router := mux.NewRouter()
-	routes.Register(router, app)
+	routes.Register(router, app, s)
 
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),

@@ -12,21 +12,21 @@ import (
 	"go.uber.org/zap"
 )
 
-type SyncService struct {
+type Service struct {
 	app       app.Config
 	log       *zap.SugaredLogger
 	clonePath string
 }
 
-func New(app app.Config, clonePath string) *SyncService {
-	return &SyncService{
+func New(app app.Config) *Service {
+	return &Service{
 		app:       app,
 		log:       app.Logger().With("service", "sync"),
-		clonePath: clonePath,
+		clonePath: app.CacheDir(),
 	}
 }
 
-func (s *SyncService) Init() error {
+func (s *Service) Init() error {
 	log := s.log.With("action", "init")
 	db := s.app.DB().Unscoped()
 
@@ -41,7 +41,7 @@ func (s *SyncService) Init() error {
 	return nil
 }
 
-func (s *SyncService) Sync(context context.Context) error {
+func (s *Service) Sync(context context.Context) error {
 	log := s.log.With("action", "sync")
 	db := s.app.DB()
 
@@ -109,7 +109,7 @@ func (s *SyncService) Sync(context context.Context) error {
 
 }
 
-func (s *SyncService) updateResources(job model.SyncJob, repo git.Repo, res []gitclient.TektonResource) error {
+func (s *Service) updateResources(job model.SyncJob, repo git.Repo, res []gitclient.TektonResource) error {
 	log := s.log.With("action", "updatedb")
 
 	txn := s.app.DB().Begin()

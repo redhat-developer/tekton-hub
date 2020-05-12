@@ -4,11 +4,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/api"
 	"github.com/redhat-developer/tekton-hub/backend/api/pkg/app"
+	"github.com/redhat-developer/tekton-hub/backend/api/pkg/sync"
 )
 
 // Register registers all routes with router
-func Register(r *mux.Router, conf app.Config) {
-	api := api.New(conf)
+func Register(r *mux.Router, conf app.Config, sync *sync.Service) {
+	api := api.New(conf, sync)
 
 	r.HandleFunc("/resources", api.GetAllResources).Methods("GET")                          //
 	r.HandleFunc("/resource/{resourceID}/versions", api.GetResourceVersions).Methods("GET") //

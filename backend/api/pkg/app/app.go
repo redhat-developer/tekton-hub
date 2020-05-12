@@ -29,6 +29,7 @@ type Config interface {
 	Base
 	GitHub() *GitHub
 	Addr() string
+	CacheDir() string
 }
 
 type EnvMode string
@@ -99,7 +100,8 @@ func (bc *BaseConfig) Cleanup() {
 
 type ApiConfig struct {
 	*BaseConfig
-	gh *GitHub
+	gh       *GitHub
+	cacheDir string
 }
 
 var _ Config = (*ApiConfig)(nil)
@@ -110,6 +112,10 @@ func (e *ApiConfig) GitHub() *GitHub {
 
 func (e *ApiConfig) Addr() string {
 	return ":5000"
+}
+
+func (e *ApiConfig) CacheDir() string {
+	return e.cacheDir
 }
 
 func BaseConfigFromEnv() (*BaseConfig, error) {
@@ -151,13 +157,17 @@ func FromEnv() (*ApiConfig, error) {
 		return nil, err
 	}
 
-	ApiConfig := &ApiConfig{BaseConfig: bc}
+	cfg := &ApiConfig{BaseConfig: bc}
 
-	if ApiConfig.gh, err = initGithub(); err != nil {
+	if cfg.cacheDir, err = env("CACHE_DIR"); err != nil {
 		return nil, err
 	}
 
-	return ApiConfig, nil
+	if cfg.gh, err = initGithub(); err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
 }
 
 func env(key string) (string, error) {
