@@ -19,6 +19,7 @@ type Resource struct {
 type ResourceDetail struct {
 	ID            uint      `json:"id"`
 	Name          string    `json:"name"`
+	DisplayName   string    `json:"displayName"`
 	Catalog       Catalog   `json:"catalog"`
 	Type          string    `json:"type"`
 	Description   string    `json:"description"`
@@ -31,6 +32,7 @@ type ResourceDetail struct {
 // ResourceVersionDetail abstracts necessary fields for UI
 type ResourceVersionDetail struct {
 	Version     string `json:"version"`
+	DisplayName string `json:"displayName"`
 	Description string `json:"description"`
 	WebURL      string `json:"webUrl"`
 	RawURL      string `json:"rawUrl"`
@@ -73,6 +75,7 @@ func (d *ResourceDetail) Init(r *model.Resource) {
 
 	// TODO: Sort the Version's array on basis of Version or Updated_At
 	latestVersion := r.Versions[len(r.Versions)-1]
+	d.DisplayName = latestVersion.DisplayName
 	d.LatestVersion = latestVersion.Version
 	d.Description = latestVersion.Description
 	d.LastUpdatedAt = latestVersion.UpdatedAt
@@ -103,6 +106,7 @@ func (r *Resource) All(filter Filter) ([]ResourceDetail, error) {
 func (d *ResourceVersionDetail) Init(r *model.ResourceVersion) {
 	d.Version = r.Version
 	d.Description = r.Description
+	d.DisplayName = r.DisplayName
 	d.WebURL = r.URL
 	replaceStrings := strings.NewReplacer("github.com", "raw.githubusercontent.com",
 		"/tree/", "/")

@@ -47,6 +47,7 @@ type (
 
 	TekonResourceVersion struct {
 		Version     string
+		DisplayName string
 		Path        string
 		Description string
 		Tags        []string
@@ -171,6 +172,12 @@ func (r Repo) parseResourceVersion(filePath string, kind string) (*TekonResource
 		return nil, fmt.Errorf("resource has no version info %s/%s", res.GroupVersionKind(), res.GetName())
 	}
 
+	displayName, ok := annotations["displayName"]
+	if !ok {
+		log.With("action", "ignore").Infof(
+			"Resource %s name: %s has no display name", res.GroupVersionKind(), res.GetName())
+	}
+
 	tags := annotations["tags"]
 
 	// first line
@@ -185,6 +192,7 @@ func (r Repo) parseResourceVersion(filePath string, kind string) (*TekonResource
 
 	ret := &TekonResourceVersion{
 		Version:     version,
+		DisplayName: displayName,
 		Tags:        strings.Split(tags, ","),
 		Description: description,
 		Path:        relPath,

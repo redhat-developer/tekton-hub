@@ -471,6 +471,7 @@ github.com/rcrowley/go-metrics v0.0.0-20190706150252-9beb055b7962/go.mod h1:bCqn
 github.com/redhat-developer/tekton-hub v0.0.0-20200210122526-40505b8a85f6 h1:kwsgG/rtC4Ds8hBlDYuL8zAZZFkKHojRU1O7beR2Kcc=
 github.com/redhat-developer/tekton-hub v0.0.0-20200323063101-58bbdd6b2931 h1:T/WJWLwkZrxb5VxKuQgXDgQa287CnE4y4ClHIxKE0us=
 github.com/redhat-developer/tekton-hub v0.0.0-20200401103552-2d99bc0036e6 h1:0bFMKAuXfpXzUizvTbbYUQmkid0EZ+cVxTOvpAwXkfk=
+github.com/redhat-developer/tekton-hub v0.0.0-20200511080052-0f6e4d4f62f3 h1:FppS47EX3W0WrcmxEMZ5ireBkVKSOymTO6mbcn6YsXI=
 github.com/remyoudompheng/bigfft v0.0.0-20170806203942-52369c62f446/go.mod h1:uYEyJGbgTkfkS4+E/PavXkNJcbFIpEtjt2B0KDQ5+9M=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=

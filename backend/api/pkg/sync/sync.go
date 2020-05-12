@@ -149,6 +149,7 @@ func (s *Service) updateResources(job model.SyncJob, repo git.Repo, res []gitcli
 
 			txn.Model(&model.ResourceVersion{}).Where(&model.ResourceVersion{ResourceID: dbRes.ID, Version: v.Version}).FirstOrCreate(&ver)
 
+			ver.DisplayName = v.DisplayName
 			ver.Description = v.Description
 			// TODO(sthaha): use gh client to get the path?
 			// this heuristic works fine so far
