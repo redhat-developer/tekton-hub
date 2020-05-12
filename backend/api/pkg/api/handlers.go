@@ -25,15 +25,13 @@ type Api struct {
 	app     app.Config
 	Log     *zap.SugaredLogger
 	service service.Service
-	sync    *sync.Service
 }
 
-func New(app app.Config, sync *sync.Service) *Api {
+func New(app app.Config) *Api {
 	return &Api{
 		app:     app,
 		Log:     app.Logger().With("name", "api"),
 		service: service.New(app),
-		sync:    sync,
 	}
 }
 
@@ -323,7 +321,8 @@ func (api *Api) GithubAuth(w http.ResponseWriter, r *http.Request) {
 
 // SyncResources will sync the database with catalog
 func (api *Api) SyncResources(w http.ResponseWriter, r *http.Request) {
-	s := api.sync
+	s := sync.New(api.app, "/tmp/catalog")
+	s.Init()
 
 	catalog := model.Catalog{}
 	if err := api.app.DB().Model(&model.Catalog{}).First(&catalog).Error; err != nil {
