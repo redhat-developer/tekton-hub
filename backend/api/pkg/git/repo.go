@@ -165,13 +165,14 @@ func (r Repo) parseResourceVersion(filePath string, kind string) (*TekonResource
 		return nil, errors.New("invalid resource " + apiVersion)
 	}
 
-	annotations := res.GetAnnotations()
-	version, ok := annotations["version"]
+	labels := res.GetLabels()
+	version, ok := labels["app.kubernetes.io/version"]
 	if !ok {
 		log.Infof("Resource %s name: %s has no version information", res.GroupVersionKind(), res.GetName())
 		return nil, fmt.Errorf("resource has no version info %s/%s", res.GroupVersionKind(), res.GetName())
 	}
 
+	annotations := res.GetAnnotations()
 	displayName, ok := annotations["displayName"]
 	if !ok {
 		log.With("action", "ignore").Infof(
